@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { ChangeEvent, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
