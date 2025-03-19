@@ -1,9 +1,9 @@
 import React from "react";
 import Sidebar from "../../components/sidebar";
-import Users from "../user/_components/users";
-import Card from "../user/_components/card";
+import Users from "./_components/users";
+import Card from "./_components/card";
 
-export default function Page() {
+export default function User() {
   return (
     <div className="flex">
       <Sidebar />
