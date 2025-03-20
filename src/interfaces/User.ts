@@ -12,6 +12,11 @@ export interface User {
   contact_number: string;
   email: string;
   address: string;
+  sex: boolean
+  suffix: string
+  birth_date: string
+  date_joined: string
+
 }
 
 interface Department {

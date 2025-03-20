@@ -3,15 +3,15 @@ export interface RegisterEmployee {
   middle_name: string;
   last_name: string;
   suffix: string;
-  sex: string;
-  date_of_birth: string;
-  department: string,
-  role: string
-  phone: string;
+  birth_date: string;
+  sex: boolean;
   address: string;
   email: string;
-  organization_name: string;
-  organization_address: string;
+  contact_number: string;
+  department: string,
+  role: string
   username: string;
   password: string;
+  password2: string;
+  
 }

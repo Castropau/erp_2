@@ -7,7 +7,7 @@ export default function Middleware(req: NextRequest) {
 
     // login user auth
     if(LoggedIn && pathname === '/') {
-      return NextResponse.redirect(new URL('/dashboard', req.url));
+      return NextResponse.redirect(new URL('/erp-v2/dashboard', req.url));
     }
 
     // if not logged in 

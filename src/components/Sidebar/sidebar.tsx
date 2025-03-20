@@ -1,16 +1,30 @@
 "use client";
 import React, { useState } from "react";
-
 import { MdDashboard } from "react-icons/md";
-// import { FaChevronDown } from "react-icons/fa";
-import { IoIosArrowDown } from "react-icons/io";
+import { IoIosArrowDown, IoMdCard, IoMdCart } from "react-icons/io";
+import { FaMoneyBillAlt, FaRegUserCircle } from "react-icons/fa";
+// import { IoMdCard } from "react-icons/io";
+import { HiOutlineCalculator, HiDocumentCurrencyDollar } from "react-icons/hi2";
+import { BsPersonFillGear, BsPersonVcard } from "react-icons/bs";
+import { MdReceiptLong, MdOutlineInventory } from "react-icons/md";
+import { PiHandWithdraw } from "react-icons/pi";
+import { HiClipboardDocumentList } from "react-icons/hi2";
+
+import { FaStore } from "react-icons/fa6";
 
 function Sidebar() {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isRequisitionDropdownOpen, setIsRequisitionDropdownOpen] =
+    useState(false);
+  const [isQuotationDropdownOpen, setIsQuotationDropdownOpen] = useState(false);
 
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
+  const toggleRequisitionDropdown = () => {
+    setIsRequisitionDropdownOpen(!isRequisitionDropdownOpen);
   };
+
+  const toggleQuotationDropdown = () => {
+    setIsQuotationDropdownOpen(!isQuotationDropdownOpen);
+  };
+
   return (
     <>
       <aside
@@ -19,40 +33,43 @@ function Sidebar() {
         aria-label="Sidebar"
       >
         <div className="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
-          <ul className="space-y-2 font-medium">
+          <ul className="text-xs">
             <li>
               <a
                 href="#"
                 className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
-                <MdDashboard className="w-6 h-6" />
-
+                <MdDashboard className="w-6 h-6 text-xs" />
                 <span className="ms-3">Dashboard</span>
               </a>
             </li>
-            <div className="text-xs font-extrabold  text-neutral-400 tracking-wider whitespace-nowrap ml-3 py-3 MuiBox-root css-0">
+            <div className="text-xs font-extrabold text-neutral-400 tracking-wider whitespace-nowrap ml-3 py-3 MuiBox-root css-0">
               Accounting
             </div>
+
+            {/* Requisition Dropdown */}
             <li>
               <a
                 href="#"
                 className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-                onClick={toggleDropdown}
+                onClick={toggleRequisitionDropdown}
               >
-                <MdDashboard className="w-6 h-6" />
-                <span className="flex-1 ms-3 whitespace-nowrap">Kanban</span>
-                <span className=" items-center justify-center w-3 h-3 p-3 ms-3 text-sm font-medium">
+                <IoMdCard className="w-6 h-6 text-xs" />
+                <span className="flex-1 ms-3 whitespace-nowrap">
+                  Requisition
+                </span>
+                <span className="items-center justify-center w-3 h-3 p-3 ms-3 text-sm font-medium">
                   <IoIosArrowDown />
                 </span>
               </a>
-              {isDropdownOpen && (
+              {isRequisitionDropdownOpen && (
                 <ul className="pl-8 mt-2 space-y-2">
                   <li>
                     <a
                       href="#"
                       className="block p-2 text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600"
                     >
-                      Sub-item 1
+                      Cash Request
                     </a>
                   </li>
                   <li>
@@ -60,63 +77,188 @@ function Sidebar() {
                       href="#"
                       className="block p-2 text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600"
                     >
-                      Sub-item 2
+                      Cheque Request
                     </a>
                   </li>
                 </ul>
               )}
             </li>
+
             <li>
               <a
                 href="#"
                 className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
-                <MdDashboard className="w-6 h-6" />
+                <HiOutlineCalculator className="w-6 h-6 text-xs" />
+                <span className="flex-1 ms-3 whitespace-nowrap">
+                  Liquidation
+                </span>
+              </a>
+            </li>
 
-                <span className="flex-1 ms-3 whitespace-nowrap">Inbox</span>
-                {/* <span className="inline-flex items-center justify-center w-3 h-3 p-3 ms-3 text-sm font-medium text-blue-800 bg-blue-100 rounded-full dark:bg-blue-900 dark:text-blue-300">
-                  3
-                </span> */}
+            <div className="text-xs font-extrabold text-neutral-400 tracking-wider whitespace-nowrap ml-3 py-3 MuiBox-root css-0">
+              Account Management
+            </div>
+
+            {/* Quotation Dropdown */}
+            <li>
+              <a
+                href="#"
+                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                onClick={toggleQuotationDropdown}
+              >
+                <HiDocumentCurrencyDollar className="w-6 h-6 text-xs" />
+                <span className="flex-1 ms-3 whitespace-nowrap">Quotation</span>
+                <span className="items-center justify-center w-3 h-3 p-3 ms-3 text-sm font-medium">
+                  <IoIosArrowDown />
+                </span>
+              </a>
+              {isQuotationDropdownOpen && (
+                <ul className="pl-8 mt-2 space-y-2">
+                  <li>
+                    <a
+                      href="#"
+                      className="block p-2 text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600"
+                    >
+                      Quotation
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="#"
+                      className="block p-2 text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600"
+                    >
+                      BOM Quotation
+                    </a>
+                  </li>
+                </ul>
+              )}
+            </li>
+
+            <li>
+              <a
+                href="/erp-v2/vendors"
+                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+              >
+                <FaStore className="w-6 h-6 text-xs" />
+                <span className="flex-1 ms-3 whitespace-nowrap">Vendors</span>
               </a>
             </li>
             <li>
               <a
+                href="/erp-v2/clients"
+                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+              >
+                <BsPersonVcard className="w-6 h-6 text-xs" />
+                <span className="flex-1 ms-3 whitespace-nowrap">Clients</span>
+              </a>
+            </li>
+
+            <li>
+              <a
+                href="/erp-v2/delivery-receipt"
+                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+              >
+                <MdReceiptLong className="w-6 h-6 text-xs" />
+                <span className="flex-1 ms-3 whitespace-nowrap">
+                  Delivery Receipt
+                </span>
+              </a>
+            </li>
+
+            <div className="text-xs font-extrabold text-neutral-400 tracking-wider whitespace-nowrap ml-3 py-3 MuiBox-root css-0">
+              Account Management
+            </div>
+
+            <li>
+              <a
+                href="/erp-v2/purchase-order"
+                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+              >
+                <IoMdCart className="w-6 h-6 text-xs" />
+                <span className="flex-1 ms-3 whitespace-nowrap">
+                  Purchase Order
+                </span>
+              </a>
+            </li>
+
+            <div className="text-xs font-extrabold text-neutral-400 tracking-wider whitespace-nowrap ml-3 py-3 MuiBox-root css-0">
+              Account Management
+            </div>
+
+            <li>
+              <a
+                href="/erp-v2/inventory"
+                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+              >
+                <MdOutlineInventory className="w-6 h-6 text-xs" />
+                <span className="flex-1 ms-3 whitespace-nowrap">Inventory</span>
+              </a>
+            </li>
+
+            <li>
+              <a
+                href="/erp-v2/withdraw_materials"
+                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+              >
+                <PiHandWithdraw className="w-6 h-6 text-xs" />
+                <span className="flex-1 ms-3 whitespace-nowrap">
+                  Withdraw Materials
+                </span>
+              </a>
+            </li>
+
+            <li>
+              <a
+                href="/erp-v2/product_master_list"
+                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+              >
+                <HiClipboardDocumentList className="w-6 h-6 text-xs" />
+                <span className="flex-1 ms-3 whitespace-nowrap">
+                  Product Master List
+                </span>
+              </a>
+            </li>
+
+            <div className="text-xs font-extrabold text-neutral-400 tracking-wider whitespace-nowrap ml-3 py-3 MuiBox-root css-0">
+              Account Management
+            </div>
+
+            <li>
+              <a
+                href="/erp-v2/bill_of_materials"
+                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+              >
+                <FaMoneyBillAlt className="w-6 h-6 text-xs" />
+                <span className="flex-1 ms-3 whitespace-nowrap">
+                  Bill of Materials
+                </span>
+              </a>
+            </li>
+
+            <li>
+              <a
+                href="/erp-v2/labor_of_computation"
+                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+              >
+                <BsPersonFillGear className="w-6 h-6 text-xs" />
+                <span className="flex-1 ms-3 whitespace-nowrap">
+                  Labor of Computation
+                </span>
+              </a>
+            </li>
+
+            <div className="text-xs font-extrabold text-neutral-400 tracking-wider whitespace-nowrap ml-3 py-3 MuiBox-root css-0">
+              Account Management
+            </div>
+
+            <li>
+              <a
                 href="#"
                 className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
-                <MdDashboard className="w-6 h-6" />
-
+                <FaRegUserCircle className="w-6 h-6 text-xs" />
                 <span className="flex-1 ms-3 whitespace-nowrap">Users</span>
-              </a>
-            </li>
-            <li>
-              <a
-                href="#"
-                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <MdDashboard className="w-6 h-6" />
-
-                <span className="flex-1 ms-3 whitespace-nowrap">Products</span>
-              </a>
-            </li>
-            <li>
-              <a
-                href="#"
-                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <MdDashboard className="w-6 h-6" />
-
-                <span className="flex-1 ms-3 whitespace-nowrap">Sign In</span>
-              </a>
-            </li>
-            <li>
-              <a
-                href="#"
-                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <MdDashboard className="w-6 h-6" />
-
-                <span className="flex-1 ms-3 whitespace-nowrap">Sign Up</span>
               </a>
             </li>
           </ul>

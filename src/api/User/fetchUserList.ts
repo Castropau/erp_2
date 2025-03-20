@@ -22,3 +22,4 @@ export async function fetchUserList(): Promise<User[]> {
   }
   return response.json();
 }
+
