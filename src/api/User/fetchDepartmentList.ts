@@ -1,18 +1,14 @@
 /** server actions */
 import { getCookies } from "@/server/getToken";
 
-interface User {
+export interface DepartmentsList {
   id: number; // id as an integer
-  full_name: string; // full_name as a string
-  department: string; // department as a string
-  role: string;
-  is_active: boolean;
-  is_superuser: boolean;
+  department: string;
 }
 
-export async function fetchUserList(): Promise<User[]> {
+export async function fetchDepartmentsList(): Promise<DepartmentsList[]> {
   const token = await getCookies("token");
-  const response = await fetch("http://192.168.0.249:8001/api/v1/users/", {
+  const response = await fetch("http://192.168.0.249:8001/api/v1/users/departments", {
     headers: {
       Authorization: `Bearer ${token?.value}`,
     },
@@ -23,5 +19,6 @@ export async function fetchUserList(): Promise<User[]> {
   return response.json();
 }
 
-
-
+// const sampleData: Pick<DepartmentsList, 'department'> = {
+//     department: ''
+// }

@@ -11,7 +11,7 @@ import UserList from "./_components/Table/UserList";
 import CreateUser from "./_components/Modal/CreateUser";
 import Card from "./_components/Card/card";
 
-export default function User() {
+export default function Page() {
   const { isLoading, error, data } = useQuery({
     queryKey: ["users"],
     queryFn: fetchUserList,

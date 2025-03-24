@@ -8,7 +8,6 @@ import TextField from "@/components/Input/TextField";
 
 /** interfaces */
 import { UpdateUser } from "@/api/User/personalInformation";
-import { User } from "@/interfaces/User";
 
 /**query */
 
@@ -18,6 +17,7 @@ import {
   useQueryClient,
   useQuery,
 } from "@tanstack/react-query";
+import { Field, Form, Formik } from "formik";
 
 interface PersonalInformationProps {
   id: number;
@@ -55,55 +55,55 @@ function PersonalInformation(props: PersonalInformationProps) {
 
   // if (isUserLoading) return "Loading...";
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "radio" ? checked : value,
-    }));
-  };
+  // const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const { name, value, type, checked } = e.target;
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     [name]: type === "radio" ? checked : value,
+  //   }));
+  // };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    updatedUser(formData);
-    console.log(formData);
-  };
+  // const handleSubmit = (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   updatedUser(formData);
+  //   console.log(formData);
+  // };
 
-  const [formData, setFormData] = useState<UpdateUser>({
-    first_name: "",
-    middle_name: "",
-    last_name: "",
-    sex: false,
-    contact_number: "",
-    email: "",
-    address: "",
-    is_active: false,
-    role: 1,
-    department: 1,
-    username: "",
-    suffix: "",
-    birth_date: "",
-    id: "",
-  });
+  // const [formData, setFormData] = useState<UpdateUser>({
+  //   first_name: "",
+  //   middle_name: "",
+  //   last_name: "",
+  //   sex: false,
+  //   contact_number: "",
+  //   email: "",
+  //   address: "",
+  //   is_active: false,
+  //   role: 1,
+  //   department: 1,
+  //   username: "",
+  //   suffix: "",
+  //   birth_date: "",
+  //   id: "",
+  // });
 
-  useEffect(() => {
-    setFormData({
-      first_name: userData?.first_name || "",
-      middle_name: userData?.middle_name || "",
-      last_name: userData?.last_name || "",
-      sex: userData?.sex || false,
-      contact_number: userData?.contact_number || "",
-      email: userData?.email || "",
-      address: userData?.address || "",
-      is_active: userData?.is_active || false,
-      role: userData?.role.id || 1,
-      department: userData?.department.id || 1,
-      username: userData?.username || "",
-      suffix: userData?.suffix || "",
-      birth_date: userData?.birth_date || "",
-      id: userData?.id || "",
-    });
-  }, [userData]);
+  // useEffect(() => {
+  //   setFormData({
+  //     first_name: userData?.first_name || "",
+  //     middle_name: userData?.middle_name || "",
+  //     last_name: userData?.last_name || "",
+  //     sex: userData?.sex || false,
+  //     contact_number: userData?.contact_number || "",
+  //     email: userData?.email || "",
+  //     address: userData?.address || "",
+  //     is_active: userData?.is_active || false,
+  //     role: userData?.role.id || 1,
+  //     department: userData?.department.id || 1,
+  //     username: userData?.username || "",
+  //     suffix: userData?.suffix || "",
+  //     birth_date: userData?.birth_date || "",
+  //     id: userData?.id || "",
+  //   });
+  // }, [userData]);
 
   return (
     <div>
@@ -119,283 +119,281 @@ function PersonalInformation(props: PersonalInformationProps) {
             ) : userError instanceof Error ? (
               <p>An error occurred: {userError.message}</p>
             ) : (
-              <form className="py-4" onSubmit={handleSubmit}>
-                <div className="mb-4">
-                  <label
-                    htmlFor="edit_user_id"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    User ID
-                  </label>
-                  <input
-                    type="text"
-                    id="edit_user_id"
-                    value={formData?.id}
-                    readOnly
-                  />
-                </div>
-                <div className="mb-4">
-                  <label
-                    htmlFor="first_name"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Birth Date
-                  </label>
-                  <TextField
-                    type="date"
-                    id="birth_date"
-                    name="birth_date"
-                    defaultValue={formData?.birth_date}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="mb-4">
-                  <label
-                    htmlFor="first_name"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Firstname
-                  </label>
-                  <TextField
-                    type="text"
-                    id="first_name"
-                    name="first_name"
-                    defaultValue={formData?.first_name}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="mb-4">
-                  <label
-                    htmlFor="last_name"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Lastname
-                  </label>
-                  <TextField
-                    type="text"
-                    id="last_name"
-                    name="last_name"
-                    defaultValue={formData?.last_name}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="mb-4">
-                  <label
-                    htmlFor="middle_name"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Middlename
-                  </label>
-                  <TextField
-                    type="text"
-                    id="middle_name"
-                    name="middle_name"
-                    defaultValue={formData?.middle_name}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="mb-4">
-                  <label
-                    htmlFor="sex"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Sex
-                  </label>
-                  <div className="flex items-center space-x-4">
-                    <div>
-                      <input
-                        type="radio"
-                        id="male"
-                        name="sex"
-                        value="true"
-                        className="radio"
-                        onChange={handleChange}
-                        checked={formData.sex === true}
-                      />
-                      <label htmlFor="male" className="text-sm">
-                        Male
+              <Formik
+                initialValues={{
+                  first_name: userData?.first_name || "",
+                  middle_name: userData?.middle_name || "",
+                  last_name: userData?.last_name || "",
+                  sex: userData?.sex || false,
+                  contact_number: userData?.contact_number || "",
+                  email: userData?.email || "",
+                  address: userData?.address || "",
+                  is_active: userData?.is_active || false,
+                  role: userData?.role.id || 1,
+                  department: userData?.department.id || 1,
+                  username: userData?.username || "",
+                  suffix: userData?.suffix || "",
+                  birth_date: userData?.birth_date || "",
+                  id: userData?.id || "",
+                }}
+                enableReinitialize={true}
+                onSubmit={(values) => {
+                  updatedUser(values); // Submit data when Formik form is submitted
+                  console.log(values);
+                }}
+              >
+                {({ values, handleChange, handleBlur }) => (
+                  <Form className="py-4">
+                    <div className="mb-4">
+                      <label
+                        htmlFor="edit_user_id"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        User ID
                       </label>
-                    </div>
-                    <div>
                       <input
-                        type="radio"
-                        id="female"
-                        name="sex"
-                        value="false"
-                        className="radio"
-                        onChange={handleChange}
-                        checked={formData.sex === false}
+                        type="text"
+                        id="edit_user_id"
+                        value={values.id}
+                        readOnly
+                        className="input input-bordered w-full"
                       />
-                      <label htmlFor="female" className="text-sm">
-                        Female
-                      </label>
                     </div>
-                  </div>
-                </div>
 
-                <div className="mb-4">
-                  <label
-                    htmlFor="edit_first_name"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Contact number
-                  </label>
-                  <TextField
-                    type="text"
-                    id="contact_number"
-                    name="contact_number"
-                    defaultValue={formData?.contact_number}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="mb-4">
-                  <label
-                    htmlFor="edit_first_name"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Email
-                  </label>
-                  <TextField
-                    type="text"
-                    id="email"
-                    name="email"
-                    defaultValue={formData?.email}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="mb-4">
-                  <label
-                    htmlFor="edit_first_name"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    address
-                  </label>
-                  <TextField
-                    type="text"
-                    id="address"
-                    name="address"
-                    defaultValue={formData?.address}
-                    onChange={handleChange}
-                  />
-                </div>
+                    <div className="mb-4">
+                      <label
+                        htmlFor="birth_date"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Birth Date
+                      </label>
+                      <Field
+                        type="date"
+                        id="birth_date"
+                        name="birth_date"
+                        // value={values.birth_date}
+                        // onChange={handleChange}
+                        className="input input-bordered w-full"
+                      />
+                    </div>
 
-                <h1>User details</h1>
-                <div className="mb-4">
-                  <label
-                    htmlFor="is_active"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Active
-                  </label>
-                  <TextField
-                    type="text"
-                    id="is_active"
-                    name="is_active"
-                    defaultValue={formData?.is_active.toString()}
-                    onChange={handleChange}
-                  />
-                </div>
-                {/* <div className="mb-4">
-                  <label
-                    htmlFor="role"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Role
-                  </label>
-                  <TextField
-                    type="text"
-                    id="role"
-                    name="role"
-                    defaultValue={formData?.role.role}
-                    onChange={handleChange}
-                  />
-                </div> */}
-                <div className="mb-4">
-                  <label
-                    htmlFor="role"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    role
-                  </label>
-                  <select
-                    id="role"
-                    name="role"
-                    defaultValue={formData?.role || "1"} // Default to 'HR' (value '1')
-                    className="block w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="1">HR</option>
-                    <option value="2">Engineering</option>
-                    <option value="3">Marketing</option>
-                    <option value="4">Sales</option>
-                    <option value="5">Finance</option>
-                    <option value="6">IT</option>
-                  </select>
-                </div>
-                {/* <div className="mb-4">
-                  <label
-                    htmlFor="department"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Department
-                  </label>
-                  <TextField
-                    type="text"
-                    id="department"
-                    name="department"
-                    defaultValue={userData?.department.department}
-                    onChange={handleChange}
-                  />
-                </div> */}
-                <div className="mb-4">
-                  <label
-                    htmlFor="department"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Department
-                  </label>
-                  <select
-                    id="department"
-                    name="department"
-                    defaultValue={userData?.department.department || "1"}
-                    className="block w-full mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="1">HR</option>
-                    <option value="2">Engineering</option>
-                    <option value="3">Marketing</option>
-                    <option value="4">Sales</option>
-                    <option value="5">Finance</option>
-                    <option value="6">IT</option>
-                  </select>
-                </div>
+                    <div className="mb-4">
+                      <label
+                        htmlFor="first_name"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        First Name
+                      </label>
+                      <Field
+                        type="text"
+                        id="first_name"
+                        name="first_name"
+                        // value={values.first_name}
+                        // onChange={handleChange}
+                        className="input input-bordered w-full"
+                      />
+                    </div>
 
-                <div className="mb-4">
-                  <label
-                    htmlFor="edit_first_name"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Username
-                  </label>
-                  <TextField
-                    type="text"
-                    id="username"
-                    name="username"
-                    defaultValue={formData?.username}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="modal-action">
-                  <button
-                    type="button"
-                    className="btn"
-                    onClick={() => setShowEditModal(false)}
-                  >
-                    Close
-                  </button>
-                  <button type="submit" className="btn">
-                    Save
-                  </button>
-                </div>
-              </form>
+                    <div className="mb-4">
+                      <label
+                        htmlFor="last_name"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Last Name
+                      </label>
+                      <Field
+                        type="text"
+                        id="last_name"
+                        name="last_name"
+                        // value={values.last_name}
+                        // onChange={handleChange}
+                        className="input input-bordered w-full"
+                      />
+                    </div>
+
+                    <div className="mb-4">
+                      <label
+                        htmlFor="middle_name"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Middle Name
+                      </label>
+                      <Field
+                        type="text"
+                        id="middle_name"
+                        name="middle_name"
+                        // value={values.middle_name}
+                        // onChange={handleChange}
+                        className="input input-bordered w-full"
+                      />
+                    </div>
+
+                    <div className="mb-4">
+                      <label
+                        htmlFor="sex"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Sex
+                      </label>
+                      <div className="flex items-center space-x-4">
+                        <div>
+                          <Field
+                            type="radio"
+                            id="male"
+                            name="sex"
+                            value={true}
+                            checked={values.sex === true}
+                            onChange={handleChange}
+                            className="radio"
+                          />
+                          <label htmlFor="male" className="text-sm">
+                            Male
+                          </label>
+                        </div>
+                        <div>
+                          <Field
+                            type="radio"
+                            id="female"
+                            name="sex"
+                            value={false}
+                            checked={values.sex === false}
+                            onChange={handleChange}
+                            className="radio"
+                          />
+                          <label htmlFor="female" className="text-sm">
+                            Female
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mb-4">
+                      <label
+                        htmlFor="contact_number"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Contact Number
+                      </label>
+                      <Field
+                        type="text"
+                        id="contact_number"
+                        name="contact_number"
+                        // value={values.contact_number}
+                        // onChange={handleChange}
+                        className="input input-bordered w-full"
+                      />
+                    </div>
+
+                    <div className="mb-4">
+                      <label
+                        htmlFor="email"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Email
+                      </label>
+                      <Field
+                        type="text"
+                        id="email"
+                        name="email"
+                        // value={values.email}
+                        // onChange={handleChange}
+                        className="input input-bordered w-full"
+                      />
+                    </div>
+
+                    <div className="mb-4">
+                      <label
+                        htmlFor="address"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Address
+                      </label>
+                      <Field
+                        type="text"
+                        id="address"
+                        name="address"
+                        // value={values.address}
+                        // onChange={handleChange}
+                        className="input input-bordered w-full"
+                      />
+                    </div>
+
+                    <div className="mb-4">
+                      <label
+                        htmlFor="role"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Role
+                      </label>
+                      <Field
+                        as="select"
+                        id="role"
+                        name="role"
+                        className="input input-bordered w-full"
+                      >
+                        <option value="1">HR</option>
+                        <option value="2">Engineering</option>
+                        <option value="3">Marketing</option>
+                        <option value="4">Sales</option>
+                        <option value="5">Finance</option>
+                        <option value="6">IT</option>
+                      </Field>
+                    </div>
+
+                    <div className="mb-4">
+                      <label
+                        htmlFor="department"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Department
+                      </label>
+                      <Field
+                        as="select"
+                        id="department"
+                        name="department"
+                        className="input input-bordered w-full"
+                      >
+                        <option value="1">HR</option>
+                        <option value="2">Engineering</option>
+                        <option value="3">Marketing</option>
+                        <option value="4">Sales</option>
+                        <option value="5">Finance</option>
+                        <option value="6">IT</option>
+                      </Field>
+                    </div>
+
+                    <div className="mb-4">
+                      <label
+                        htmlFor="username"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Username
+                      </label>
+                      <Field
+                        type="text"
+                        id="username"
+                        name="username"
+                        // value={values.username}
+                        // onChange={handleChange}
+                        className="input input-bordered w-full"
+                      />
+                    </div>
+
+                    <div className="modal-action">
+                      <button
+                        type="button"
+                        className="btn"
+                        onClick={() => setShowEditModal(false)}
+                      >
+                        Close
+                      </button>
+                      <button type="submit" className="btn">
+                        Save
+                      </button>
+                    </div>
+                  </Form>
+                )}
+              </Formik>
             )}
           </div>
         </dialog>

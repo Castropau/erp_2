@@ -36,7 +36,7 @@ function Sidebar() {
           <ul className="text-xs">
             <li>
               <a
-                href="#"
+                href="/erp-v2/dashboard"
                 className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
                 <MdDashboard className="w-6 h-6 text-xs" />
@@ -66,7 +66,7 @@ function Sidebar() {
                 <ul className="pl-8 mt-2 space-y-2">
                   <li>
                     <a
-                      href="#"
+                      href="/erp-v2/cash-request"
                       className="block p-2 text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600"
                     >
                       Cash Request
@@ -74,7 +74,7 @@ function Sidebar() {
                   </li>
                   <li>
                     <a
-                      href="#"
+                      href="/erp-v2/cheque-request"
                       className="block p-2 text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600"
                     >
                       Cheque Request
@@ -86,7 +86,7 @@ function Sidebar() {
 
             <li>
               <a
-                href="#"
+                href="/erp-v2/liquidation"
                 className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
                 <HiOutlineCalculator className="w-6 h-6 text-xs" />
@@ -117,7 +117,7 @@ function Sidebar() {
                 <ul className="pl-8 mt-2 space-y-2">
                   <li>
                     <a
-                      href="#"
+                      href="/erp-v2/quotation"
                       className="block p-2 text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600"
                     >
                       Quotation
@@ -125,7 +125,7 @@ function Sidebar() {
                   </li>
                   <li>
                     <a
-                      href="#"
+                      href="/erp-v2/bom-quotation"
                       className="block p-2 text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600"
                     >
                       BOM Quotation
@@ -254,7 +254,7 @@ function Sidebar() {
 
             <li>
               <a
-                href="#"
+                href="/erp-v2/user"
                 className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
                 <FaRegUserCircle className="w-6 h-6 text-xs" />

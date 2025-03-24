@@ -5,43 +5,51 @@ import { useQuery } from "@tanstack/react-query";
 import React, { useState, useMemo } from "react";
 
 /** api */
-
+import { fetchUserList } from "@/api/User/fetchUserList";
 import PersonalInformation from "../user/_components/Modal/PersonalInformation";
 import ModuleAccess from "../user/_components/Modal/ModuleAccess";
-import AddLaborOfComputation from "./_compoments/Modal/AddLaborOfComputation";
-import {
-  FetchLaborComputation,
-  LaborComputation,
-} from "@/api/labor_of_computation/LaborOfComputations";
+import CreateUser from "../user/_components/Modal/CreateUser";
+import AddLaborOfComputation from "../labor_of_computation/_compoments/Modal/AddLaborOfComputation";
+import AddCashRequest from "./_components/Modal/AddCashRequest";
 
 /** components */
 
 // import PersonalInformation from "../Modal/PersonalInformation";
 
-export default function LaborOfComputation() {
+interface User {
+  id: number; // id as an integer
+  full_name: string; // full_name as a string
+  department: string; // department as a string
+  role: string;
+  is_active: boolean;
+  is_superuser: boolean;
+}
+
+export default function CashRequest() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
 
-  const { isLoading, error, data } = useQuery<LaborComputation[]>({
-    queryKey: ["labor"],
-    queryFn: FetchLaborComputation,
+  const { isLoading, error, data } = useQuery<User[]>({
+    queryKey: ["users"],
+    queryFn: fetchUserList,
   });
+
+  if (isLoading) return <div>Loading...</div>;
+
+  if (error instanceof Error)
+    return <div>An error has occurred: {error.message}</div>;
 
   const filteredData = useMemo(() => {
     return data?.filter(
-      (labor) =>
-        labor.lc_no.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        labor.bom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        labor.project_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        labor.project_duration
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        labor.system.toLowerCase().includes(searchTerm.toLowerCase())
+      (user) =>
+        user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.role.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [searchTerm, data]);
 
-  const totalPages = Math.ceil((filteredData?.length || 0) / rowsPerPage);
+  const totalPages = Math.ceil(filteredData!.length / rowsPerPage);
 
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
@@ -55,10 +63,9 @@ export default function LaborOfComputation() {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
-  if (isLoading) return <div>Loading...</div>;
-
-  if (error instanceof Error)
-    return <div>An error has occurred: {error.message}</div>;
+  function setShowRegisterModal(arg0: boolean): void {
+    throw new Error("Function not implemented.");
+  }
 
   return (
     <div className="overflow-x-auto">
@@ -93,18 +100,17 @@ export default function LaborOfComputation() {
         </label>
 
         <div className="ml-auto">
-          <AddLaborOfComputation />
+          <AddCashRequest />
         </div>
       </div>
-
+      <h1>Cash request</h1>
       <table className="table table-xs table-zebra w-full">
         <thead>
           <tr className="text-blue-500">
             <th>Full Name</th>
             <th>Department</th>
             <th>Role</th>
-            <th>Role</th>
-
+            <th>Active</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -116,18 +122,27 @@ export default function LaborOfComputation() {
               </td>
             </tr>
           ) : (
-            currentRows?.map((labor, index) => (
+            currentRows?.map((user, index) => (
               <tr
-                key={labor.id}
+                key={user.id}
                 className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
               >
-                <td className="text-xs">{labor.lc_no}</td>
-                <td className="text-xs">{labor.bom}</td>
-                <td className="text-xs">{labor.project_name}</td>
-                <td className="text-xs">{labor.system}</td>
-
+                <td className="text-xs">{user.full_name}</td>
+                <td className="text-xs">{user.department}</td>
+                <td className="text-xs">{user.role}</td>
+                <td className="text-xs">
+                  <span
+                    className={`${
+                      user.is_active
+                        ? "bg-green-500 text-white"
+                        : "bg-red-500 text-white"
+                    } py-1 px-3 rounded-full`}
+                  >
+                    {user.is_active ? "Active" : "Inactive"}
+                  </span>
+                </td>
                 <td className="text-xs flex gap-2">
-                  <PersonalInformation id={labor.id} />
+                  <PersonalInformation id={user.id} />
                   <ModuleAccess />
                 </td>
               </tr>

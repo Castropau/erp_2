@@ -19,43 +19,12 @@ import { RegisterEmployee } from "@/interfaces/RegisterEmployee";
 import { Field, Form, Formik } from "formik";
 import { fetchDepartmentsList } from "@/api/User/fetchDepartmentList";
 import { fetchRoleList } from "@/api/User/fetchRoleList";
+import { CiCirclePlus } from "react-icons/ci";
 
-export default function CreateUser() {
+export default function Export() {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
-  // const [errorMessage, setErrorMessage] = useState("");
-  // const [formData, setFormData] = useState<RegisterEmployee>({
-  //   first_name: "",
-  //   middle_name: "",
-  //   last_name: "",
-  //   suffix: "",
-  //   birth_date: "",
-  //   sex: false,
-  //   address: "",
-  //   email: "",
-  //   contact_number: "",
-  //   department: "",
-  //   role: "",
-  //   username: "",
-  //   password: "",
-  //   password2: "",
-  // });
 
   const queryClient = useQueryClient();
-
-  // const handleInputChanged = (
-  //   e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  // ) => {
-  //   const { name, value } = e.target;
-  //   setFormData((prev) => ({ ...prev, [name]: value }));
-  // };
-
-  // const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const { name, value, type, checked } = e.target;
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     [name]: type === "radio" ? checked : value,
-  //   }));
-  // };
 
   const {
     mutate: registerEmployee,
@@ -101,8 +70,7 @@ export default function CreateUser() {
           className="btn btn-info"
           onClick={() => setShowRegisterModal(true)}
         >
-          <FaCirclePlus className="w-6 h-6 btn-info" />
-          Add User
+          Export
         </button>
       </div>
       <div>
