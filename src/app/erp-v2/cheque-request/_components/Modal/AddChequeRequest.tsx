@@ -8,7 +8,7 @@ import { registerUser } from "@/api/User/registerUser";
 import { RegisterEmployee } from "@/interfaces/RegisterEmployee";
 import { fetchUserLists } from "@/api/cash-request/fetchUsers";
 
-export default function AddCashRequest() {
+export default function AddChequeRequest() {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const queryClient = useQueryClient();
 
@@ -48,7 +48,7 @@ export default function AddCashRequest() {
           className="btn btn-info"
           onClick={() => setShowRegisterModal(true)}
         >
-          <FaCirclePlus className="w-6 h-5 btn-info" />
+          <FaCirclePlus className="h-5 btn-info" />
           Add Cash Request
         </button>
       </div>
@@ -106,21 +106,40 @@ export default function AddCashRequest() {
                       {
                         type: "textarea",
                         name: "special_instructions",
-                        placeholder: "Enter special instructions",
-                        label: "Special Instructions",
+                        placeholder: "set serial #",
+                        label: "serial #",
+                      },
+                      {
+                        type: "date",
+                        name: "date",
+                        placeholder: "Enter project name",
+                        label: "date",
                       },
                       {
                         type: "text",
-                        name: "project_name",
-                        placeholder: "Enter project name",
-                        label: "Project Name",
+                        name: "name_of_org",
+                        placeholder: "Name of organization",
+                        label: "Name of organization",
                       },
                       {
                         type: "text",
                         name: "delivery_address",
-                        placeholder: "Enter delivery address",
-                        label: "Delivery Address",
+                        placeholder: "payable to",
+                        label: "payable to",
                       },
+                      {
+                        type: "text",
+                        name: "address",
+                        placeholder: "address",
+                        label: "address",
+                      },
+                      {
+                        type: "text",
+                        name: "purpose",
+                        placeholder: "purpose",
+                        label: "purpose",
+                      },
+
                       {
                         type: "select",
                         name: "requested_by",
@@ -130,12 +149,6 @@ export default function AddCashRequest() {
                             value: user.id.toString(),
                             label: user.full_name,
                           })) || [],
-                      },
-                      {
-                        type: "date",
-                        name: "date",
-                        placeholder: "Select date",
-                        label: "Date",
                       },
                     ].map((item) => (
                       <div key={item.name} className="mb-4 col-span-2">
@@ -214,13 +227,14 @@ export default function AddCashRequest() {
                             >
                               <thead>
                                 <tr>
-                                  <th className="border p-2">Item</th>
-                                  <th className="border p-2">Quantity</th>
-                                  <th className="border p-2">Unit</th>
+                                  <th className="border p-2">No</th>
+                                  <th className="border p-2">
+                                    Date of purchase
+                                  </th>
                                   <th className="border p-2">Description</th>
-                                  <th className="border p-2">Supplier</th>
-                                  <th className="border p-2">Unit Price</th>
-                                  <th className="border p-2">Total</th>
+                                  <th className="border p-2">Amount</th>
+                                  <th className="border p-2">Cheque Number</th>
+                                  <th className="border p-2">Remark</th>
                                   <th className="border p-2">Actions</th>
                                 </tr>
                               </thead>
@@ -352,115 +366,45 @@ export default function AddCashRequest() {
                                 ))}
                               </tbody>
                             </table>
-                            <tr>
-                              <td colSpan={6} className="border p-2">
-                                <div className="grid grid-cols-2 gap-4">
-                                  <div>
-                                    <strong>Discount:</strong>
-                                    <div className="w-full p-2 border">
-                                      ₱
-                                      {values.items
-                                        .reduce(
-                                          (acc, item) =>
-                                            acc +
-                                            parseFloat(item.discount || "0"),
-                                          0
-                                        )
-                                        .toFixed(2)}
-                                    </div>
-                                  </div>
 
-                                  <div>
-                                    <strong>Vat %:</strong>
-                                    <div className="w-full p-2 border">
-                                      {values.items.reduce(
-                                        (acc, item) =>
-                                          acc +
-                                          parseFloat(
-                                            item.vat_percentage || "0"
-                                          ),
-                                        0
-                                      )}
-                                      %
+                            {values.items.map((item, index) => (
+                              <tr key={index}>
+                                <td colSpan={6} className="border p-2">
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                      <strong>
+                                        Select Cash Request Serial #:
+                                      </strong>
+                                      <div className="w-full p-2 border">
+                                        <input
+                                          type="text"
+                                          name={`items[${index}].name`}
+                                          list={`nameList-${index}`}
+                                          className="w-full p-2 border"
+                                          placeholder="Select Cash Request serial #"
+                                          value={item.unit_price}
+                                          onChange={(e) =>
+                                            setFieldValue(
+                                              `items[${index}].name`,
+                                              e.target.value
+                                            )
+                                          }
+                                        />
+                                        {/* Datalist for name */}
+                                        <datalist id={`nameList-${index}`}>
+                                          {usersList?.map((user) => (
+                                            <option
+                                              key={user.id}
+                                              value={user.full_name}
+                                            />
+                                          ))}
+                                        </datalist>
+                                      </div>
                                     </div>
                                   </div>
-
-                                  <div>
-                                    <strong>Less EWT %:</strong>
-                                    <div className="w-full p-2 border">
-                                      {values.items.reduce(
-                                        (acc, item) =>
-                                          acc +
-                                          parseFloat(
-                                            item.ewt_percentage || "0"
-                                          ),
-                                        0
-                                      )}
-                                      %
-                                    </div>
-                                  </div>
-
-                                  <div>
-                                    <strong>Total:</strong>
-                                    <div className="w-full p-2 border">
-                                      ₱
-                                      {values.items
-                                        .reduce(
-                                          (acc, item) =>
-                                            acc + parseFloat(item.total || "0"),
-                                          0
-                                        )
-                                        .toFixed(2)}
-                                    </div>
-                                  </div>
-
-                                  <div>
-                                    <strong>Vat Value:</strong>
-                                    <div className="w-full p-2 border">
-                                      ₱
-                                      {values.items
-                                        .reduce(
-                                          (acc, item) =>
-                                            acc +
-                                            parseFloat(item.vat_value || "0"),
-                                          0
-                                        )
-                                        .toFixed(2)}
-                                    </div>
-                                  </div>
-
-                                  <div>
-                                    <strong>EWT Value:</strong>
-                                    <div className="w-full p-2 border">
-                                      ₱
-                                      {values.items
-                                        .reduce(
-                                          (acc, item) =>
-                                            acc +
-                                            parseFloat(item.ewt_value || "0"),
-                                          0
-                                        )
-                                        .toFixed(2)}
-                                    </div>
-                                  </div>
-
-                                  <div>
-                                    <strong>Grand Total:</strong>
-                                    <div className="w-full p-2 border">
-                                      ₱
-                                      {values.items
-                                        .reduce(
-                                          (acc, item) =>
-                                            acc +
-                                            parseFloat(item.grand_total || "0"),
-                                          0
-                                        )
-                                        .toFixed(2)}
-                                    </div>
-                                  </div>
-                                </div>
-                              </td>
-                            </tr>
+                                </td>
+                              </tr>
+                            ))}
                           </div>
                           //   </div>
                         )}

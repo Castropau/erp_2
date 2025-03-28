@@ -10,6 +10,11 @@ import PersonalInformation from "../user/_components/Modal/PersonalInformation";
 import ModuleAccess from "../user/_components/Modal/ModuleAccess";
 import CreateUser from "../user/_components/Modal/CreateUser";
 import AddLaborOfComputation from "../labor_of_computation/_compoments/Modal/AddLaborOfComputation";
+import Link from "next/link";
+import AddCashRequest from "../cash-request/_components/Modal/AddCashRequest";
+import AddQuotations from "./_components/Modal/AddQuotations";
+import Config from "./_components/Modal/Config";
+import View from "./_components/Modal/View";
 
 /** components */
 
@@ -68,7 +73,7 @@ export default function QuotationDropdown() {
 
   return (
     <div className="overflow-x-auto">
-      <div className="flex items-center justify-between mb-4 gap-250">
+      <div className="flex items-center justify-between mb-4 gap-4">
         <label className="input flex-grow w-2/3">
           <svg
             className="h-[1em] opacity-50"
@@ -98,18 +103,22 @@ export default function QuotationDropdown() {
           />
         </label>
 
-        <div className="ml-auto">
-          <AddLaborOfComputation />
+        <div className="flex items-center gap-4">
+          <AddQuotations />
+          <Config />
         </div>
       </div>
+
       <h1>Quotation</h1>
       <table className="table table-xs table-zebra w-full">
         <thead>
           <tr className="text-blue-500">
-            <th>Full Name</th>
-            <th>Department</th>
-            <th>Role</th>
-            <th>Active</th>
+            <th>Serial #</th>
+            <th>Instruction</th>
+            <th>Total</th>
+            <th>Requested by</th>
+            <th>Date Requested</th>
+            <th>Status</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -129,6 +138,8 @@ export default function QuotationDropdown() {
                 <td className="text-xs">{user.full_name}</td>
                 <td className="text-xs">{user.department}</td>
                 <td className="text-xs">{user.role}</td>
+                <td className="text-xs">{user.role}</td>
+                <td className="text-xs">{user.role}</td>
                 <td className="text-xs">
                   <span
                     className={`${
@@ -141,8 +152,10 @@ export default function QuotationDropdown() {
                   </span>
                 </td>
                 <td className="text-xs flex gap-2">
-                  <PersonalInformation id={user.id} />
-                  <ModuleAccess />
+                  {/* <PersonalInformation id={user.id} /> */}
+                  <View />
+                  {/* <ModuleAccess /> */}
+                  <button className="btn btn-error">Delet</button>
                 </td>
               </tr>
             ))

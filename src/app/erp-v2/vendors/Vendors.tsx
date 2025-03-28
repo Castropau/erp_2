@@ -10,6 +10,8 @@ import PersonalInformation from "../user/_components/Modal/PersonalInformation";
 import ModuleAccess from "../user/_components/Modal/ModuleAccess";
 import CreateUser from "../user/_components/Modal/CreateUser";
 import AddLaborOfComputation from "../labor_of_computation/_compoments/Modal/AddLaborOfComputation";
+import AddVendor from "./_components/Modal/AddVendor";
+import Link from "next/link";
 
 /** components */
 
@@ -68,7 +70,7 @@ export default function Vendors() {
 
   return (
     <div className="overflow-x-auto">
-      <div className="flex items-center justify-between mb-4 gap-250">
+      <div className="flex items-center justify-between mb-4 gap-4">
         <label className="input flex-grow w-2/3">
           <svg
             className="h-[1em] opacity-50"
@@ -99,7 +101,7 @@ export default function Vendors() {
         </label>
 
         <div className="ml-auto">
-          <AddLaborOfComputation />
+          <AddVendor />
         </div>
       </div>
       <h1>Inventory</h1>
@@ -141,8 +143,14 @@ export default function Vendors() {
                   </span>
                 </td>
                 <td className="text-xs flex gap-2">
-                  <PersonalInformation id={user.id} />
-                  <ModuleAccess />
+                  {/* <PersonalInformation id={user.id} />
+                  <ModuleAccess /> */}
+                  <Link href="/erp-v2/vendors/view">
+                    <button className="btn btn-info">View Vendors</button>
+                  </Link>
+                  <Link href="/erp-v2/vendors/view">
+                    <button className="btn btn-error">Delete</button>
+                  </Link>
                 </td>
               </tr>
             ))

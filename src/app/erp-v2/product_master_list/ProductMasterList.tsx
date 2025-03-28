@@ -10,6 +10,8 @@ import PersonalInformation from "../user/_components/Modal/PersonalInformation";
 import ModuleAccess from "../user/_components/Modal/ModuleAccess";
 import CreateUser from "../user/_components/Modal/CreateUser";
 import AddLaborOfComputation from "../labor_of_computation/_compoments/Modal/AddLaborOfComputation";
+import AddProduct from "./_components/Modal/AddProduct";
+import EditProduct from "./_components/Modal/EditProduct";
 
 /** components */
 
@@ -99,18 +101,21 @@ export default function ProductMasterList() {
         </label>
 
         <div className="ml-auto">
-          <AddLaborOfComputation />
+          <AddProduct />
         </div>
       </div>
       <h1>product</h1>
       <table className="table table-xs table-zebra w-full">
         <thead>
           <tr className="text-blue-500">
-            <th>Full Name</th>
-            <th>Department</th>
-            <th>Role</th>
-            <th>Active</th>
-            <th>Actions</th>
+            <th>Item</th>
+            <th>Item name</th>
+            <th>description</th>
+            <th>supplier</th>
+            <th>brand</th>
+            <th>model</th>
+            <th>srp</th>
+            <th>actions</th>
           </tr>
         </thead>
         <tbody>
@@ -129,6 +134,9 @@ export default function ProductMasterList() {
                 <td className="text-xs">{user.full_name}</td>
                 <td className="text-xs">{user.department}</td>
                 <td className="text-xs">{user.role}</td>
+                <td className="text-xs">{user.role}</td>
+                <td className="text-xs">{user.role}</td>
+                <td className="text-xs">{user.role}</td>
                 <td className="text-xs">
                   <span
                     className={`${
@@ -141,8 +149,9 @@ export default function ProductMasterList() {
                   </span>
                 </td>
                 <td className="text-xs flex gap-2">
-                  <PersonalInformation id={user.id} />
-                  <ModuleAccess />
+                  <EditProduct />
+
+                  <button className="btn btn-error">delete</button>
                 </td>
               </tr>
             ))

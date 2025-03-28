@@ -10,6 +10,8 @@ import PersonalInformation from "../user/_components/Modal/PersonalInformation";
 import ModuleAccess from "../user/_components/Modal/ModuleAccess";
 import CreateUser from "../user/_components/Modal/CreateUser";
 import AddLaborOfComputation from "../labor_of_computation/_compoments/Modal/AddLaborOfComputation";
+import CreateMaterialRequest from "./add-material-request/CreateMaterialRequest";
+import Link from "next/link";
 
 /** components */
 
@@ -68,7 +70,7 @@ export default function WithDrawMaterials() {
 
   return (
     <div className="overflow-x-auto">
-      <div className="flex items-center justify-between mb-4 gap-250">
+      <div className="flex items-center justify-between mb-4 gap-4">
         <label className="input flex-grow w-2/3">
           <svg
             className="h-[1em] opacity-50"
@@ -99,17 +101,21 @@ export default function WithDrawMaterials() {
         </label>
 
         <div className="ml-auto">
-          <AddLaborOfComputation />
+          {/* <CreateMaterialRequest /> */}
+          <Link href="/erp-v2/withdraw_materials/add-material-request">
+            <button className="btn btn-info">add material request</button>
+          </Link>
         </div>
       </div>
 
       <table className="table table-xs table-zebra w-full">
         <thead>
           <tr className="text-blue-500">
-            <th>Full Name</th>
-            <th>Department</th>
-            <th>Role</th>
-            <th>Active</th>
+            <th>Serial #</th>
+            <th>Purpose</th>
+            <th>Status</th>
+            <th>Date Needed</th>
+            <th>Requested by</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -127,6 +133,7 @@ export default function WithDrawMaterials() {
                 className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
               >
                 <td className="text-xs">{user.full_name}</td>
+                <td className="text-xs">{user.full_name}</td>
                 <td className="text-xs">{user.department}</td>
                 <td className="text-xs">{user.role}</td>
                 <td className="text-xs">
@@ -141,8 +148,15 @@ export default function WithDrawMaterials() {
                   </span>
                 </td>
                 <td className="text-xs flex gap-2">
-                  <PersonalInformation id={user.id} />
-                  <ModuleAccess />
+                  {/* <PersonalInformation id={user.id} /> */}
+                  <Link
+                    className="btn btn-success"
+                    href="/erp-v2/withdraw_materials/view"
+                  >
+                    View
+                  </Link>
+                  {/* <ModuleAccess /> */}
+                  <button className="btn btn-error">delete</button>
                 </td>
               </tr>
             ))

@@ -11,6 +11,8 @@ import ModuleAccess from "../user/_components/Modal/ModuleAccess";
 import CreateUser from "../user/_components/Modal/CreateUser";
 import AddLaborOfComputation from "../labor_of_computation/_compoments/Modal/AddLaborOfComputation";
 import Link from "next/link";
+import AddChequeRequest from "./_components/Modal/AddChequeRequest";
+import ViewChequeRequest from "./_components/Modal/ViewChequeRequest";
 
 /** components */
 
@@ -100,20 +102,19 @@ export default function ChequeRequest() {
         </label>
 
         <div className="ml-auto">
-          <Link href="/erp-v2/cheque-request/requisition-list">
-            <button className="btn btn-info">Selection Config</button>
-          </Link>
-          <AddLaborOfComputation />
+          <AddChequeRequest />
         </div>
       </div>
       <h1>cheque request</h1>
       <table className="table table-xs table-zebra w-full">
         <thead>
           <tr className="text-blue-500">
-            <th>Full Name</th>
-            <th>Department</th>
-            <th>Role</th>
-            <th>Active</th>
+            <th>Serial no</th>
+            <th>Purpose</th>
+            <th>Total</th>
+            <th>Requested_by</th>
+            <th>Date requested</th>
+            <th>Status</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -133,6 +134,8 @@ export default function ChequeRequest() {
                 <td className="text-xs">{user.full_name}</td>
                 <td className="text-xs">{user.department}</td>
                 <td className="text-xs">{user.role}</td>
+                <td className="text-xs">{user.role}</td>
+                <td className="text-xs">{user.role}</td>
                 <td className="text-xs">
                   <span
                     className={`${
@@ -145,8 +148,12 @@ export default function ChequeRequest() {
                   </span>
                 </td>
                 <td className="text-xs flex gap-2">
-                  <PersonalInformation id={user.id} />
-                  <ModuleAccess />
+                  {/* <PersonalInformation id={user.id} /> */}
+                  <Link href="/erp-v2/cheque-request/detail">
+                    <button className="btn btn-info">View</button>
+                  </Link>
+                  {/* <ModuleAccess /> */}
+                  <button className="btn btn-error">delete</button>
                 </td>
               </tr>
             ))

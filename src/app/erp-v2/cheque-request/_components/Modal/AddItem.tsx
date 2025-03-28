@@ -51,24 +51,31 @@ export default function AddItem() {
                   console.log(values);
                 }}
               >
-                <Form className="py-4">
-                  <div className="mb-4">
-                    <label
-                      htmlFor="item"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                      Item Name
-                    </label>
-                    <Field
-                      type="text"
-                      id="item"
-                      name="item"
-                      className="block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                      placeholder="Enter item name"
-                      required
-                    />
-                  </div>
+                <Form className="space-y-6 md:space-y-8">
+                  {[
+                    {
+                      type: "text",
+                      name: "item",
+                      placeholder: "Enter item name",
+                      label: "Item Name",
+                    },
+                  ].map((item) => (
+                    <div key={item.name} className="space-y-4">
+                      <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        {item.label}
+                      </label>
+                      <Field
+                        type={item.type}
+                        id={item.name}
+                        name={item.name}
+                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        placeholder={item.placeholder}
+                        required
+                      />
+                    </div>
+                  ))}
 
+                  {/* Buttons */}
                   <div className="flex justify-end gap-4 mt-6">
                     <button
                       type="submit"

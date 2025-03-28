@@ -10,6 +10,10 @@ import PersonalInformation from "../user/_components/Modal/PersonalInformation";
 import ModuleAccess from "../user/_components/Modal/ModuleAccess";
 import CreateUser from "../user/_components/Modal/CreateUser";
 import AddLaborOfComputation from "../labor_of_computation/_compoments/Modal/AddLaborOfComputation";
+import AddLiquidation from "./_components/Modal/AddLiquidation";
+import Link from "next/link";
+import ViewLiquidation from "./_components/Modal/ViewLiquidation";
+import { FaTrash } from "react-icons/fa";
 
 /** components */
 
@@ -68,7 +72,7 @@ export default function Liquidation() {
 
   return (
     <div className="overflow-x-auto">
-      <div className="flex items-center justify-between mb-4 gap-250">
+      <div className="flex items-center justify-between mb-4 gap-4">
         <label className="input flex-grow w-2/3">
           <svg
             className="h-[1em] opacity-50"
@@ -98,19 +102,20 @@ export default function Liquidation() {
           />
         </label>
 
-        <div className="ml-auto">
-          <AddLaborOfComputation />
+        <div className="flex items-center gap-4">
+          <AddLiquidation />
         </div>
       </div>
       <h1>liquidation</h1>
       <table className="table table-xs table-zebra w-full">
         <thead>
           <tr className="text-blue-500">
-            <th>Full Name</th>
-            <th>Department</th>
-            <th>Role</th>
-            <th>Active</th>
-            <th>Actions</th>
+            <th>LIQ</th>
+            <th>Project Name</th>
+            <th>Date</th>
+            <th>Remitted By</th>
+            <th>Total</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -128,6 +133,7 @@ export default function Liquidation() {
               >
                 <td className="text-xs">{user.full_name}</td>
                 <td className="text-xs">{user.department}</td>
+                <td className="text-xs">{user.department}</td>
                 <td className="text-xs">{user.role}</td>
                 <td className="text-xs">
                   <span
@@ -141,8 +147,11 @@ export default function Liquidation() {
                   </span>
                 </td>
                 <td className="text-xs flex gap-2">
-                  <PersonalInformation id={user.id} />
-                  <ModuleAccess />
+                  <ViewLiquidation />
+                  <button className="btn btn-error">
+                    <FaTrash />
+                    Delete
+                  </button>
                 </td>
               </tr>
             ))

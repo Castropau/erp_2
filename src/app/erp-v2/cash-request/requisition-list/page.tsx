@@ -13,13 +13,15 @@ import { deleteItem } from "@/api/cheque-request/DeleteItem";
 import { deleteLocation } from "@/api/cheque-request/DeleteLocation";
 
 /** components */
-import AddItem from "../_components/Modal/AddItem";
-import AddUnit from "../_components/Modal/AddUnit";
+
+import AddUnit from "../../cheque-request/_components/Modal/AddUnit";
 
 /** query */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Field, Form, Formik } from "formik";
 import Link from "next/link";
+import AddItem from "../../cheque-request/_components/Modal/AddItem";
+import { IoMdArrowBack } from "react-icons/io";
 
 interface PageProps {}
 
@@ -136,8 +138,11 @@ function Page(props: PageProps) {
   return (
     <div className="p-4 sm:ml-64">
       <div className="ml-auto">
-        <Link href="/erp-v2/cheque-request">
-          <button className="btn btn-info">Go Back</button>
+        <Link href="/erp-v2/cash-request">
+          <button className="btn btn-info">
+            <IoMdArrowBack />
+            Back to Cash Request
+          </button>
         </Link>
       </div>
 

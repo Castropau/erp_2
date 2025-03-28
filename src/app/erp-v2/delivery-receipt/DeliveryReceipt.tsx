@@ -10,6 +10,8 @@ import PersonalInformation from "../user/_components/Modal/PersonalInformation";
 import ModuleAccess from "../user/_components/Modal/ModuleAccess";
 import CreateUser from "../user/_components/Modal/CreateUser";
 import AddLaborOfComputation from "../labor_of_computation/_compoments/Modal/AddLaborOfComputation";
+import AddDeliveryReceipt from "./_components/Modal/AddDeliveryReceipt";
+import ViewDeliveryReceipt from "./_components/ViewDeliveryReceipt";
 
 /** components */
 
@@ -68,7 +70,7 @@ export default function DeliveryReceipt() {
 
   return (
     <div className="overflow-x-auto">
-      <div className="flex items-center justify-between mb-4 gap-250">
+      <div className="flex items-center justify-between mb-4 gap-4">
         <label className="input flex-grow w-2/3">
           <svg
             className="h-[1em] opacity-50"
@@ -98,19 +100,20 @@ export default function DeliveryReceipt() {
           />
         </label>
 
-        <div className="ml-auto">
-          <AddLaborOfComputation />
+        <div className="flex items-center gap-4">
+          <AddDeliveryReceipt />
         </div>
       </div>
       <h1>Deliver receipt</h1>
       <table className="table table-xs table-zebra w-full">
         <thead>
           <tr className="text-blue-500">
-            <th>Full Name</th>
-            <th>Department</th>
-            <th>Role</th>
-            <th>Active</th>
-            <th>Actions</th>
+            <th>Date</th>
+            <th>Delivered to</th>
+            <th>address</th>
+            <th>PO no</th>
+            <th>OR no.</th>
+            <th>actions</th>
           </tr>
         </thead>
         <tbody>
@@ -129,6 +132,7 @@ export default function DeliveryReceipt() {
                 <td className="text-xs">{user.full_name}</td>
                 <td className="text-xs">{user.department}</td>
                 <td className="text-xs">{user.role}</td>
+                <td className="text-xs">{user.role}</td>
                 <td className="text-xs">
                   <span
                     className={`${
@@ -141,8 +145,10 @@ export default function DeliveryReceipt() {
                   </span>
                 </td>
                 <td className="text-xs flex gap-2">
-                  <PersonalInformation id={user.id} />
-                  <ModuleAccess />
+                  {/* <PersonalInformation id={user.id} /> */}
+                  <ViewDeliveryReceipt />
+                  {/* <ModuleAccess /> */}
+                  <button className="btn btn-error">delete</button>
                 </td>
               </tr>
             ))

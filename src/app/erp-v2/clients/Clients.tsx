@@ -11,6 +11,13 @@ import ModuleAccess from "../user/_components/Modal/ModuleAccess";
 import CreateUser from "../user/_components/Modal/CreateUser";
 import AddLaborOfComputation from "../labor_of_computation/_compoments/Modal/AddLaborOfComputation";
 
+import Link from "next/link";
+import AddVendor from "../vendors/_components/Modal/AddVendor";
+
+import Config from "../quotation/_components/Modal/Config";
+import AddQuotations from "../quotation/_components/Modal/AddQuotations";
+import AddClients from "./_components/Modal/AddClients";
+
 /** components */
 
 // import PersonalInformation from "../Modal/PersonalInformation";
@@ -68,7 +75,7 @@ export default function Clients() {
 
   return (
     <div className="overflow-x-auto">
-      <div className="flex items-center justify-between mb-4 gap-250">
+      <div className="flex items-center justify-between mb-4 gap-4">
         <label className="input flex-grow w-2/3">
           <svg
             className="h-[1em] opacity-50"
@@ -98,8 +105,10 @@ export default function Clients() {
           />
         </label>
 
-        <div className="ml-auto">
-          <AddLaborOfComputation />
+        <div className="flex items-center gap-4">
+          {/* <AddQuotations /> */}
+          <AddClients />
+          {/* <ClientsConfig /> */}
         </div>
       </div>
       <h1>Clients</h1>
@@ -141,8 +150,14 @@ export default function Clients() {
                   </span>
                 </td>
                 <td className="text-xs flex gap-2">
-                  <PersonalInformation id={user.id} />
-                  <ModuleAccess />
+                  {/* <PersonalInformation id={user.id} />
+                  <ModuleAccess /> */}
+                  <Link href="/erp-v2/clients/view">
+                    <button className="btn btn-info">View Vendors</button>
+                  </Link>
+                  <Link href="/erp-v2/vendors/view">
+                    <button className="btn btn-error">Delete</button>
+                  </Link>
                 </td>
               </tr>
             ))
