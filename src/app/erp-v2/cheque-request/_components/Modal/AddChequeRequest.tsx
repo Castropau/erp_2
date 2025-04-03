@@ -1,30 +1,43 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FaCirclePlus } from "react-icons/fa6";
 import { Formik, Field, Form, FieldArray } from "formik";
-import { registerUser } from "@/api/User/registerUser";
-import { RegisterEmployee } from "@/interfaces/RegisterEmployee";
+import { registerCheque } from "@/api/cheque-request/CreateCheque";
 import { fetchUserLists } from "@/api/cash-request/fetchUsers";
+import {
+  fetchCashRequest,
+  RequisitionCashOptions,
+} from "@/api/cheque-request/fetchCashRequest";
 
 export default function AddChequeRequest() {
+  const [rows, setRows] = useState<any[]>([]);
+  const [isEditing, setIsEditing] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [totalAmount, setTotalAmount] = useState(0);
+
   const queryClient = useQueryClient();
 
-  const { mutate: registerEmployee } = useMutation({
-    mutationFn: (data: RegisterEmployee) => registerUser(data),
+  const { mutate: registerChequeRequest } = useMutation({
+    mutationFn: registerCheque,
     onSuccess: () => {
-      console.log("registered");
-      queryClient.invalidateQueries({ queryKey: ["users"] });
+      console.log("Cheque successfully registered");
+      queryClient.invalidateQueries({ queryKey: ["cheque"] });
       setShowRegisterModal(false);
     },
     onError: (error) => {
-      console.error("Registration error:", error);
+      console.error("Error during cheque registration:", error);
     },
   });
-
-  // users fetch
+  useEffect(() => {
+    const newTotalAmount = rows.reduce(
+      (acc, row) => acc + parseFloat(row.amount || 0),
+      0
+    );
+    setTotalAmount(newTotalAmount);
+  }, [rows]);
+  // Fetching users list
   const {
     isLoading: DisLoading,
     error: Derror,
@@ -34,11 +47,69 @@ export default function AddChequeRequest() {
     queryFn: fetchUserLists,
   });
 
-  const unitsList = ["kg", "unit", "box", "liter", "meter"];
-
   const handleSubmit = (values: any) => {
     console.log("Form data to submit:", values);
-    registerEmployee(values);
+    registerCheque(values);
+  };
+
+  const handleEditToggle = () => {
+    setIsEditing(!isEditing);
+  };
+  const { isLoading: isCashLoading, data: cashRecords } = useQuery({
+    queryKey: ["cashRecords"],
+    queryFn: fetchCashRequest,
+  });
+
+  //   const totalAmount = rows.reduce(
+  //     (sum, row) => sum + (parseFloat(row.amount) || 0),
+  //     0
+  //   );
+
+  // Handle adding a row based on cash record selection
+  const handleAddRow = (cashRequisitionId: number) => {
+    const selectedCashRecord = cashRecords?.find(
+      (item: RequisitionCashOptions) => item.id === cashRequisitionId
+    );
+
+    if (selectedCashRecord) {
+      setRows((prevRows) => [
+        ...prevRows,
+        {
+          id: selectedCashRecord.id,
+          cash_requisition: selectedCashRecord.id,
+          serial_no: selectedCashRecord.serial_no,
+          date_requested: selectedCashRecord.date_requested,
+          description: selectedCashRecord.special_instructions,
+          amount: selectedCashRecord.grand_total,
+          requested_by: selectedCashRecord.requested_by,
+          cheque_no: "",
+          remarks: "",
+        },
+        console.log(selectedCashRecord.id),
+      ]);
+    }
+  };
+
+  // Handle row removal
+  const handleRemoveRow = (rowId: number) => {
+    setRows((prevRows) => prevRows.filter((row) => row.id !== rowId));
+  };
+
+  // Handle form submission
+  const handleSubmits = (values: any) => {
+    const updatedChequeItems = rows.map((row) => ({
+      ...row,
+      cash_requisition: row.id,
+      cheque_no: row.cheque_no,
+      remarks: row.remarks,
+    }));
+
+    const updatedValues = {
+      ...values,
+      cheque_requisition_items: updatedChequeItems,
+    };
+
+    registerChequeRequest(updatedValues);
   };
 
   return (
@@ -49,7 +120,7 @@ export default function AddChequeRequest() {
           onClick={() => setShowRegisterModal(true)}
         >
           <FaCirclePlus className="h-5 btn-info" />
-          Add Cash Request
+          Add Cheque Request
         </button>
       </div>
 
@@ -60,93 +131,45 @@ export default function AddChequeRequest() {
 
             <Formik
               initialValues={{
-                special_instructions: "",
-                project_name: "",
-                delivery_address: "",
+                cheque_requisition_items: [],
+                name_of_organization: "",
+                payable_to: "",
+                address: "",
+                purpose: "",
                 requested_by: "",
-                date: "",
-                request: "",
-                items: [
-                  {
-                    item: "",
-                    quantity: "",
-                    unit: "",
-                    description: "",
-                    supplier: "",
-                    unit_price: "",
-                    total: "",
-                  },
-                ],
+                cheque_no: "",
+                date_requested: "",
+                serial_no: "",
               }}
               onSubmit={handleSubmit}
             >
               {({ values, setFieldValue }) => (
                 <Form className="py-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Heading for Special Information */}
-                    {[
-                      {
-                        type: "heading",
-                        level: 2,
-                        text: "Special Information",
-                      },
-                    ].map((item) => (
-                      <div
-                        key="special-info-heading"
-                        className="col-span-2 mb-4"
-                      >
-                        {item.type === "heading" && item.level === 2 && (
-                          <h2 className="font-bold text-lg">{item.text}</h2>
-                        )}
-                      </div>
-                    ))}
-
                     {/* Form Fields */}
                     {[
                       {
-                        type: "textarea",
-                        name: "special_instructions",
-                        placeholder: "set serial #",
-                        label: "serial #",
-                      },
-                      {
-                        type: "date",
-                        name: "date",
-                        placeholder: "Enter project name",
-                        label: "date",
-                      },
-                      {
-                        type: "text",
-                        name: "name_of_org",
-                        placeholder: "Name of organization",
-                        label: "Name of organization",
-                      },
-                      {
-                        type: "text",
-                        name: "delivery_address",
-                        placeholder: "payable to",
-                        label: "payable to",
-                      },
-                      {
-                        type: "text",
-                        name: "address",
-                        placeholder: "address",
-                        label: "address",
-                      },
-                      {
-                        type: "text",
-                        name: "purpose",
-                        placeholder: "purpose",
-                        label: "purpose",
-                      },
-
-                      {
+                        name: "serial_no",
                         type: "select",
+                        label: "Set Serial #",
+                      }, // Change type to select here
+                      { name: "date_requested", type: "date", label: "Date" },
+                      {
+                        name: "name_of_organization",
+                        type: "text",
+                        label: "Name of Organization",
+                      },
+                      { name: "cheque_no", type: "text", label: "cheque_no" },
+                      { name: "payable_to", type: "text", label: "Payable To" },
+                      { name: "address", type: "text", label: "Address" },
+                      { name: "purpose", type: "text", label: "Purpose" },
+                      {
                         name: "requested_by",
+                        type: "select",
                         label: "Requested By",
                         options:
                           usersList?.map((user) => ({
-                            value: user.id.toString(),
+                            value: user.id,
                             label: user.full_name,
                           })) || [],
                       },
@@ -158,260 +181,227 @@ export default function AddChequeRequest() {
                         >
                           {item.label}
                         </label>
-                        {item.type === "text" ||
-                        item.type === "date" ||
-                        item.type === "textarea" ? (
-                          <Field
-                            as={item.type === "textarea" ? "textarea" : "input"}
-                            type={item.type === "textarea" ? null : item.type}
-                            id={item.name}
-                            name={item.name}
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                            placeholder={item.placeholder}
-                          />
-                        ) : item.type === "select" ? (
+
+                        {item.type === "select" ? (
                           <Field
                             as="select"
                             id={item.name}
                             name={item.name}
                             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                           >
-                            <option value="">Select a user</option>
-                            {item.options?.map((option) => (
-                              <option key={option.value} value={option.value}>
-                                {option.label}
-                              </option>
-                            ))}
+                            <option value="">Select {item.label}</option>
+                            {item.name === "serial_no"
+                              ? values.cheque_requisition_items?.map(
+                                  (record: {
+                                    id: number;
+                                    serial_no: number;
+                                  }) => (
+                                    <option key={record.id} value={record.id}>
+                                      {record.serial_no}
+                                    </option>
+                                  )
+                                )
+                              : item.options?.map((option) => (
+                                  <option
+                                    key={option.value}
+                                    value={option.value}
+                                  >
+                                    {option.label}
+                                  </option>
+                                ))}
                           </Field>
+                        ) : item.type === "text" || item.type === "date" ? (
+                          <Field
+                            type={item.type}
+                            id={item.name}
+                            name={item.name}
+                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                          />
                         ) : null}
                       </div>
                     ))}
 
-                    {/* Dynamic Items Table */}
-                    <div>
-                      {[{ type: "heading", level: 2, text: "Items" }].map(
-                        (item) => (
-                          <div key="items-heading" className="col-span-2 mb-4">
-                            {item.type === "heading" && item.level === 2 && (
-                              <h2 className="font-bold text-lg">{item.text}</h2>
-                            )}
-                          </div>
-                        )
-                      )}
-                      <FieldArray name="items">
-                        {({ insert, remove, push }) => (
+                    <div className="col-span-2">
+                      <h2 className="font-bold text-lg mb-4">Items</h2>
+                      <FieldArray name="cheque_requisition_items">
+                        {({ push, remove }) => (
                           <div>
-                            <button
-                              type="button"
-                              onClick={() =>
-                                push({
-                                  item: "", // Dropdown for users
-                                  quantity: "",
-                                  unit: "",
-                                  description: "",
-                                  supplier: "",
-                                  unit_price: "",
-                                  total: "",
-                                })
-                              }
-                              className="btn btn-info mt-4"
-                            >
-                              Add Item
-                            </button>
-
-                            {/* Table to display items */}
-                            {/* <div className="mt-4 overflow-x-auto"> */}
-                            <table
-                              className="w-full table-auto border-collapse text-sm"
-                              style={{ width: "200%" }}
-                            >
-                              <thead>
-                                <tr>
-                                  <th className="border p-2">No</th>
-                                  <th className="border p-2">
-                                    Date of purchase
-                                  </th>
-                                  <th className="border p-2">Description</th>
-                                  <th className="border p-2">Amount</th>
-                                  <th className="border p-2">Cheque Number</th>
-                                  <th className="border p-2">Remark</th>
-                                  <th className="border p-2">Actions</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {/* Render each row of items */}
-                                {values.items.map((item, index) => (
-                                  <tr key={index}>
-                                    <td className="border p-2">
-                                      {DisLoading ? (
-                                        <div>Loading users...</div>
-                                      ) : Derror ? (
-                                        <div>Error loading users</div>
-                                      ) : (
-                                        <div>
-                                          <input
-                                            type="text"
-                                            name={`items[${index}].item`}
-                                            list={`usersList-${index}`}
-                                            className="w-full p-2 border"
-                                            placeholder="Search or type user"
-                                            value={item.item}
-                                            onChange={(e) =>
-                                              setFieldValue(
-                                                `items[${index}].item`,
-                                                e.target.value
-                                              )
-                                            }
-                                          />
-                                          <datalist id={`usersList-${index}`}>
-                                            {usersList?.map((user) => (
-                                              <option
-                                                key={user.id}
-                                                value={user.full_name}
-                                              />
-                                            ))}
-                                          </datalist>
-                                        </div>
-                                      )}
-                                    </td>
-                                    <td className="border p-2">
-                                      <Field
-                                        type="number"
-                                        name={`items[${index}].quantity`}
-                                        className="w-full p-2 border"
-                                        placeholder="Quantity"
-                                      />
-                                    </td>
-                                    <td className="border p-2">
-                                      <Field
-                                        as="select"
-                                        name={`items[${index}].unit`}
-                                        className="w-full p-2 border"
-                                      >
-                                        <option value="">Select unit</option>
-                                        {unitsList.map((unit, idx) => (
-                                          <option key={idx} value={unit}>
-                                            {unit}
-                                          </option>
-                                        ))}
-                                      </Field>
-                                    </td>
-                                    <td className="border p-2">
-                                      <Field
-                                        type="text"
-                                        name={`items[${index}].description`}
-                                        className="w-full p-2 border"
-                                        placeholder="Description"
-                                      />
-                                    </td>
-                                    <td className="border p-2">
-                                      {DisLoading ? (
-                                        <div>Loading users...</div>
-                                      ) : Derror ? (
-                                        <div>Error loading users</div>
-                                      ) : (
-                                        <div>
-                                          <input
-                                            type="text"
-                                            name={`items[${index}].item`}
-                                            list={`usersList-${index}`}
-                                            className="w-full p-2 border"
-                                            placeholder="Search or type user"
-                                            value={item.item}
-                                            onChange={(e) =>
-                                              setFieldValue(
-                                                `items[${index}].item`,
-                                                e.target.value
-                                              )
-                                            }
-                                          />
-                                          <datalist id={`usersList-${index}`}>
-                                            {usersList?.map((user) => (
-                                              <option
-                                                key={user.id}
-                                                value={user.full_name}
-                                              />
-                                            ))}
-                                          </datalist>
-                                        </div>
-                                      )}
-                                    </td>
-                                    <td className="border p-2">
-                                      <Field
-                                        type="number"
-                                        name={`items[${index}].unit_price`}
-                                        className="w-full p-2 border"
-                                        placeholder="Unit Price"
-                                      />
-                                    </td>
-                                    <td className="border p-2">
-                                      <Field
-                                        type="number"
-                                        name={`items[${index}].total`}
-                                        className="w-full p-2 border"
-                                        placeholder="Total"
-                                        disabled
-                                      />
-                                    </td>
-                                    <td className="border p-2">
-                                      <button
-                                        type="button"
-                                        onClick={() => remove(index)}
-                                        className="btn btn-error"
-                                      >
-                                        Remove
-                                      </button>
-                                    </td>
+                            <div className="bg-white p-4 rounded-lg shadow-md mt-6">
+                              <table className="min-w-full table-auto border-collapse">
+                                <thead>
+                                  <tr className="text-blue-500">
+                                    <th className="p-2 text-left">Serial No</th>
+                                    <th className="p-2 text-left">
+                                      Date of Purchase
+                                    </th>
+                                    <th className="p-2 text-left">
+                                      Description
+                                    </th>
+                                    <th className="p-2 text-left">Amount</th>
+                                    <th className="p-2 text-left">
+                                      Cheque Number
+                                    </th>
+                                    <th className="p-2 text-left">Remark</th>
+                                    <th className="p-2 text-left">Action</th>
                                   </tr>
-                                ))}
-                              </tbody>
-                            </table>
-
-                            {values.items.map((item, index) => (
-                              <tr key={index}>
-                                <td colSpan={6} className="border p-2">
-                                  <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                      <strong>
-                                        Select Cash Request Serial #:
-                                      </strong>
-                                      <div className="w-full p-2 border">
-                                        <input
-                                          type="text"
-                                          name={`items[${index}].name`}
-                                          list={`nameList-${index}`}
-                                          className="w-full p-2 border"
-                                          placeholder="Select Cash Request serial #"
-                                          value={item.unit_price}
-                                          onChange={(e) =>
-                                            setFieldValue(
-                                              `items[${index}].name`,
-                                              e.target.value
-                                            )
-                                          }
-                                        />
-                                        {/* Datalist for name */}
-                                        <datalist id={`nameList-${index}`}>
-                                          {usersList?.map((user) => (
-                                            <option
-                                              key={user.id}
-                                              value={user.full_name}
+                                </thead>
+                                <tbody>
+                                  {Array.isArray(
+                                    values.cheque_requisition_items
+                                  ) &&
+                                  values.cheque_requisition_items.length > 0 ? (
+                                    values.cheque_requisition_items.map(
+                                      (item, index) => (
+                                        <tr key={index}>
+                                          <td className="p-2">
+                                            <Field
+                                              name={`cheque_requisition_items[${index}].serial_no`}
+                                              className="bg-gray-50 border border-gray-300 rounded-lg block w-full p-2.5"
+                                              placeholder="Serial No"
                                             />
-                                          ))}
-                                        </datalist>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </td>
-                              </tr>
-                            ))}
+                                          </td>
+                                          <td className="p-2">
+                                            <Field
+                                              name={`cheque_requisition_items[${index}].date_of_purchase`}
+                                              className="bg-gray-50 border border-gray-300 rounded-lg block w-full p-2.5"
+                                              placeholder="Date"
+                                            />
+                                          </td>
+                                          <td className="p-2">
+                                            <Field
+                                              name={`cheque_requisition_items[${index}].description`}
+                                              className="bg-gray-50 border border-gray-300 rounded-lg block w-full p-2.5"
+                                              placeholder="Description"
+                                            />
+                                          </td>
+                                          <td className="p-2">
+                                            <Field
+                                              name={`cheque_requisition_items[${index}].amount`}
+                                              className="bg-gray-50 border border-gray-300 rounded-lg block w-full p-2.5"
+                                              placeholder="Amount"
+                                            />
+                                          </td>
+                                          <td className="p-2">
+                                            <Field
+                                              name={`cheque_requisition_items[${index}].cheque_no`}
+                                              className="bg-gray-50 border border-gray-300 rounded-lg block w-full p-2.5"
+                                              placeholder="Cheque No"
+                                            />
+                                          </td>
+                                          <td className="p-2">
+                                            <Field
+                                              name={`cheque_requisition_items[${index}].remarks`}
+                                              className="bg-gray-50 border border-gray-300 rounded-lg block w-full p-2.5"
+                                              placeholder="Remarks"
+                                            />
+                                          </td>
+                                          <td className="p-2">
+                                            <button
+                                              type="button"
+                                              onClick={() => remove(index)} // Remove the row from Formik state
+                                              className="text-red-500 hover:text-red-700"
+                                            >
+                                              Remove
+                                            </button>
+                                          </td>
+                                        </tr>
+                                      )
+                                    )
+                                  ) : (
+                                    <tr>
+                                      <td
+                                        colSpan={7}
+                                        className="p-2 text-center text-gray-500"
+                                      >
+                                        No items added yet
+                                      </td>
+                                    </tr>
+                                  )}
+                                </tbody>
+                              </table>
+
+                              {/* Cash Record Selection Dropdown */}
+                              <select
+                                className="bg-gray-50 border border-gray-300 rounded-lg block w-full p-2.5"
+                                onChange={(e) => {
+                                  const parsedValue: {
+                                    id: number;
+                                    serial_no: string;
+                                    special_instructions: string;
+                                    grand_total: number;
+                                    requested_by: string;
+                                    date_requested: string;
+                                    status: string;
+                                  } = JSON.parse(e.target.value);
+
+                                  push({
+                                    id: parsedValue.id,
+                                    serial_no: parsedValue.serial_no,
+                                    cash_requisition: parsedValue.id,
+                                    date_of_purchase:
+                                      parsedValue.date_requested,
+                                    description:
+                                      parsedValue.special_instructions,
+                                    amount: parsedValue.grand_total,
+                                    cheque_no: "",
+                                    remark: "",
+                                  });
+
+                                  setTotalAmount(
+                                    (prevTotal) =>
+                                      prevTotal + parsedValue.grand_total
+                                  );
+                                }}
+                              >
+                                <option value="">Select Cash Record</option>
+                                {isCashLoading ? (
+                                  <option value="">
+                                    Loading cash records...
+                                  </option>
+                                ) : (
+                                  cashRecords?.map((cash) => (
+                                    <option
+                                      key={cash.id}
+                                      value={JSON.stringify(cash)}
+                                    >
+                                      {cash.serial_no}
+                                    </option>
+                                  ))
+                                )}
+                              </select>
+                            </div>
                           </div>
-                          //   </div>
                         )}
                       </FieldArray>
                     </div>
                   </div>
+                  <div className="mt-4 flex justify-between">
+                    {/* Only show the Select Cash Record dropdown if in editing mode */}
+                    {isEditing && (
+                      <select
+                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                        onChange={(e) => handleAddRow(Number(e.target.value))}
+                      >
+                        <option value="">Select Cash Record</option>
+                        {isCashLoading ? (
+                          <option value="">Loading cash records...</option>
+                        ) : (
+                          cashRecords?.map((cash: any) => (
+                            <option key={cash.id} value={cash.id}>
+                              {cash.serial_no}
+                            </option>
+                          ))
+                        )}
+                      </select>
+                    )}
+                  </div>
 
+                  {/* Total Display */}
+                  <div className="mt-4 flex justify-end">
+                    <span className="font-semibold text-lg">
+                      Total: ₱{totalAmount.toFixed(2)}
+                    </span>
+                  </div>
                   <div className="modal-action">
                     <button type="submit" className="btn">
                       Submit

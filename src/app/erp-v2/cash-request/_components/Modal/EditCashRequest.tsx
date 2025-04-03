@@ -14,6 +14,7 @@ import {
 import { CashUnits } from "@/api/cash-request/fetchUnit";
 import { updateCashId } from "@/api/cash-request/updateCashRequestId";
 import { ChequeItems, Items } from "@/api/cheque-request/fetchItems";
+import { Supplier } from "@/api/cash-request/fetchSupplier";
 
 interface CashId {
   id: number;
@@ -56,6 +57,15 @@ export default function EditCashRequest(props: CashId) {
   } = useQuery<Items[]>({
     queryKey: ["items"],
     queryFn: ChequeItems,
+  });
+
+  const {
+    isLoading: SupplierLoading,
+    error: Supplierrrror,
+    data: SupplierList,
+  } = useQuery<Supplier[]>({
+    queryKey: ["supplier"],
+    queryFn: Supplier,
   });
 
   // users fetch
@@ -357,6 +367,7 @@ export default function EditCashRequest(props: CashId) {
                                                   e.target.value
                                                 )
                                               }
+                                              required
                                             />
                                             <datalist id={`ItemList-${index}`}>
                                               {ItemList?.map((user) => (
@@ -381,13 +392,15 @@ export default function EditCashRequest(props: CashId) {
                                               e.target.value
                                             )
                                           }
+                                          required
                                         />
                                       </td>
                                       <td className="border p-2">
                                         <Field
                                           as="select"
-                                          name={`cash_requisition_items[${index}].unit`}
+                                          name={`cash_requisition_items[${index}].unit_of_measurement`}
                                           className="w-full p-2 border"
+                                          required
                                         >
                                           <option value="">Select unit</option>
                                           {CULoading ? (
@@ -397,16 +410,13 @@ export default function EditCashRequest(props: CashId) {
                                               Error loading units
                                             </option>
                                           ) : (
-                                            unitsList?.map((unit, idx) => (
+                                            unitsList?.map((unit) => (
                                               <option
                                                 key={unit.id}
-                                                name="unit_of_measurement"
                                                 value={unit.unit_of_measurement}
                                                 selected={
                                                   unit.unit_of_measurement ===
-                                                  values.cash_requisition_items[
-                                                    index
-                                                  ].unit_of_measurement
+                                                  item.unit_of_measurement
                                                 }
                                               >
                                                 {unit.unit_of_measurement}
@@ -422,6 +432,7 @@ export default function EditCashRequest(props: CashId) {
                                           name={`cash_requisition_items[${index}].description`}
                                           className="w-full p-2 border"
                                           placeholder="Description"
+                                          required
                                         />
                                       </td>
                                       <td className="border p-2">
@@ -434,9 +445,9 @@ export default function EditCashRequest(props: CashId) {
                                             <input
                                               type="text"
                                               name={`cash_requisition_items[${index}].supplier`}
-                                              list={`usersList-${index}`}
+                                              list={`supplierList-${index}`}
                                               className="w-full p-2 border"
-                                              placeholder="Search or type user"
+                                              placeholder="Search or type supplier"
                                               value={item.supplier}
                                               onChange={(e) =>
                                                 setFieldValue(
@@ -444,12 +455,15 @@ export default function EditCashRequest(props: CashId) {
                                                   e.target.value
                                                 )
                                               }
+                                              required
                                             />
-                                            <datalist id={`usersList-${index}`}>
-                                              {usersList?.map((user) => (
+                                            <datalist
+                                              id={`supplierList-${index}`}
+                                            >
+                                              {SupplierList?.map((supplier) => (
                                                 <option
-                                                  key={user.id}
-                                                  value={user.full_name}
+                                                  key={supplier.id}
+                                                  value={supplier.vendor}
                                                 />
                                               ))}
                                             </datalist>
@@ -468,6 +482,7 @@ export default function EditCashRequest(props: CashId) {
                                               e.target.value
                                             )
                                           }
+                                          required
                                         />
                                       </td>
                                       <td className="border p-2">
