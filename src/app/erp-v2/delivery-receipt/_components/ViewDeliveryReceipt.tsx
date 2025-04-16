@@ -12,12 +12,31 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchDepartmentsList } from "@/api/User/fetchDepartmentList";
 import { fetchUserList } from "@/api/User/fetchUserList";
 import { FaBan, FaEye, FaPlusCircle, FaTrash } from "react-icons/fa";
-
-export default function ViewDeliveryReceipt() {
+import { fetchReceiptById } from "@/api/delivery_receipt/fetchReceipt";
+import { fetchReleasedBy } from "@/api/delivery_receipt/fetchReleased";
+import { fetchApprovedBy } from "@/api/delivery_receipt/fetchApproved";
+import { fetchSalesmanBy } from "@/api/delivery_receipt/fetchSalesman";
+import { UpdateView, updateView } from "@/api/delivery_receipt/updateDelivery";
+interface DeliveryId {
+  id: number;
+}
+export default function ViewDeliveryReceipt(props: DeliveryId) {
+  const { id } = props;
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState("");
   const [isEditable, setIsEditable] = useState(false); // State to toggle edit mode
   const queryClient = useQueryClient();
+
+  const {
+    data: ReceiptData,
+    isLoading: Rloading,
+    isError: ReceiptError,
+    error: rerror,
+  } = useQuery({
+    queryKey: ["deliveryId", id],
+    queryFn: () => fetchReceiptById(id),
+    enabled: !!id,
+  });
 
   const {
     mutate: registerCategory,
@@ -35,6 +54,30 @@ export default function ViewDeliveryReceipt() {
     },
   });
 
+  const { mutate: updateDeliveryReceipt } = useMutation({
+    mutationFn: (data: UpdateView) => updateView(id, data),
+    onSuccess: () => {
+      console.log("delivery updated successfully");
+      queryClient.invalidateQueries({ queryKey: ["delivery", id] });
+      setShowRegisterModal(false); // Close the modal after successful update
+    },
+    onError: (error) => {
+      console.error("Error updating quotation:", error);
+    },
+  });
+
+  const { data: SalesmanData } = useQuery({
+    queryKey: ["released"],
+    queryFn: fetchSalesmanBy, // Assume fetchDepartmentsList is an API call to fetch departments (projects)
+  });
+  const { data: ReleasedData } = useQuery({
+    queryKey: ["released"],
+    queryFn: fetchReleasedBy, // Assume fetchDepartmentsList is an API call to fetch departments (projects)
+  });
+  const { data: ApprovedData } = useQuery({
+    queryKey: ["released"],
+    queryFn: fetchApprovedBy, // Assume fetchDepartmentsList is an API call to fetch departments (projects)
+  });
   // Fetch project data based on dropdown selection
   const { data: projects } = useQuery({
     queryKey: ["projects"],
@@ -97,32 +140,52 @@ export default function ViewDeliveryReceipt() {
 
             <Formik
               initialValues={{
-                projectName: "",
-                projectDate: "",
-                remittedBy: "",
+                projectName: ReceiptData?.released_by.id || "",
+                projectDate: ReceiptData?.date || "",
+                remittedBy: ReceiptData?.created_by.full_name || "",
                 receivedBy: "",
-                terms: "",
-                poNo: "",
-                salesman: "",
-                approvedBy: "",
-                deliveredTo: "",
-                tin: "",
-                businessStyle: "",
-                address: "",
-                note: "",
-                tableRows: [
+                terms: ReceiptData?.terms || "",
+                po_no: ReceiptData?.po_no || "",
+                salesman: ReceiptData?.salesman?.id || "",
+                approved_by: ReceiptData?.approved_by?.id || "",
+                delivery_to: ReceiptData?.delivered_to || "",
+                tin: ReceiptData?.tin || "",
+                business_style: ReceiptData?.business_style || "",
+                address: ReceiptData?.address || "",
+                note: ReceiptData?.note || "",
+                // items: ReceiptData?.items || [
+                //   {
+                //     quantity: "",
+                //     description: "",
+                //   },
+                // ],
+                items: ReceiptData?.items || [
                   {
-                    date: "",
-                    particulars: "",
-                    expenses: "",
-                    cashFromAccounting: "",
-                    balance: "",
-                    vatIncluded: false,
+                    quantity: "",
+                    description: "",
+                    order: 1.0, // Add order field to initial item, if not present
                   },
                 ],
                 notesRows: [{ note: "" }],
+                released_by: ReceiptData?.released_by?.id || "",
+                releasedDate: ReceiptData?.date_released || "",
               }}
-              onSubmit={handleSubmit}
+              enableReinitialize={true}
+              onSubmit={(values) => {
+                const updatedData = {
+                  ...ReceiptData,
+                  ...values,
+                  items: values.items.map((item, index) => ({
+                    ...item,
+                    no: index + 1,
+                  })),
+                };
+
+                // Call your mutation here
+                updateDeliveryReceipt(updatedData); // <-- replace this with your mutation logic
+
+                console.log("Updated data to send:", updatedData);
+              }}
             >
               {({ values, setFieldValue }) => {
                 // Array for "From" and "To" fields
@@ -136,7 +199,7 @@ export default function ViewDeliveryReceipt() {
                   },
                   {
                     label: "PO No.",
-                    name: "poNo",
+                    name: "po_no",
                     type: "text",
                     placeholder: "Enter PO No.",
                   },
@@ -144,20 +207,29 @@ export default function ViewDeliveryReceipt() {
                     label: "Salesman",
                     name: "salesman",
                     type: "select",
-                    options: ["Salesman 1", "Salesman 2"],
+                    options:
+                      SalesmanData?.map((user) => ({
+                        value: user.id.toString(),
+                        label: user.full_name,
+                      })) || [],
                   },
                   {
                     label: "Approved By",
-                    name: "approvedBy",
+                    name: "approved_by",
                     type: "select",
-                    options: ["Approver 1", "Approver 2"],
+                    // options: ["Approver 1", "Approver 2"],
+                    options:
+                      ApprovedData?.map((user) => ({
+                        value: user.id.toString(),
+                        label: user.full_name,
+                      })) || [],
                   },
                 ];
 
                 const toFields = [
                   {
                     label: "Delivered To",
-                    name: "deliveredTo",
+                    name: "delivery_to",
                     type: "text",
                     placeholder: "Enter delivered to",
                   },
@@ -169,7 +241,7 @@ export default function ViewDeliveryReceipt() {
                   },
                   {
                     label: "Business Style",
-                    name: "businessStyle",
+                    name: "business_style",
                     type: "text",
                     placeholder: "Enter business style",
                   },
@@ -189,10 +261,15 @@ export default function ViewDeliveryReceipt() {
                 const warehouseReleasedFields = [
                   {
                     label: "Released By",
-                    name: "releasedBy",
+                    name: "released_by",
                     type: "select",
-                    options: ["Employee 1", "Employee 2"],
+                    options:
+                      ReleasedData?.map((user) => ({
+                        value: user.id.toString(),
+                        label: user.full_name,
+                      })) || [],
                   },
+
                   { label: "Date", name: "releasedDate", type: "date" },
                 ];
 
@@ -220,8 +297,8 @@ export default function ViewDeliveryReceipt() {
                               >
                                 <option value="">Select {field.label}</option>
                                 {field.options?.map((option, idx) => (
-                                  <option key={idx} value={option}>
-                                    {option}
+                                  <option key={idx} value={option.value}>
+                                    {option.label}
                                   </option>
                                 ))}
                               </Field>
@@ -264,8 +341,8 @@ export default function ViewDeliveryReceipt() {
                               >
                                 <option value="">Select {field.label}</option>
                                 {field.options?.map((option, idx) => (
-                                  <option key={idx} value={option}>
-                                    {option}
+                                  <option key={idx} value={option.value}>
+                                    {option.label}
                                   </option>
                                 ))}
                               </Field>
@@ -312,66 +389,94 @@ export default function ViewDeliveryReceipt() {
 
                     {/* Table Section */}
                     <div className="my-6">
-                      <table className="min-w-full table-auto border-collapse border border-gray-300">
-                        <thead>
-                          <tr>
-                            <th className="border px-4 py-2">No.</th>
-                            <th className="border px-4 py-2">Quantity</th>
-                            <th className="border px-4 py-2">Description</th>
+                      <FieldArray name="items">
+                        {({ insert, remove, push }) => (
+                          <>
                             {isEditable && (
-                              <th className="border px-4 py-2">Action</th> // Conditionally render Action column
+                              <div className="mb-4">
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    push({
+                                      no: values.items.length + 1,
+                                      quantity: "",
+                                      description: "",
+                                      order: (values.items.length + 1).toFixed(
+                                        1
+                                      ),
+                                    })
+                                  }
+                                  className="btn btn-info"
+                                >
+                                  Add Item
+                                </button>
+                              </div>
                             )}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {rows.map((row, index) => (
-                            <tr key={index}>
-                              <td className="border px-4 py-2">{row.no}</td>
-                              <td className="border px-4 py-2">
-                                <input
-                                  type="number"
-                                  value={row.quantity}
-                                  onChange={(e) => {
-                                    const updatedRows = [...rows];
-                                    updatedRows[index].quantity =
-                                      e.target.value;
-                                    setRows(updatedRows);
-                                  }}
-                                  className="w-full border p-2"
-                                  disabled={!isEditable} // Disable input if not editable
-                                />
-                              </td>
-                              <td className="border px-4 py-2">
-                                <textarea
-                                  value={row.description}
-                                  onChange={(e) => {
-                                    const updatedRows = [...rows];
-                                    updatedRows[index].description =
-                                      e.target.value;
-                                    setRows(updatedRows);
-                                  }}
-                                  className="w-full border p-2"
-                                  disabled={!isEditable} // Disable input if not editable
-                                />
-                              </td>
-                              {isEditable && ( // Conditionally render Action button
-                                <td className="border px-4 py-2">
-                                  <div className="flex justify-center">
-                                    <button
-                                      type="button"
-                                      onClick={() => handleRemoveRow(index)}
-                                      className="flex text-red-600 hover:text-red-800"
-                                    >
-                                      <FaTrash />
-                                      Remove
-                                    </button>
-                                  </div>
-                                </td>
-                              )}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+
+                            <table className="min-w-full table-auto border-collapse border border-gray-300">
+                              <thead>
+                                <tr>
+                                  <th className="border px-4 py-2">No.</th>
+
+                                  <th className="border px-4 py-2">Quantity</th>
+                                  <th className="border px-4 py-2">
+                                    Description
+                                  </th>
+                                  {isEditable && (
+                                    <th className="border px-4 py-2">Action</th>
+                                  )}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {values.items.map((item, index) => (
+                                  <tr key={index}>
+                                    <td className="border px-4 py-2">
+                                      {index + 1}
+                                    </td>
+
+                                    <td className="border px-4 py-2">
+                                      <Field
+                                        type="number"
+                                        name={`items[${index}].quantity`}
+                                        className={`w-full border p-2 ${
+                                          !isEditable &&
+                                          "bg-gray-200 cursor-not-allowed"
+                                        }`}
+                                        disabled={!isEditable}
+                                      />
+                                    </td>
+
+                                    <td className="border px-4 py-2">
+                                      <Field
+                                        as="textarea"
+                                        name={`items[${index}].description`}
+                                        className={`w-full border p-2 ${
+                                          !isEditable &&
+                                          "bg-gray-200 cursor-not-allowed"
+                                        }`}
+                                        disabled={!isEditable}
+                                      />
+                                    </td>
+
+                                    {isEditable && (
+                                      <td className="border px-4 py-2 text-center">
+                                        <button
+                                          type="button"
+                                          onClick={() => remove(index)}
+                                          className="text-red-600 hover:text-red-800"
+                                        >
+                                          <FaTrash className="inline mr-1" />
+                                          Remove
+                                        </button>
+                                      </td>
+                                    )}
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </>
+                        )}
+                      </FieldArray>
 
                       {isEditable && ( // Conditionally render Add Row button
                         <div className="flex justify-start mt-4">

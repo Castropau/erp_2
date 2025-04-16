@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, ChangeEvent } from "react";
 import { FaCirclePlus } from "react-icons/fa6";
 import { Field, Form, Formik, FieldArray } from "formik";
 import { CiCirclePlus } from "react-icons/ci";
@@ -12,10 +12,15 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 /** interfaces */
 import { fetchDepartmentsList } from "@/api/User/fetchDepartmentList";
 import { fetchUserList } from "@/api/User/fetchUserList";
+import { fetchCashList } from "@/api/liquidations/fetchCash";
+import { fetchCashDetailsById } from "@/api/liquidations/fetchProject";
+import { AddLiq, CreateLiq } from "@/api/liquidations/addLiq";
 
 export default function AddLiquidation() {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState("");
+  const [projectName, setProjectName] = useState<string>("");
+  const [dateRequested, setDateRequested] = useState<string | Date>(""); // Initialize with an empty string or a Date type
 
   const queryClient = useQueryClient();
 
@@ -24,10 +29,10 @@ export default function AddLiquidation() {
     isError,
     error,
   } = useMutation({
-    mutationFn: (data: CreateCategory) => CreateCategory(data),
+    mutationFn: (data: AddLiq) => CreateLiq(data),
     onSuccess: () => {
-      console.log("category registered successfully");
-      queryClient.invalidateQueries({ queryKey: ["category"] });
+      console.log("liquidations registered successfully");
+      queryClient.invalidateQueries({ queryKey: ["liquidations"] });
       setShowRegisterModal(false);
     },
     onError: (error: any) => {
@@ -35,21 +40,54 @@ export default function AddLiquidation() {
     },
   });
 
-  // Fetch project data based on dropdown selection
   const { data: projects } = useQuery({
-    queryKey: ["projects"],
-    queryFn: fetchDepartmentsList, // Assume fetchDepartmentsList is an API call to fetch departments (projects)
+    queryKey: ["cash"],
+    queryFn: fetchCashList,
   });
 
-  // Fetch user list for 'remittedBy' dropdown
+  const { data: projectDetails, isLoading: isLoadingProjectDetails } = useQuery(
+    {
+      queryKey: ["projectDetails", selectedProject],
+      queryFn: () => fetchCashDetailsById(Number(selectedProject)),
+      enabled: !!selectedProject, // Enable query only when selectedProject is truthy
+    }
+  );
+
+  useEffect(() => {
+    if (selectedProject && projectDetails) {
+      setProjectName(projectDetails.special_instructions); // Set project name
+      setDateRequested(projectDetails.date_requested); // Set date_requested
+    }
+  }, [selectedProject, projectDetails]);
+
   const { data: users } = useQuery({
     queryKey: ["users"],
-    queryFn: fetchUserList, // Assume fetchUserList is an API call to fetch users
+    queryFn: fetchUserList,
   });
 
   // Handle form submission
+  //   const handleSubmit = (values: any) => {
+  //     console.log(values);
+  //   };
   const handleSubmit = (values: any) => {
-    console.log(values);
+    const liquidationData: AddLiq = {
+      id: Number(selectedProject),
+      liquidation_no: "LQ-" + Date.now(), // You can replace this with dynamic logic for liquidation number
+      photos: "", // Add logic to handle photos if applicable
+      project_name: projectName || "",
+      date: values.date, // Ensure this is the correct field in your form
+      remitted_by: values.remittedBy, // Ensure this matches the form field name
+      total: String(
+        values.tableRows.reduce(
+          (acc, row) => acc + parseFloat(row.balance || "0"),
+          0
+        )
+      ),
+      task_notes: values.task_notes,
+    };
+
+    registerCategory(liquidationData);
+    console.log(liquidationData);
   };
 
   return (
@@ -72,13 +110,19 @@ export default function AddLiquidation() {
             <Formik
               initialValues={{
                 project: "",
-                projectName: "",
-                projectDate: "",
-                remittedBy: "",
-                receivedBy: "",
-                tableRows: [
+                photos: [],
+                id: projectDetails?.id || "",
+                project_name: projectDetails?.project_name || "",
+                date: "",
+                date_requested: projectDetails?.date_requested || "",
+                liquidation_particulars:
+                  projectDetails?.cash_requisition_items || [], // Populate with fetched items
+                cash_requisition: "",
+                remitted_by: "",
+                received_by: "",
+                tableRows: projectDetails?.cash_requisition_items || [
                   {
-                    date: "",
+                    date_requested: "",
                     particulars: "",
                     expenses: "",
                     cashFromAccounting: "",
@@ -86,12 +130,24 @@ export default function AddLiquidation() {
                     vatIncluded: false,
                   },
                 ],
-                notesRows: [{ note: "" }],
+                // task_notes: [{ task_notes: "" }],
+                task_notes: [
+                  { task_notes: "", items: "", description: "" }, // Set initial task notes with item and description
+                ],
+                // task_notes: [],
               }}
               onSubmit={handleSubmit}
             >
               {({ values, setFieldValue }) => {
-                // Calculate total expenses and cash from accounting
+                useEffect(() => {
+                  if (projectDetails) {
+                    setFieldValue(
+                      "tableRows",
+                      projectDetails.cash_requisition_items || []
+                    );
+                  }
+                }, [projectDetails, setFieldValue]);
+
                 const totalExpenses = values.tableRows.reduce(
                   (acc, row) => acc + (parseFloat(row.expenses) || 0),
                   0
@@ -106,8 +162,6 @@ export default function AddLiquidation() {
                   0
                 );
 
-                // const totalBalance = totalExpenses + totalCashFromBalance;
-
                 return (
                   <Form className="py-4">
                     {/* Dropdown for Project Selection */}
@@ -119,15 +173,17 @@ export default function AddLiquidation() {
                         as="select"
                         name="project"
                         className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                        onChange={(e) => {
-                          setSelectedProject(e.target.value);
-                          setFieldValue("project", e.target.value);
+                        onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+                          const projectId = e.target.value;
+                          setSelectedProject(projectId); // Set selected project
+                          setFieldValue("project", projectId); // Update Formik state
+                          setFieldValue("liquidation_particulars", []); // Clear liquidation particulars when changing project
                         }}
                       >
                         <option value="">Select a Project</option>
                         {projects?.map((project) => (
                           <option key={project.id} value={project.id}>
-                            {project.department}
+                            {project.serial_no}
                           </option>
                         ))}
                       </Field>
@@ -144,6 +200,7 @@ export default function AddLiquidation() {
                               name: "projectName",
                               type: "text",
                               placeholder: "Enter project name",
+                              value: projectName || "",
                             },
                             {
                               label: "Date",
@@ -189,6 +246,7 @@ export default function AddLiquidation() {
                                   placeholder={item.placeholder}
                                   className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                                   required
+                                  value={item.value || values[item.name]}
                                 />
                               )}
                             </div>
@@ -211,7 +269,7 @@ export default function AddLiquidation() {
                                     "Date",
                                     "Particulars",
                                     "Expenses",
-                                    "Cash From Accounting",
+                                    "Minus to balance",
                                     "Balance",
                                     "VAT Inc",
                                     "Action",
@@ -223,38 +281,52 @@ export default function AddLiquidation() {
                                 </tr>
                               </thead>
                               <tbody>
-                                {values.tableRows.map((row, index) => (
+                                {values.tableRows.map((item, index) => (
                                   <tr key={index}>
-                                    {[
-                                      {
-                                        name: `tableRows[${index}].date`,
-                                        type: "date",
-                                      },
-                                      {
-                                        name: `tableRows[${index}].particulars`,
-                                        type: "text",
-                                      },
-                                      {
-                                        name: `tableRows[${index}].expenses`,
-                                        type: "number",
-                                      },
-                                      {
-                                        name: `tableRows[${index}].cashFromAccounting`,
-                                        type: "number",
-                                      },
-                                      {
-                                        name: `tableRows[${index}].balance`,
-                                        type: "number",
-                                      },
-                                    ].map((field) => (
-                                      <td key={field.name} className="p-2">
+                                    <td className="p-2">
+                                      <td className="p-2">
                                         <Field
-                                          type={field.type}
-                                          name={field.name}
+                                          name={`tableRows[${index}].date_requested`}
                                           className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                          value={
+                                            item.date_requested || dateRequested
+                                          } // Use dateRequested from state
+                                          readOnly // Set it as read-only if needed
                                         />
                                       </td>
-                                    ))}
+                                    </td>
+                                    <td className="p-2">
+                                      <Field
+                                        name={`tableRows[${index}].item`}
+                                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                        value={item.item || ""}
+                                      />
+                                    </td>
+                                    <td className="p-2">
+                                      <Field
+                                        name={`tableRows[${index}].expenses`}
+                                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                        value={item.total_price || ""}
+                                      />
+                                    </td>
+                                    <td className="p-2">
+                                      <Field
+                                        name={`tableRows[${index}].cashFromAccounting`}
+                                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                      />
+                                    </td>
+                                    <td className="p-2">
+                                      <Field
+                                        readOnly
+                                        // name={`tableRows[${index}].total_price`}
+                                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                        value={
+                                          item.total_price -
+                                            item.cashFromAccounting ||
+                                          item.total_price
+                                        }
+                                      />
+                                    </td>
                                     <td className="p-2">
                                       <Field
                                         type="checkbox"
@@ -281,7 +353,7 @@ export default function AddLiquidation() {
                               type="button"
                               onClick={() =>
                                 arrayHelpers.push({
-                                  date: "",
+                                  date_requested: "",
                                   particulars: "",
                                   expenses: "",
                                   cashFromAccounting: "",
@@ -305,7 +377,7 @@ export default function AddLiquidation() {
                         <div className="w-1/4">
                           <input
                             type="number"
-                            value={totalExpenses}
+                            value={projectDetails?.sub_total}
                             readOnly
                             className="bg-gray-200 p-2 rounded-md w-full"
                           />
@@ -321,28 +393,39 @@ export default function AddLiquidation() {
                         <div className="w-1/4">
                           <input
                             type="number"
-                            value={totalCashFromBalance}
+                            value={projectDetails?.total}
                             readOnly
                             className="bg-gray-200 p-2 rounded-md w-full"
                           />
                         </div>
                       </div>
                     </div>
-
                     {/* Take Notes Section */}
                     <div className="mb-4">
                       <h4 className="font-semibold">Take Notes</h4>
                       <FieldArray
-                        name="notesRows"
+                        name="task_notes"
                         render={(arrayHelpers) => (
                           <div>
-                            {values.notesRows.map((noteRow, index) => (
+                            {values.task_notes.map((noteRow, index) => (
                               <div key={index} className="mb-2">
                                 <Field
                                   type="text"
-                                  name={`notesRows[${index}].note`}
+                                  name={`task_notes[${index}].task_notes`}
                                   className="input"
                                   placeholder="Enter note"
+                                />
+                                <Field
+                                  type="text"
+                                  name={`task_notes[${index}].description`}
+                                  className="input"
+                                  placeholder="Enter description"
+                                />
+                                <Field
+                                  type="text"
+                                  name={`task_notes[${index}].items`}
+                                  className="input"
+                                  placeholder="Enter item"
                                 />
                                 <button
                                   type="button"
@@ -355,7 +438,14 @@ export default function AddLiquidation() {
                             ))}
                             <button
                               type="button"
-                              onClick={() => arrayHelpers.push({ note: "" })}
+                              onClick={() =>
+                                // arrayHelpers.push({ task_notes: "" })
+                                arrayHelpers.push({
+                                  task_notes: "",
+                                  items: "",
+                                  description: "",
+                                })
+                              }
                               className="btn btn-info mt-4"
                             >
                               Add Note

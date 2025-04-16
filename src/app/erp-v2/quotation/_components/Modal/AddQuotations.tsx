@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaCirclePlus } from "react-icons/fa6";
 import { Field, Form, Formik, FieldArray } from "formik";
 import { CiCirclePlus } from "react-icons/ci";
@@ -12,22 +12,29 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 /** interfaces */
 import { fetchDepartmentsList } from "@/api/User/fetchDepartmentList";
 import { fetchUserList } from "@/api/User/fetchUserList";
+import { fetchClientsList } from "@/api/quotation/fetchClients";
+import { AddQuo, CreateQuo } from "@/api/quotation/addQuotation";
 
 export default function AddQuotations() {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
-  const [selectedProject, setSelectedProject] = useState("");
+  const [selectedProject, setSelectedProject] = useState<string>(""); // Client ID
+  const [projectName, setProjectName] = useState<string>("");
+  const [contactPerson, setContactPerson] = useState<string>("");
+  const [address, setAddress] = useState<string>("");
+  const [id, setClient] = useState<number>(0);
+  //   const [projectName, setProjectName] = useState<string>("");
 
   const queryClient = useQueryClient();
 
   const {
-    mutate: registerCategory,
+    mutate: registerQuotation,
     isError,
     error,
   } = useMutation({
-    mutationFn: (data: CreateCategory) => CreateCategory(data),
+    mutationFn: (data: AddQuo) => CreateQuo(data),
     onSuccess: () => {
-      console.log("category registered successfully");
-      queryClient.invalidateQueries({ queryKey: ["category"] });
+      console.log("quotation registered successfully");
+      queryClient.invalidateQueries({ queryKey: ["quotation"] });
       setShowRegisterModal(false);
     },
     onError: (error: any) => {
@@ -37,8 +44,8 @@ export default function AddQuotations() {
 
   // Fetch project data based on dropdown selection
   const { data: projects } = useQuery({
-    queryKey: ["projects"],
-    queryFn: fetchDepartmentsList, // Assume fetchDepartmentsList is an API call to fetch departments (projects)
+    queryKey: ["clients"],
+    queryFn: fetchClientsList, // Assume fetchDepartmentsList is an API call to fetch departments (projects)
   });
 
   // Fetch user list for 'remittedBy' dropdown
@@ -51,6 +58,20 @@ export default function AddQuotations() {
   const handleSubmit = (values: any) => {
     console.log(values);
   };
+  // useEffect(() => {
+  //   if (selectedProject) {
+  //     const selectedClientDetails = projects?.find(
+  //       (project) => project.id === parseInt(selectedProject)
+  //     );
+  //     if (selectedClientDetails) {
+  //       setProjectName(selectedClientDetails.client); // Set project name
+  //       setContactPerson(selectedClientDetails.contact_person); // Set contact person
+  //       setAddress(selectedClientDetails.address); // Set address
+
+  //       setFieldValue("delivery_address", selectedClientDetails.address || "");
+  //     }
+  //   }
+  // }, [selectedProject, projects, setFieldValue]);
 
   return (
     <>
@@ -72,36 +93,80 @@ export default function AddQuotations() {
             <Formik
               initialValues={{
                 project: "",
-                projectName: "",
+                // projectName: "",
+                project_name: projectName || "",
+                contactPerson: contactPerson || "",
+                delivery_address: address || "", // Ensure address is passed
+                client: id || 0,
                 projectDate: "",
                 remittedBy: "",
                 receivedBy: "",
                 tableRows: [
                   {
                     date: "",
-                    particulars: "",
+                    description: "",
                     srp: "",
                     quantity: "",
                     total: 0,
                     balance: "",
                   },
                 ],
-                notesRows: [{ note: "" }],
+                quotation_items: [
+                  {
+                    item: "",
+                    description: "",
+                    srp: "",
+                    quantity: "",
+                    total: 0,
+                    balance: "",
+                  },
+                ],
+                // notesRows: [{ note: "" }],
+                notes_assumptions: "",
+                terms_conditions: "",
               }}
-              onSubmit={handleSubmit}
+              // onSubmit={handleSubmit}
+              onSubmit={(values, { resetForm }) => {
+                registerQuotation(values);
+                resetForm();
+                console.log(values);
+              }}
             >
               {({ values, setFieldValue }) => {
+                useEffect(() => {
+                  if (selectedProject) {
+                    const selectedClientDetails = projects?.find(
+                      (project) => project.id === parseInt(selectedProject)
+                    );
+                    if (selectedClientDetails) {
+                      setProjectName(selectedClientDetails.client); // Set project name
+                      setContactPerson(selectedClientDetails.contact_person); // Set contact person
+                      setAddress(selectedClientDetails.address); // Set address
+                      setClient(selectedClientDetails.id); // Set address
+                      // Update Formik form field for delivery_address
+                      setFieldValue(
+                        "delivery_address",
+                        selectedClientDetails.address || ""
+                      );
+                      setFieldValue(
+                        "contactPerson",
+                        selectedClientDetails.contact_person || ""
+                      );
+                      setFieldValue("client", selectedClientDetails.id || "");
+                    }
+                  }
+                }, [selectedProject, projects, setFieldValue]);
                 // Calculate total expenses and cash from accounting
-                const totalExpenses = values.tableRows.reduce(
+                const totalExpenses = values.quotation_items.reduce(
                   (acc, row) =>
                     acc + (parseFloat(row.srp) * parseFloat(row.quantity) || 0),
                   0
                 );
-                const totalCashFromAccounting = values.tableRows.reduce(
+                const totalCashFromAccounting = values.quotation_items.reduce(
                   (acc, row) => acc + (parseFloat(row.balance) || 0),
                   0
                 );
-                const totalCashFromBalance = values.tableRows.reduce(
+                const totalCashFromBalance = values.quotation_items.reduce(
                   (acc, row) => acc + (parseFloat(row.balance) || 0),
                   0
                 );
@@ -112,9 +177,10 @@ export default function AddQuotations() {
                     {[
                       {
                         label: "Project",
-                        name: "projectName",
+                        name: "project_name",
                         type: "text",
                         placeholder: "Enter project name",
+                        value: projectName || "",
                       },
                     ].map((item) => (
                       <div key={item.name}>
@@ -141,14 +207,15 @@ export default function AddQuotations() {
                         name="project"
                         className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                         onChange={(e) => {
-                          setSelectedProject(e.target.value);
-                          setFieldValue("project", e.target.value);
+                          const projectId = e.target.value;
+                          setSelectedProject(projectId); // Set selected project
+                          setFieldValue("project", projectId);
                         }}
                       >
-                        <option value="">Select a Project</option>
+                        <option value="">Select a Company</option>
                         {projects?.map((project) => (
                           <option key={project.id} value={project.id}>
-                            {project.department}
+                            {project.client}
                           </option>
                         ))}
                       </Field>
@@ -161,16 +228,23 @@ export default function AddQuotations() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                           {[
                             {
-                              label: "Owner",
-                              name: "remittedBy",
+                              label: "Contact Person",
+                              name: "contactPerson",
                               type: "text",
-                              placeholder: "Owner",
+                              placeholder: "Contact Person",
                             },
                             {
-                              label: "Owner",
-                              name: "receivedBy",
+                              name: "client",
+                              type: "hidden",
+                              placeholder: "client",
+                            },
+                            {
+                              label: "Address",
+                              name: "delivery_address",
                               type: "text",
-                              placeholder: "Owner",
+                              placeholder: "Address",
+                              // value: address || "",
+                              // value: values.delivery_address || address || "",
                             },
                           ].map((item) => (
                             <div key={item.name}>
@@ -198,6 +272,21 @@ export default function AddQuotations() {
                                   placeholder={item.placeholder}
                                   className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                                   required
+                                  // value={
+                                  //   item.name === "contactPerson"
+                                  //     ? contactPerson
+                                  //     : address || values[item.name]
+                                  // }
+                                  value={values[item.name] || ""}
+                                  readOnly
+                                  // value={
+                                  //   item.name === "contactPerson"
+                                  //     ? contactPerson || values.contactPerson // For contactPerson, use the contactPerson value or Formik's value
+                                  //     : item.name === "delivery_address"
+                                  //     ? values.delivery_address || address || "" // For delivery_address, use Formik's value or fallback to address
+                                  //     : values[item.name] // For other fields, use Formik's state value
+                                  // }
+                                  // value={values[item.name] || address || ""}
                                 />
                               )}
                             </div>
@@ -210,7 +299,7 @@ export default function AddQuotations() {
                     <div className="space-y-4">
                       <h4 className="font-semibold">Expenses</h4>
                       <FieldArray
-                        name="tableRows"
+                        name="quotation_items"
                         render={(arrayHelpers) => (
                           <div>
                             <table className="table-auto w-full border-collapse">
@@ -230,33 +319,104 @@ export default function AddQuotations() {
                                 </tr>
                               </thead>
                               <tbody>
-                                {values.tableRows.map((row, index) => (
+                                {values.quotation_items.map((row, index) => (
                                   <tr key={index}>
                                     <td className="p-2">
                                       <Field
-                                        type="text"
-                                        name={`tableRows[${index}].item`}
+                                        as="select"
+                                        name={`quotation_items[${index}].item`} // Name it as client
                                         className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
-                                      />
+                                        onChange={(e) => {
+                                          const selectedItemId = e.target.value;
+                                          setFieldValue(
+                                            `quotation_items[${index}].item`,
+                                            selectedItemId
+                                          );
+
+                                          // Fetch the selected item details and update form fields
+                                          const selectedItem = projects?.find(
+                                            (project) =>
+                                              project.id ===
+                                              parseInt(selectedItemId)
+                                          );
+
+                                          if (selectedItem) {
+                                            // Set the description and SRP from selected item
+                                            setFieldValue(
+                                              `quotation_items[${index}].description`,
+                                              selectedItem.client || "" // Set description from client name
+                                            );
+                                            setFieldValue(
+                                              `quotation_items[${index}].srp`,
+                                              selectedItem.contact_number || 0 // Set SRP (assuming contact_number is SRP)
+                                            );
+                                            setFieldValue(
+                                              `quotation_items[${index}].quantity`,
+                                              1
+                                            ); // Set initial quantity to 1
+                                            setFieldValue(
+                                              `quotation_items[${index}].total`,
+                                              (selectedItem.contact_number ||
+                                                0) * 1 // Calculate total based on SRP and quantity
+                                            );
+                                          }
+                                        }}
+                                      >
+                                        <option value="">Select Item</option>
+                                        {projects?.map((client) => (
+                                          <option
+                                            key={client.id}
+                                            value={client.id}
+                                          >
+                                            {client.client}{" "}
+                                            {/* Display client name */}
+                                          </option>
+                                        ))}
+                                      </Field>
                                     </td>
+
                                     <td className="p-2">
                                       <Field
                                         type="text"
-                                        name={`tableRows[${index}].particulars`}
+                                        name={`quotation_items[${index}].description`}
                                         className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                        readOnly
                                       />
                                     </td>
+
                                     <td className="p-2">
                                       <Field
                                         type="number"
-                                        name={`tableRows[${index}].srp`}
+                                        name={`quotation_items[${index}].srp`}
                                         className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                        // Allow user to edit SRP
+                                        onChange={(e) => {
+                                          const srp = parseFloat(
+                                            e.target.value
+                                          );
+                                          const quantity =
+                                            parseFloat(
+                                              values.quotation_items[index]
+                                                .quantity
+                                            ) || 1;
+                                          const total = srp * quantity;
+
+                                          setFieldValue(
+                                            `quotation_items[${index}].srp`,
+                                            srp
+                                          );
+                                          setFieldValue(
+                                            `quotation_items[${index}].total`,
+                                            total
+                                          );
+                                        }}
                                       />
                                     </td>
+
                                     <td className="p-2">
                                       <Field
                                         type="number"
-                                        name={`tableRows[${index}].quantity`}
+                                        name={`quotation_items[${index}].quantity`}
                                         className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                                         onChange={(e) => {
                                           const quantity = parseFloat(
@@ -264,28 +424,31 @@ export default function AddQuotations() {
                                           );
                                           const srp =
                                             parseFloat(
-                                              values.tableRows[index].srp
+                                              values.quotation_items[index].srp
                                             ) || 0;
                                           const total = srp * quantity;
+
                                           setFieldValue(
-                                            `tableRows[${index}].quantity`,
+                                            `quotation_items[${index}].quantity`,
                                             quantity
                                           );
                                           setFieldValue(
-                                            `tableRows[${index}].total`,
+                                            `quotation_items[${index}].total`,
                                             total
                                           );
                                         }}
                                       />
                                     </td>
+
                                     <td className="p-2">
                                       <Field
                                         type="number"
-                                        name={`tableRows[${index}].total`}
+                                        name={`quotation_items[${index}].total`}
                                         readOnly
                                         className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                                       />
                                     </td>
+
                                     <td className="p-2">
                                       <button
                                         type="button"
@@ -301,14 +464,15 @@ export default function AddQuotations() {
                                 ))}
                               </tbody>
                             </table>
+
                             <button
                               type="button"
                               onClick={() =>
                                 arrayHelpers.push({
                                   date: "",
-                                  particulars: "",
+                                  description: "",
                                   srp: "",
-                                  quantity: "",
+                                  quantity: 1,
                                   total: 0,
                                   balance: "",
                                 })
@@ -406,7 +570,7 @@ export default function AddQuotations() {
                       <h4 className="font-semibold">Notes & Assumptions</h4>
                       <Field
                         as="textarea"
-                        name="notes"
+                        name="notes_assumptions"
                         className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 mt-2"
                         placeholder="Enter any notes or assumptions regarding this quotation"
                       />
@@ -417,7 +581,7 @@ export default function AddQuotations() {
                       <h4 className="font-semibold">Terms & Conditions</h4>
                       <Field
                         as="textarea"
-                        name="terms"
+                        name="terms_conditions"
                         className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 mt-2"
                         placeholder="Enter terms and conditions for this quotation"
                       />

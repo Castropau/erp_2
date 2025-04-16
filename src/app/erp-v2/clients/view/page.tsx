@@ -1,5 +1,6 @@
 import React from "react";
-import View from "./View";
+import View from "../View";
+// import View from "./[id]/View";
 
 function Page() {
   return (

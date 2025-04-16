@@ -24,7 +24,7 @@ import {
   fetchCashRequest,
   RequisitionCashOptions,
 } from "@/api/cheque-request/fetchCashRequest";
-import { updateCheque } from "@/api/cheque-request/updateCheque";
+import { ChequeUpdate, updateCheque } from "@/api/cheque-request/updateCheque";
 
 interface PageProps {}
 
@@ -40,7 +40,7 @@ function Detail(props: PageProps) {
 
   const pathname = usePathname();
   const id = pathname?.split("/").pop();
-
+  const queryClient = useQueryClient();
   useEffect(() => {
     if (id) {
       fetchChequeById(id as string)
@@ -69,8 +69,21 @@ function Detail(props: PageProps) {
     queryFn: fetchCashRequest,
   });
 
+  // const { mutate: updatedCheque } = useMutation({
+  //   mutationFn: (data: UpdateCheque) => updateCheque(cheque!.id, data),
+  //   onSuccess: () => {
+  //     console.log("cheque updated successfully");
+  //     queryClient.invalidateQueries({ queryKey: ["cheque", id] });
+  //     queryClient.invalidateQueries({ queryKey: ["cheque"] });
+  //     setShowEditModal(false);
+  //   },
+  //   onError: (error) => {
+  //     console.error("Error updating cheque:", error);
+  //   },
+  // });
+
   const { mutate: updatedCheque } = useMutation({
-    mutationFn: (data: UpdateCheque) => updateCheque(cheque!.id, data),
+    mutationFn: (data: ChequeUpdate) => updateCheque(cheque!.id, data),
     onSuccess: () => {
       console.log("cheque updated successfully");
       queryClient.invalidateQueries({ queryKey: ["cheque", id] });
@@ -106,7 +119,7 @@ function Detail(props: PageProps) {
           id: selectedCashRecord.id,
           cash_requisition: selectedCashRecord.id,
           serial_no: selectedCashRecord.serial_no,
-          date_of_purchase: selectedCashRecord.date_of_purchase,
+          date_of_purchase: selectedCashRecord.date_requested,
           date_requested: selectedCashRecord.date_requested,
           description: selectedCashRecord.special_instructions,
           amount: selectedCashRecord.grand_total,
@@ -122,8 +135,33 @@ function Detail(props: PageProps) {
     }
   };
 
+  // const handleRemoveRow = (rowId: number) => {
+  //   setRows((prevRows) => prevRows.filter((row) => row.id !== rowId));
+  // };
+  // const handleRemoveRow = (rowId: number) => {
+  //   // Remove from the rows state
+  //   setRows((prevRows) => prevRows.filter((row) => row.id !== rowId));
+
+  //   // Optionally, you can also remove it from cheque.cheque_requisition_items (if needed)
+  //   setCheque((prevCheque) => ({
+  //     ...prevCheque,
+  //     cheque_requisition_items: prevCheque.cheque_requisition_items.filter(
+  //       (item) => item.id !== rowId
+  //     ),
+  //   }));
+  // };
   const handleRemoveRow = (rowId: number) => {
     setRows((prevRows) => prevRows.filter((row) => row.id !== rowId));
+    setCheque((prevCheque) => {
+      if (!prevCheque) return null;
+
+      return {
+        ...prevCheque,
+        cheque_requisition_items: prevCheque.cheque_requisition_items.filter(
+          (item) => item.id !== rowId
+        ),
+      };
+    });
   };
 
   if (loading) return <div>Loading...</div>;
@@ -189,20 +227,46 @@ function Detail(props: PageProps) {
           }}
           enableReinitialize={true}
           onSubmit={(values) => {
-            const updatedChequeItems = rows.map((row) => ({
-              ...row,
-              cheque_number: row.cheque_number,
-              remarks: row.remarks,
-              date_of_purchase: row.date_requested,
-            }));
+            // const updatedChequeItems = rows.map((row) => ({
+            //   ...row,
+            //   cheque_number: row.cheque_number,
+            //   remarks: row.remarks,
+            //   date_of_purchase: row.date_requested,
+            // }));
+            // const updatedChequeItems = [
+            //   ...cheque.cheque_requisition_items, // Include existing items
+            //   ...rows, // Include new rows
+            // ];
+            const updatedChequeItems = [
+              ...cheque.cheque_requisition_items,
+              ...rows.map((row) => ({
+                ...row,
+                date_of_purchase: row.date_of_purchase || row.date_requested,
+                cheque_number: row.cheque_number,
+                remarks: row.remarks,
+              })), // Include new rows
+            ];
 
+            // const updatedValues = {
+            //   ...values,
+            //   cheque_requisition_items: updatedChequeItems,
+            // };
+            // const updatedValues = {
+            //   ...values,
+            //   cheque_requisition_items: updatedChequeItems.map((row) => ({
+            //     ...row,
+            //     cheque_number: row.cheque_number, // Ensure cheque number is updated
+            //     remarks: row.remarks, // Ensure remarks are updated
+            //     date_of_purchase: row.date_requested, // Update date_of_purchase to date_requested
+            //   })),
+            // };
             const updatedValues = {
               ...values,
               cheque_requisition_items: updatedChequeItems,
             };
 
             updatedCheque(updatedValues);
-            console.log(updatedValues); // Log updated values to verify structure
+            console.log(updatedValues);
           }}
         >
           <Form>
@@ -346,7 +410,7 @@ function Detail(props: PageProps) {
               <th className="p-2 text-left">Amount</th>
               <th className="p-2 text-left">Cheque Number</th>
               <th className="p-2 text-left">Remark</th>
-              <th className="p-2 text-left">Action</th>
+              {isEditing && <th className="p-2 text-left">Action</th>}
             </tr>
           </thead>
           <tbody>
@@ -358,14 +422,24 @@ function Detail(props: PageProps) {
                 <td className="p-2">{item.amount}</td>
                 <td className="p-2">{item.cheque_number}</td>
                 <td className="p-2">{item.remarks}</td>
-                <td className="p-2">
+                {/* <td className="p-2">
                   <button
                     className="text-red-500 hover:text-red-700"
                     onClick={() => handleRemoveRow(item.id)}
                   >
                     Remove
                   </button>
-                </td>
+                </td> */}
+                {isEditing && ( // Conditionally render Remove button
+                  <td className="p-2">
+                    <button
+                      className="text-red-500 hover:text-red-700"
+                      onClick={() => handleRemoveRow(item.id)}
+                    >
+                      Remove
+                    </button>
+                  </td>
+                )}
               </tr>
             ))}
 

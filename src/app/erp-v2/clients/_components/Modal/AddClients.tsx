@@ -21,6 +21,7 @@ import { fetchDepartmentsList } from "@/api/User/fetchDepartmentList";
 import { fetchRoleList } from "@/api/User/fetchRoleList";
 import { CiCirclePlus } from "react-icons/ci";
 import { CreateCategory } from "@/api/inventory/CreateCategory";
+import { CreateClient } from "@/api/clients/addClients";
 
 export default function AddClients() {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
@@ -29,14 +30,14 @@ export default function AddClients() {
   const queryClient = useQueryClient();
 
   const {
-    mutate: registerCategory,
+    mutate: registerClient,
     isError,
     error,
   } = useMutation({
-    mutationFn: (data: CreateCategory) => CreateCategory(data),
+    mutationFn: (data: CreateClient) => CreateClient(data),
     onSuccess: () => {
-      console.log("category registered successfully");
-      queryClient.invalidateQueries({ queryKey: ["category"] });
+      console.log("client registered successfully");
+      queryClient.invalidateQueries({ queryKey: ["client"] });
       setShowRegisterModal(false);
     },
     onError: (error: any) => {
@@ -87,10 +88,15 @@ export default function AddClients() {
 
               <Formik
                 initialValues={{
-                  category: "",
+                  client: "",
+                  address: "",
+                  contact_person: "",
+                  position: "",
+                  contact_number: "",
+                  email: "",
                 }}
                 onSubmit={(values, { resetForm }) => {
-                  registerCategory(values);
+                  registerClient(values);
                   resetForm();
                   console.log(values);
                 }}
@@ -101,37 +107,37 @@ export default function AddClients() {
                     {[
                       {
                         type: "text",
-                        name: "category",
+                        name: "client",
                         placeholder: "Enter Client name",
                         label: "Client Name",
                       },
                       {
                         type: "text",
-                        name: "phone_number",
+                        name: "address",
                         placeholder: "Enter Company",
                         label: "Company address",
                       },
                       {
-                        type: "email",
-                        name: "category",
+                        type: "text",
+                        name: "contact_person",
                         placeholder: "Enter contact",
                         label: "contact person",
                       },
                       {
                         type: "text",
-                        name: "address",
+                        name: "position",
                         placeholder: "Enter Position",
                         label: "Position",
                       },
                       {
                         type: "text",
-                        name: "country",
+                        name: "contact_number",
                         placeholder: "Enter Contact Number",
                         label: "Contact Number",
                       },
                       {
                         type: "text",
-                        name: "tin",
+                        name: "email",
                         placeholder: "Enter Email",
                         label: "Email",
                       },

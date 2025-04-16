@@ -12,6 +12,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 /** interfaces */
 import { fetchDepartmentsList } from "@/api/User/fetchDepartmentList";
 import { fetchUserList } from "@/api/User/fetchUserList";
+import { CreatePurchase } from "@/api/purchase-order/createPurchase";
+import { fetchVendorsList } from "@/api/vendor/fetchVendor";
 
 export default function AddPurchaseOrder() {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
@@ -26,8 +28,23 @@ export default function AddPurchaseOrder() {
   } = useMutation({
     mutationFn: (data: CreateCategory) => CreateCategory(data),
     onSuccess: () => {
-      console.log("category registered successfully");
+      console.log("purchase registered successfully");
       queryClient.invalidateQueries({ queryKey: ["category"] });
+      setShowRegisterModal(false);
+    },
+    onError: (error: any) => {
+      console.error("Registration error:", error);
+    },
+  });
+  const {
+    mutate: registerQuotation,
+    isError: errors,
+    error: errorr,
+  } = useMutation({
+    mutationFn: (data: CreatePurchase) => CreatePurchase(data),
+    onSuccess: () => {
+      console.log("purchase registered successfully");
+      queryClient.invalidateQueries({ queryKey: ["purchase"] });
       setShowRegisterModal(false);
     },
     onError: (error: any) => {
@@ -38,7 +55,7 @@ export default function AddPurchaseOrder() {
   // Fetch project data based on dropdown selection
   const { data: projects } = useQuery({
     queryKey: ["projects"],
-    queryFn: fetchDepartmentsList, // Assume fetchDepartmentsList is an API call to fetch departments (projects)
+    queryFn: fetchVendorsList, // Assume fetchDepartmentsList is an API call to fetch departments (projects)
   });
 
   // Fetch user list for 'remittedBy' dropdown
@@ -78,17 +95,37 @@ export default function AddPurchaseOrder() {
                 receivedBy: "",
                 tableRows: [
                   {
-                    date: "",
-                    particulars: "",
+                    id: 0,
+                    item: "",
+                    description: "",
                     srp: "",
                     quantity: "",
                     total: 0,
-                    balance: "",
+                    // description: "",
                   },
                 ],
-                notesRows: [{ note: "" }],
+                discount: 0,
+                vat: 0,
+                terms: "",
               }}
-              onSubmit={handleSubmit}
+              onSubmit={(values) => {
+                const payload: CreatePurchase = {
+                  items: values.tableRows.map((row) => ({
+                    // id: row.id || 0,
+                    item: row.item,
+                    description: row.description || "",
+                    unit_price: row.srp || 0,
+                    quantity: row.quantity || 0,
+                  })),
+                  terms: values.terms,
+                  discount: values.discount || 0,
+                  vat_percentage: values.vat || 0,
+                  vendor: parseFloat(values.project),
+                };
+
+                registerQuotation(payload);
+                console.log("Submitting purchase payload:", payload);
+              }}
             >
               {({ values, setFieldValue }) => {
                 // Calculate total expenses and cash from accounting
@@ -117,15 +154,36 @@ export default function AddPurchaseOrder() {
                         as="select"
                         name="project"
                         className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                        // onChange={(e) => {
+                        //   setSelectedProject(e.target.value);
+                        //   setFieldValue("project", e.target.value);
+                        // }}
                         onChange={(e) => {
-                          setSelectedProject(e.target.value);
-                          setFieldValue("project", e.target.value);
+                          const selectedId = e.target.value;
+                          setSelectedProject(selectedId);
+                          setFieldValue("project", selectedId);
+
+                          const selectedVendor = projects?.find(
+                            (proj) => proj.id.toString() === selectedId
+                          );
+
+                          if (selectedVendor) {
+                            setFieldValue(
+                              "address",
+                              selectedVendor.address || ""
+                            );
+                            setFieldValue("tin", selectedVendor.tin || "");
+                            setFieldValue(
+                              "contact_number",
+                              selectedVendor.contact_number || ""
+                            );
+                          }
                         }}
                       >
                         <option value="">Select a Project</option>
                         {projects?.map((project) => (
                           <option key={project.id} value={project.id}>
-                            {project.department}
+                            {project.vendor}
                           </option>
                         ))}
                       </Field>
@@ -139,19 +197,19 @@ export default function AddPurchaseOrder() {
                           {[
                             {
                               label: "Address",
-                              name: "remittedBy",
+                              name: "address",
                               type: "text",
                               placeholder: "Address",
                             },
                             {
                               label: "TIN",
-                              name: "receivedBy",
+                              name: "tin",
                               type: "text",
                               placeholder: "TIN",
                             },
                             {
                               label: "Contact Number",
-                              name: "receivedBy",
+                              name: "contact_number",
                               type: "text",
                               placeholder: "Contact Number",
                             },
@@ -235,7 +293,7 @@ export default function AddPurchaseOrder() {
                                     <td className="p-2">
                                       <Field
                                         type="text"
-                                        name={`tableRows[${index}].particulars`}
+                                        name={`tableRows[${index}].description`}
                                         className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                                       />
                                     </td>
@@ -319,7 +377,7 @@ export default function AddPurchaseOrder() {
                               onClick={() =>
                                 arrayHelpers.push({
                                   item: "",
-                                  particulars: "",
+                                  description: "",
                                   srp: "",
                                   quantity: "",
                                   total: 0,

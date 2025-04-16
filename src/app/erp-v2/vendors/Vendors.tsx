@@ -12,6 +12,7 @@ import CreateUser from "../user/_components/Modal/CreateUser";
 import AddLaborOfComputation from "../labor_of_computation/_compoments/Modal/AddLaborOfComputation";
 import AddVendor from "./_components/Modal/AddVendor";
 import Link from "next/link";
+import { fetchVendorsList, Vendor } from "@/api/vendor/fetchVendor";
 
 /** components */
 
@@ -31,26 +32,22 @@ export default function Vendors() {
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
 
-  const { isLoading, error, data } = useQuery<User[]>({
-    queryKey: ["users"],
-    queryFn: fetchUserList,
+  const { isLoading, error, data } = useQuery<Vendor[]>({
+    queryKey: ["vendor"],
+    queryFn: fetchVendorsList,
   });
-
-  if (isLoading) return <div>Loading...</div>;
-
-  if (error instanceof Error)
-    return <div>An error has occurred: {error.message}</div>;
 
   const filteredData = useMemo(() => {
     return data?.filter(
       (user) =>
-        user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.role.toLowerCase().includes(searchTerm.toLowerCase())
+        user.vendor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.contact_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [searchTerm, data]);
 
-  const totalPages = Math.ceil(filteredData!.length / rowsPerPage);
+  //   const totalPages = Math.ceil(filteredData!.length / rowsPerPage);
+  const totalPages = Math.ceil((filteredData?.length || 0) / rowsPerPage);
 
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
@@ -67,6 +64,10 @@ export default function Vendors() {
   function setShowRegisterModal(arg0: boolean): void {
     throw new Error("Function not implemented.");
   }
+  if (isLoading) return <div>Loading...</div>;
+
+  if (error instanceof Error)
+    return <div>An error has occurred: {error.message}</div>;
 
   return (
     <div className="overflow-x-auto">
@@ -111,7 +112,7 @@ export default function Vendors() {
             <th>Full Name</th>
             <th>Department</th>
             <th>Role</th>
-            <th>Active</th>
+            {/* <th>Active</th> */}
             <th>Actions</th>
           </tr>
         </thead>
@@ -128,24 +129,15 @@ export default function Vendors() {
                 key={user.id}
                 className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
               >
-                <td className="text-xs">{user.full_name}</td>
-                <td className="text-xs">{user.department}</td>
-                <td className="text-xs">{user.role}</td>
-                <td className="text-xs">
-                  <span
-                    className={`${
-                      user.is_active
-                        ? "bg-green-500 text-white"
-                        : "bg-red-500 text-white"
-                    } py-1 px-3 rounded-full`}
-                  >
-                    {user.is_active ? "Active" : "Inactive"}
-                  </span>
-                </td>
+                <td className="text-xs">{user.vendor}</td>
+                <td className="text-xs">{user.contact_number}</td>
+                <td className="text-xs">{user.email}</td>
+
                 <td className="text-xs flex gap-2">
                   {/* <PersonalInformation id={user.id} />
                   <ModuleAccess /> */}
-                  <Link href="/erp-v2/vendors/view">
+                  {/* <Link href="/erp-v2/vendors/view"> */}
+                  <Link href={`/erp-v2/vendors/view/${user.id}`}>
                     <button className="btn btn-info">View Vendors</button>
                   </Link>
                   <Link href="/erp-v2/vendors/view">

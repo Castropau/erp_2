@@ -1,7 +1,6 @@
 "use client";
 import { Formik, Form, Field } from "formik";
 import React, { useState } from "react";
-import AddUnit from "../../cheque-request/_components/Modal/AddUnit";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChequeItems } from "@/api/cheque-request/fetchItems";
 import { ChequeUnits } from "@/api/cheque-request/fetchUnits";
@@ -14,7 +13,12 @@ import { deleteItem } from "@/api/cheque-request/DeleteItem";
 import { deleteLocation } from "@/api/cheque-request/DeleteLocation";
 import Link from "next/link";
 import { IoMdArrowBack } from "react-icons/io";
-import ViewClients from "../_components/Modal/ViewClients";
+// import ViewClients from "../../_components/Modal/ViewClients";
+import { useParams } from "next/navigation";
+import { fetchClientDataById } from "@/api/clients/fetchClientsView";
+import ViewClients from "../../_components/Modal/ViewClients";
+import { updateClient, UpdateClient } from "@/api/clients/updateClient";
+import ViewQuo from "../../_components/ViewQuo";
 
 function View() {
   const [isEditable, setIsEditable] = useState(false); // State to toggle between edit and view mode
@@ -27,6 +31,9 @@ function View() {
   const [searchTermLocation, setSearchTermLocation] = useState("");
   const [currentPageItems, setCurrentPageItems] = useState(1);
   const [currentPageUnits, setCurrentPageUnits] = useState(1);
+
+  const params = useParams();
+  const id = Number(params?.id);
 
   const handleEditToggle = () => {
     setIsEditable(!isEditable);
@@ -46,7 +53,17 @@ function View() {
     queryKey: ["items"],
     queryFn: ChequeItems,
   });
+  const {
+    data: VendorData,
+    isLoading: isCLoading,
+    isError: cerror,
+    error: cerrors,
+  } = useQuery({
+    queryKey: ["client", id],
+    queryFn: () => fetchClientDataById(id),
 
+    enabled: !!id,
+  });
   const {
     isLoading: isUnitsLoading,
     error: UnitsError,
@@ -54,6 +71,19 @@ function View() {
   } = useQuery({
     queryKey: ["units"],
     queryFn: ChequeUnits,
+  });
+  const { mutate: updateClients } = useMutation({
+    mutationFn: (data: UpdateClient) => updateClient(VendorData!.id, data),
+    onSuccess: () => {
+      console.log("vendor updated successfully");
+
+      queryClient.invalidateQueries({ queryKey: ["client", id] });
+      queryClient.invalidateQueries({ queryKey: ["client"] });
+      setShowEditModal(false);
+    },
+    onError: (error) => {
+      console.error("Error updating cheque:", error);
+    },
   });
 
   const totalPagesItems = Math.ceil((itemsData?.length || 0) / rowsPerPage);
@@ -154,7 +184,7 @@ function View() {
                   onClick={handleEditToggle}
                   className="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600"
                 >
-                  Edit
+                  Edits
                 </button>
               ) : (
                 <>
@@ -186,13 +216,17 @@ function View() {
 
           <Formik
             initialValues={{
-              username: "",
-              email: "",
-              phone: "",
+              client: VendorData?.client || "",
+              address: VendorData?.address || "",
+              contact_person: VendorData?.contact_person || "",
+              position: VendorData?.position || "",
+              contact_number: VendorData?.contact_number || "",
+              email: VendorData?.email || "",
             }}
+            enableReinitialize={true}
             onSubmit={(values) => {
-              console.log("Updated Values:", values);
-              setIsEditable(false);
+              console.log(values);
+              updateClients(values); // Handle form submission by calling the mutation
             }}
           >
             <Form className="space-y-6 md:space-y-8">
@@ -204,51 +238,40 @@ function View() {
               {[
                 {
                   type: "text",
-                  name: "vendor",
+                  name: "client",
                   placeholder: "Vendor",
-                  label: "Vendor",
+                  label: "client",
                 },
                 {
                   type: "text",
-                  name: "contact",
+                  name: "address",
                   placeholder: "Contact",
-                  label: "Contact",
+                  label: "address",
                 },
+                {
+                  type: "text",
+                  name: "contact_person",
+                  placeholder: "Enter email",
+                  label: "contact_person",
+                },
+                {
+                  type: "text",
+                  name: "position",
+                  placeholder: "Enter address",
+                  label: "position",
+                },
+                {
+                  type: "text",
+                  name: "contact_number",
+                  placeholder: "Enter address",
+                  label: "contact_number",
+                },
+
                 {
                   type: "email",
                   name: "email",
-                  placeholder: "Enter email",
-                  label: "Email",
-                },
-                {
-                  type: "text",
-                  name: "address",
-                  placeholder: "Enter address",
-                  label: "Address",
-                },
-                {
-                  type: "text",
-                  name: "address",
-                  placeholder: "Enter address",
-                  label: "Address",
-                },
-                {
-                  type: "select",
-                  name: "role",
-                  label: "Country",
-                  options: ["PH", "KR", "US", "CAN"],
-                },
-                {
-                  type: "text",
-                  name: "bank",
-                  placeholder: "Enter bank",
-                  label: "Bank details",
-                },
-                {
-                  type: "text",
-                  name: "description",
                   placeholder: "Enter description",
-                  label: "description",
+                  label: "email",
                 },
               ].map((item) => (
                 <div key={item.name} className="space-y-4">
@@ -324,12 +347,18 @@ function View() {
                   </tr>
                 </thead>
                 <tbody>
-                  {currentUnitsRows?.map((location) => (
-                    <tr key={location.id} className="border-b">
-                      <td className="p-2">{location.unit_of_measurement}</td>
-                      <td className="p-2">{location.unit_of_measurement}</td>
+                  {VendorData?.quotations?.map((quotation) => (
+                    <tr key={quotation.id} className="border-b">
+                      <td className="p-2">{quotation.quotation_no}</td>
+                      <td className="p-2">{quotation.project_name}</td>
                       <td className="p-2">
-                        <ViewClients />
+                        {/* <button
+                          //   onClick={() => handleViewQuotation(quotation.id)}
+                          className="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600"
+                        >
+                          View
+                        </button> */}
+                        <ViewQuo id={quotation.id} />
                       </td>
                     </tr>
                   ))}

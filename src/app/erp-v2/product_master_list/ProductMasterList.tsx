@@ -12,45 +12,53 @@ import CreateUser from "../user/_components/Modal/CreateUser";
 import AddLaborOfComputation from "../labor_of_computation/_compoments/Modal/AddLaborOfComputation";
 import AddProduct from "./_components/Modal/AddProduct";
 import EditProduct from "./_components/Modal/EditProduct";
+import { Bom, fetchBomList } from "@/api/bom-quotation/fetchBom";
+import { fetchItemList, Item } from "@/api/product_master_list/fetchItem";
 
 /** components */
 
 // import PersonalInformation from "../Modal/PersonalInformation";
-
-interface User {
-  id: number; // id as an integer
-  full_name: string; // full_name as a string
-  department: string; // department as a string
-  role: string;
-  is_active: boolean;
-  is_superuser: boolean;
-}
 
 export default function ProductMasterList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
 
-  const { isLoading, error, data } = useQuery<User[]>({
-    queryKey: ["users"],
-    queryFn: fetchUserList,
+  const { isLoading, error, data } = useQuery<Item[]>({
+    queryKey: ["item"],
+    queryFn: fetchItemList,
   });
 
-  if (isLoading) return <div>Loading...</div>;
+  //   if (isLoading) return <div>Loading...</div>;
 
-  if (error instanceof Error)
-    return <div>An error has occurred: {error.message}</div>;
+  //   if (error instanceof Error)
+  //     return <div>An error has occurred: {error.message}</div>;
 
+  // const filteredData = useMemo(() => {
+  //   return data?.filter(
+  //     (user) =>
+  //       user.vendor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //       user.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //       user.item.toLowerCase().includes(searchTerm.toLowerCase())
+  //   );
+  // }, [searchTerm, data]);
   const filteredData = useMemo(() => {
-    return data?.filter(
-      (user) =>
-        user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.role.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    return data?.filter((user) => {
+      const vendor = user.vendor?.toLowerCase() || "";
+      const description = user.description?.toLowerCase() || "";
+      const item = user.item?.toLowerCase() || "";
+      const term = searchTerm.toLowerCase();
+
+      return (
+        vendor.includes(term) ||
+        description.includes(term) ||
+        item.includes(term)
+      );
+    });
   }, [searchTerm, data]);
 
-  const totalPages = Math.ceil(filteredData!.length / rowsPerPage);
+  //   const totalPages = Math.ceil(filteredData!.length / rowsPerPage);
+  const totalPages = Math.ceil((filteredData?.length || 0) / rowsPerPage);
 
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
@@ -67,6 +75,10 @@ export default function ProductMasterList() {
   function setShowRegisterModal(arg0: boolean): void {
     throw new Error("Function not implemented.");
   }
+  if (isLoading) return <div>Loading...</div>;
+
+  if (error instanceof Error)
+    return <div>An error has occurred: {error.message}</div>;
 
   return (
     <div className="overflow-x-auto">
@@ -115,7 +127,8 @@ export default function ProductMasterList() {
             <th>brand</th>
             <th>model</th>
             <th>srp</th>
-            <th>actions</th>
+            <th>asd</th>
+            {/* <th>actions</th> */}
           </tr>
         </thead>
         <tbody>
@@ -131,25 +144,16 @@ export default function ProductMasterList() {
                 key={user.id}
                 className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
               >
-                <td className="text-xs">{user.full_name}</td>
-                <td className="text-xs">{user.department}</td>
-                <td className="text-xs">{user.role}</td>
-                <td className="text-xs">{user.role}</td>
-                <td className="text-xs">{user.role}</td>
-                <td className="text-xs">{user.role}</td>
-                <td className="text-xs">
-                  <span
-                    className={`${
-                      user.is_active
-                        ? "bg-green-500 text-white"
-                        : "bg-red-500 text-white"
-                    } py-1 px-3 rounded-full`}
-                  >
-                    {user.is_active ? "Active" : "Inactive"}
-                  </span>
-                </td>
+                <td className="text-xs">{user.item_no}</td>
+                <td className="text-xs">{user.item}</td>
+                <td className="text-xs">{user.description}</td>
+                <td className="text-xs">{user.vendor}</td>
+                <td className="text-xs">{user.brand}</td>
+                <td className="text-xs">{user.model}</td>
+                <td className="text-xs">{user.srp}</td>
+
                 <td className="text-xs flex gap-2">
-                  <EditProduct />
+                  <EditProduct id={user.id} />
 
                   <button className="btn btn-error">delete</button>
                 </td>

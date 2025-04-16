@@ -7,6 +7,7 @@ import { fetchUserList } from "@/api/User/fetchUserList";
 import { fetchRoleData } from "@/api/Roles/Roles";
 import WithDrawMaterials from "../WithDrawMaterials";
 import ViewWithdrawMaterial from "./ViewWithdrawMaterial";
+import View from "./[id]/View";
 
 /** components */
 
@@ -37,7 +38,7 @@ export default function Page() {
 
   return (
     <div className="p-4 sm:ml-64">
-      <ViewWithdrawMaterial />
+      <View />
     </div>
   );
 }

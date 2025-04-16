@@ -13,43 +13,85 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 /** interfaces */
 import { fetchDepartmentsList } from "@/api/User/fetchDepartmentList";
 import { fetchUserList } from "@/api/User/fetchUserList";
+import { fetchQuotationDataById } from "@/api/quotation/viewQuotation";
+import { fetchClientsList } from "@/api/quotation/fetchClients";
+import { UpdateView, updateView } from "@/api/quotation/updateView";
 
-export default function View() {
+interface QuotationId {
+  id: number;
+}
+
+export default function View(props: QuotationId) {
+  const { id } = props;
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState("");
   const [isEditable, setIsEditable] = useState(false); // State to control if inputs are editable or not
+  const [selectedClient, setSelectedClient] = useState<any>(null); // To store selected client details
 
   const queryClient = useQueryClient();
 
-  const {
-    mutate: registerCategory,
-    isError,
-    error,
-  } = useMutation({
-    mutationFn: (data: CreateCategory) => CreateCategory(data),
-    onSuccess: () => {
-      console.log("category registered successfully");
-      queryClient.invalidateQueries({ queryKey: ["category"] });
-      setShowRegisterModal(false);
-    },
-    onError: (error: any) => {
-      console.error("Registration error:", error);
-    },
-  });
+  // const {
+  //   mutate: registerCategory,
+  //   isError,
+  //   error,
+  // } = useMutation({
+  //   mutationFn: (data: CreateCategory) => CreateCategory(data),
+  //   onSuccess: () => {
+  //     console.log("category registered successfully");
+  //     queryClient.invalidateQueries({ queryKey: ["category"] });
+  //     setShowRegisterModal(false);
+  //   },
+  //   onError: (error: any) => {
+  //     console.error("Registration error:", error);
+  //   },
+  // });
 
   // Fetch project data based on dropdown selection
   const { data: projects } = useQuery({
-    queryKey: ["projects"],
-    queryFn: fetchDepartmentsList, // Assume fetchDepartmentsList is an API call to fetch departments (projects)
+    queryKey: ["clients"],
+    queryFn: fetchClientsList, // Assume fetchDepartmentsList is an API call to fetch departments (projects)
   });
 
-  // Fetch user list for 'remittedBy' dropdown
-  const { data: users } = useQuery({
-    queryKey: ["users"],
-    queryFn: fetchUserList, // Assume fetchUserList is an API call to fetch users
+  const {
+    data: QuotationData,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["quotation", id],
+    queryFn: () => fetchQuotationDataById(id),
+    enabled: !!id,
   });
-
   // Handle form submission
+  const { mutate: updatedView } = useMutation({
+    mutationFn: (data: UpdateView) => updateView(id, data),
+    onSuccess: () => {
+      console.log("quotations updated successfully");
+      queryClient.invalidateQueries({ queryKey: ["quotations", id] });
+      setShowRegisterModal(false); // Close the modal after successful update
+    },
+    onError: (error) => {
+      console.error("Error updating quotation:", error);
+    },
+  });
+
+  const handleCompanyChange = (
+    e: React.ChangeEvent<HTMLSelectElement>,
+    setFieldValue: any
+  ) => {
+    const value = e.target.value;
+    setSelectedProject(value); // Update the local state with the selected project
+
+    // Find the selected client based on its ID and set the details (contact_person and delivery_address)
+    const client = projects?.find((project) => project.id === parseInt(value));
+    if (client) {
+      setSelectedClient(client); // Update the selected client in local state
+      setFieldValue("project", client); // Update Formik with the selected project
+      setFieldValue("contact_person", client.contact_person); // Update Formik with the contact person
+      setFieldValue("delivery_address", client.address); // Update Formik with the delivery address
+    }
+  };
+
   const handleSubmit = (values: any) => {
     console.log(values);
   };
@@ -71,7 +113,7 @@ export default function View() {
         <dialog open className="modal">
           <div className="modal-box w-11/12 max-w-7xl">
             <div className="flex justify-between">
-              <h3 className="font-bold text-lg">Create New Quotations</h3>
+              <h3 className="font-bold text-lg">View Quotations</h3>
               {/* Toggle between CiEdit and CiCircleBan based on editability */}
               {isEditable ? (
                 <FaBan
@@ -88,37 +130,65 @@ export default function View() {
 
             <Formik
               initialValues={{
-                project: "",
-                projectName: "",
-                projectDate: "",
-                remittedBy: "",
+                project: QuotationData?.client.id,
+                // project: {
+                //   id: QuotationData?.id,
+                //   client: QuotationData?.client,
+                // },
+                project_name: QuotationData?.project_name,
+                remittedBy: QuotationData?.created_by.full_name,
                 receivedBy: "",
-                tableRows: [
-                  {
-                    date: "",
-                    particulars: "",
-                    srp: "",
-                    quantity: "",
-                    total: 0,
-                    balance: "",
-                  },
-                ],
-                notesRows: [{ note: "" }],
+                contact_person: QuotationData?.client.contact_person || "", // Initially populate if available
+                delivery_address: QuotationData?.delivery_address || "",
+                quotation_items: QuotationData?.quotation_items.map((item) => ({
+                  item: item.item || "",
+                  description: item.description || "",
+                  srp: item.srp || 0,
+                  quantity: item.quantity || 0, // Ensure quantity is initialized as 0
+                  total: item.srp * (item.quantity || 0),
+                  // balance: "",
+
+                  // date: particular.date || "",
+                  // particulars: particular.particulars || "",
+                  // expenses: particular.expenses || 0, // Default to 0 if not available
+                  // cashFromAccounting: particular.cash_from_accounting || 0, // Default to 0 if not available
+                  // balance: particular.balance || 0, // Default to 0 if not available
+                  // vatIncluded: particular.vat_inclusive || false,
+                })),
+                // notesRows: [{ note: QuotationData?.notes_assumptions }],
+                notes_assumptions: QuotationData?.notes_assumptions || "", // Set initial value for notes
+                terms_conditions: QuotationData?.terms_conditions || "",
+                discount: QuotationData?.discount || 0,
+                vat_value: QuotationData?.vat_value || 0,
+                // vat_value: QuotationData?.vat_total || 0,
               }}
-              onSubmit={handleSubmit}
+              onSubmit={(values) => {
+                // Trigger update mutation when form is submitted
+                const updatedData = {
+                  ...values,
+                  tableRows: values.quotation_items?.map((row) => ({
+                    ...row,
+                    total: row.srp * row.quantity, // Recalculate total if needed
+                  })),
+                };
+
+                // Call the mutation function to update the quotation
+                updatedView(updatedData);
+                console.log(updatedData);
+              }}
             >
               {({ values, setFieldValue }) => {
                 // Calculate total expenses and cash from accounting
-                const totalExpenses = values.tableRows.reduce(
+                const totalExpenses = values.quotation_items?.reduce(
                   (acc, row) =>
                     acc + (parseFloat(row.srp) * parseFloat(row.quantity) || 0),
                   0
                 );
-                const totalCashFromAccounting = values.tableRows.reduce(
+                const totalCashFromAccounting = values.quotation_items?.reduce(
                   (acc, row) => acc + (parseFloat(row.balance) || 0),
                   0
                 );
-                const totalCashFromBalance = values.tableRows.reduce(
+                const totalCashFromBalance = values.quotation_items?.reduce(
                   (acc, row) => acc + (parseFloat(row.balance) || 0),
                   0
                 );
@@ -129,7 +199,7 @@ export default function View() {
                     {[
                       {
                         label: "Project",
-                        name: "projectName",
+                        name: "project_name",
                         type: "text",
                         placeholder: "Enter project name",
                       },
@@ -158,80 +228,61 @@ export default function View() {
                         as="select"
                         name="project"
                         className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                        onChange={(e) => {
-                          setSelectedProject(e.target.value);
-                          setFieldValue("project", e.target.value);
-                        }}
-                        disabled={!isEditable} // Conditionally disable select field based on edit mode
+                        onChange={(e) => handleCompanyChange(e, setFieldValue)}
+                        // value={values.project?.id || ""}
+                        disabled={!isEditable}
                       >
                         <option value="">Select a Project</option>
                         {projects?.map((project) => (
                           <option key={project.id} value={project.id}>
-                            {project.department}
+                            {project.client}
                           </option>
                         ))}
                       </Field>
                     </div>
-
                     {/* Project Details */}
-                    {selectedProject && (
+                    {/* {selectedProject && ( */}
+                    {
                       <div className="space-y-4">
                         <h4 className="font-semibold">Project Details</h4>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                          {[
-                            {
-                              label: "Owner",
-                              name: "remittedBy",
-                              type: "text",
-                              placeholder: "Owner",
-                            },
-                            {
-                              label: "Owner",
-                              name: "receivedBy",
-                              type: "text",
-                              placeholder: "Owner",
-                            },
-                          ].map((item) => (
-                            <div key={item.name}>
-                              <label className="block mb-2 text-sm font-medium text-gray-700">
-                                {item.label}
-                              </label>
-                              {item.type === "select" ? (
-                                <Field
-                                  as="select"
-                                  name={item.name}
-                                  className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
-                                  required
-                                  disabled={!isEditable} // Conditionally disable select field based on edit mode
-                                >
-                                  <option value="">Select {item.label}</option>
-                                  {users?.map((user) => (
-                                    <option key={user.id} value={user.id}>
-                                      {user.full_name}
-                                    </option>
-                                  ))}
-                                </Field>
-                              ) : (
-                                <Field
-                                  type={item.type}
-                                  name={item.name}
-                                  placeholder={item.placeholder}
-                                  className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
-                                  required
-                                  disabled={!isEditable} // Conditionally disable field based on edit mode
-                                />
-                              )}
-                            </div>
-                          ))}
+                          <div>
+                            <label className="block mb-2 text-sm font-medium text-gray-700">
+                              Contact person
+                            </label>
+                            <Field
+                              type="text"
+                              name="contact_person"
+                              placeholder="Owner"
+                              className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                              value={values.contact_person || ""} // Use Formik value
+                              required
+                              disabled={!isEditable} // Conditionally disable field based on edit mode
+                            />
+                          </div>
+                          <div>
+                            <label className="block mb-2 text-sm font-medium text-gray-700">
+                              Delivery address
+                            </label>
+                            <Field
+                              type="text"
+                              name="delivery_address"
+                              placeholder="Enter delivery address"
+                              className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                              value={values.delivery_address || ""} // Use Formik value
+                              required
+                              disabled={!isEditable} // Conditionally disable field based on edit mode
+                            />
+                          </div>
                         </div>
                       </div>
-                    )}
+                    }
 
                     {/* Table for Adding Expenses */}
                     <div className="space-y-4">
                       <h4 className="font-semibold">Expenses</h4>
                       <FieldArray
-                        name="tableRows"
+                        name="quotation_items"
                         render={(arrayHelpers) => (
                           <div>
                             <table className="table-auto w-full border-collapse">
@@ -251,20 +302,20 @@ export default function View() {
                                 </tr>
                               </thead>
                               <tbody>
-                                {values.tableRows.map((row, index) => (
+                                {values.quotation_items?.map((row, index) => (
                                   <tr key={index}>
                                     <td className="p-2">
                                       <Field
                                         type="text"
-                                        name={`tableRows[${index}].item`}
-                                        disabled={!isEditable} // Conditionally disable field based on edit mode
+                                        name={`quotation_items[${index}].item`}
+                                        disabled={!isEditable}
                                         className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                                       />
                                     </td>
                                     <td className="p-2">
                                       <Field
                                         type="text"
-                                        name={`tableRows[${index}].particulars`}
+                                        name={`quotation_items[${index}].description`}
                                         disabled={!isEditable}
                                         className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                                       />
@@ -272,7 +323,7 @@ export default function View() {
                                     <td className="p-2">
                                       <Field
                                         type="number"
-                                        name={`tableRows[${index}].srp`}
+                                        name={`quotation_items[${index}].srp`}
                                         disabled={!isEditable}
                                         className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                                       />
@@ -280,7 +331,7 @@ export default function View() {
                                     <td className="p-2">
                                       <Field
                                         type="number"
-                                        name={`tableRows[${index}].quantity`}
+                                        name={`quotation_items[${index}].quantity`}
                                         disabled={!isEditable}
                                         className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                                         onChange={(e) => {
@@ -289,15 +340,15 @@ export default function View() {
                                           );
                                           const srp =
                                             parseFloat(
-                                              values.tableRows[index].srp
+                                              values.quotation_items[index].srp
                                             ) || 0;
                                           const total = srp * quantity;
                                           setFieldValue(
-                                            `tableRows[${index}].quantity`,
+                                            `quotation_items[${index}].quantity`,
                                             quantity
                                           );
                                           setFieldValue(
-                                            `tableRows[${index}].total`,
+                                            `quotation_items[${index}].total`,
                                             total
                                           );
                                         }}
@@ -306,13 +357,13 @@ export default function View() {
                                     <td className="p-2">
                                       <Field
                                         type="number"
-                                        name={`tableRows[${index}].total`}
+                                        name={`quotation_items[${index}].total`}
                                         readOnly
                                         className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                                       />
                                     </td>
                                     <td className="p-2">
-                                      {isEditable && ( // Show Remove button only when isEditable is true
+                                      {isEditable && (
                                         <button
                                           type="button"
                                           onClick={() =>
@@ -374,7 +425,7 @@ export default function View() {
                           <label className="font-semibold">VAT (%)</label>
                           <Field
                             type="number"
-                            name="vat"
+                            name="vat_value"
                             disabled={!isEditable}
                             className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                             onChange={(e) => {
@@ -438,7 +489,7 @@ export default function View() {
                       <h4 className="font-semibold">Notes & Assumptions</h4>
                       <Field
                         as="textarea"
-                        name="notes"
+                        name="notes_assumptions"
                         disabled={!isEditable}
                         className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 mt-2"
                         placeholder="Enter any notes or assumptions regarding this quotation"
@@ -450,7 +501,7 @@ export default function View() {
                       <h4 className="font-semibold">Terms & Conditions</h4>
                       <Field
                         as="textarea"
-                        name="terms"
+                        name="terms_conditions"
                         disabled={!isEditable}
                         className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 mt-2"
                         placeholder="Enter terms and conditions for this quotation"

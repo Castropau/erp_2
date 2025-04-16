@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { CiCirclePlus, CiEdit } from "react-icons/ci"; // Import the Edit icon
 import { Field, Form, Formik, FieldArray } from "formik";
 
@@ -12,45 +12,111 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchDepartmentsList } from "@/api/User/fetchDepartmentList";
 import { fetchUserList } from "@/api/User/fetchUserList";
 import { FaBan, FaEye } from "react-icons/fa";
+import { fetchLiquidationDataById } from "@/api/liquidations/fetchView";
+import { UpdateView, updateView } from "@/api/liquidations/updateView";
 
-export default function ViewLiquidation() {
+interface LiquidationId {
+  id: number;
+}
+
+export default function ViewLiquidation(props: LiquidationId) {
+  const { id } = props;
   const [showRegisterModal, setShowRegisterModal] = useState(false);
-  const [selectedProject, setSelectedProject] = useState("");
-  const [isEditable, setIsEditable] = useState(false); // State to toggle edit mode
+  const [isEditable, setIsEditable] = useState(false);
   const queryClient = useQueryClient();
 
   const {
-    mutate: registerCategory,
+    data: liquidationData,
+    isLoading,
     isError,
     error,
-  } = useMutation({
-    mutationFn: (data: CreateCategory) => CreateCategory(data),
-    onSuccess: () => {
-      console.log("category registered successfully");
-      queryClient.invalidateQueries({ queryKey: ["category"] });
-      setShowRegisterModal(false);
-    },
-    onError: (error: any) => {
-      console.error("Registration error:", error);
-    },
+  } = useQuery({
+    queryKey: ["liquidation", id],
+    queryFn: () => fetchLiquidationDataById(id),
+    enabled: !!id,
   });
 
-  // Fetch project data based on dropdown selection
   const { data: projects } = useQuery({
     queryKey: ["projects"],
-    queryFn: fetchDepartmentsList, // Assume fetchDepartmentsList is an API call to fetch departments (projects)
+    queryFn: fetchDepartmentsList,
   });
 
-  // Fetch user list for 'remittedBy' dropdown
   const { data: users } = useQuery({
     queryKey: ["users"],
-    queryFn: fetchUserList, // Assume fetchUserList is an API call to fetch users
+    queryFn: fetchUserList,
   });
 
-  // Handle form submission
+  useEffect(() => {
+    console.log(liquidationData?.project_name); // Check the value here
+  }, [liquidationData]);
+
+  const { mutate: updatedView } = useMutation({
+    mutationFn: (data: UpdateView) => updateView(id, data),
+    onSuccess: () => {
+      console.log("User updated successfully");
+      queryClient.invalidateQueries({ queryKey: ["liquidation", id] });
+      setShowRegisterModal(false); // Close the modal after successful update
+    },
+    onError: (error) => {
+      console.error("Error updating liquidation:", error);
+    },
+  });
+
   const handleSubmit = (values: any) => {
-    console.log(values);
+    // Prepare the form data for submission
+    const updatedLiquidationData = {
+      ...values,
+      liquidation_no: liquidationData?.liquidation_no, // Ensure you're passing all necessary fields
+      task_notes: values.notesRows.map((note: any) => ({
+        ...note,
+        items: note.items.map((item: any) => ({
+          ...item,
+          order: parseInt(item.order, 10), // Ensure order is an integer
+        })),
+      })),
+      liquidation_particulars: values.tableRows.map((row: any) => ({
+        ...row,
+        // expenses: parseFloat(row.expenses),
+        // cash_from_accounting: parseFloat(row.cashFromAccounting),
+        // balance: parseFloat(row.balance),
+        expenses: parseFloat(row.expenses) || 0, // Ensure it's a number, default to 0
+        cash_from_accounting: parseFloat(row.cashFromAccounting) || 0, // Ensure it's a number, default to 0
+        balance: parseFloat(row.balance) || 0, // Ensure it's a number, default to 0
+      })),
+    };
+    updatedView(updatedLiquidationData); // Call mutation
+    console.log(updatedLiquidationData);
   };
+  const handleRowFieldChange = (
+    index: number,
+    field: string,
+    value: any,
+    setFieldValue: any,
+    values: any
+  ) => {
+    setFieldValue(`tableRows[${index}].${field}`, value);
+
+    if (field === "expenses" || field === "cash_from_accounting") {
+      const expenses = parseFloat(values.tableRows[index].expenses) || 0;
+      const cashFromAccounting =
+        parseFloat(values.tableRows[index].cash_from_accounting) || 0;
+
+      const balance = expenses - cashFromAccounting;
+      setFieldValue(`tableRows[${index}].balance`, balance.toString());
+    }
+  };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError) {
+    return (
+      <div>
+        Error loading liquidation data: {error?.message || "Unknown error"}
+      </div>
+    );
+  }
 
   return (
     <>
@@ -86,47 +152,74 @@ export default function ViewLiquidation() {
 
             <Formik
               initialValues={{
-                projectName: "",
-                projectDate: "",
-                remittedBy: "",
-                receivedBy: "",
-                tableRows: [
-                  {
-                    date: "",
-                    particulars: "",
-                    expenses: "",
-                    cashFromAccounting: "",
-                    balance: "",
-                    vatIncluded: false,
-                  },
-                ],
-                notesRows: [{ note: "" }],
+                // projectName: liquidationData?.project_name || "",
+                project_name: liquidationData?.project_name || "",
+                projectDate: liquidationData?.date || "",
+                remmitted_by: liquidationData?.remitted_by?.id || "",
+                receivedBy: liquidationData?.received_by?.id || "",
+                // tableRows: liquidationData?.liquidation_particulars.map(
+                //   (particular) => ({
+                //     date: particular.date || "",
+                //     particulars: particular.particulars || "",
+                //     expenses: particular.expenses || "",
+                //     cashFromAccounting: particular.cash_from_accounting || "",
+                //     balance: particular.balance || "",
+                //     vatIncluded: particular.vat_inclusive || false,
+                //   })
+                // ),
+                tableRows: liquidationData?.liquidation_particulars.map(
+                  (particular) => ({
+                    date: particular.date || "",
+                    particulars: particular.particulars || "",
+                    expenses: particular.expenses || 0, // Default to 0 if not available
+                    cashFromAccounting: particular.cash_from_accounting || 0, // Default to 0 if not available
+                    balance: particular.balance || 0, // Default to 0 if not available
+                    vatIncluded: particular.vat_inclusive || false,
+                  })
+                ),
+                notesRows: liquidationData?.task_notes,
               }}
               onSubmit={handleSubmit}
             >
               {({ values, setFieldValue }) => {
-                // Calculate total expenses and cash from accounting
+                // Calculate total expenses, cash from accounting, and balance
                 const totalExpenses = values.tableRows.reduce(
                   (acc, row) => acc + (parseFloat(row.expenses) || 0),
                   0
                 );
+                // const totalCashFromAccounting = values.tableRows.reduce(
+                //   (acc, row) => acc + (parseFloat(row.cashFromAccounting) || 0),
+                //   0
+                // );
                 const totalCashFromAccounting = values.tableRows.reduce(
-                  (acc, row) => acc + (parseFloat(row.cashFromAccounting) || 0),
+                  (acc, row) =>
+                    acc + (parseFloat(row.cash_from_accounting) || 0), // Correct the key to match 'cash_from_accounting'
                   0
                 );
 
+                // const totalCashFromBalance = values.tableRows.reduce(
+                //   (acc, row) => acc + (parseFloat(row.balance) || 0),
+                //   0
+                // );
                 const totalCashFromBalance = values.tableRows.reduce(
-                  (acc, row) => acc + (parseFloat(row.balance) || 0),
+                  (acc, row) => {
+                    const balance =
+                      (parseFloat(row.expenses) || 0) -
+                      (parseFloat(row.cash_from_accounting) || 0);
+                    return acc + balance;
+                  },
                   0
                 );
 
                 return (
                   <Form className="py-4">
-                    {/* Image on the Left and Inputs on the Right */}
                     <div className="flex items-center space-x-6">
                       <div className="w-1/3">
                         <img
-                          src="your-image-url-here" // Replace with actual image URL
+                          src={
+                            liquidationData?.photos?.photo ||
+                            "default-image-url"
+                          } // Ensure the photo URL is correct
                           alt="Project Image"
                           className="w-full h-auto rounded-md"
                         />
@@ -136,7 +229,7 @@ export default function ViewLiquidation() {
                           {[
                             {
                               label: "Project Name",
-                              name: "projectName",
+                              name: "project_name",
                               type: "text",
                               placeholder: "Enter project name",
                             },
@@ -148,7 +241,7 @@ export default function ViewLiquidation() {
                             },
                             {
                               label: "Remitted By",
-                              name: "remittedBy",
+                              name: "remmitted_by",
                               type: "select",
                               placeholder: "Select remitted by",
                             },
@@ -227,7 +320,7 @@ export default function ViewLiquidation() {
                                 </tr>
                               </thead>
                               <tbody>
-                                {values.tableRows.map((row, index) => (
+                                {values.tableRows?.map((row, index) => (
                                   <tr key={index}>
                                     {[
                                       {
@@ -243,18 +336,38 @@ export default function ViewLiquidation() {
                                         type: "number",
                                       },
                                       {
-                                        name: `tableRows[${index}].cashFromAccounting`,
+                                        name: `tableRows[${index}].cash_from_accounting`,
                                         type: "number",
                                       },
                                       {
                                         name: `tableRows[${index}].balance`,
                                         type: "number",
+                                        value: (
+                                          parseFloat(row.expenses || "0") -
+                                          parseFloat(
+                                            row.cash_from_accounting || "0"
+                                          )
+                                        ).toFixed(2),
                                       },
                                     ].map((field) => (
                                       <td key={field.name} className="p-2">
                                         <Field
                                           type={field.type}
                                           name={field.name}
+                                          value={
+                                            field.value ||
+                                            row[field.name.split(".")[1]] ||
+                                            ""
+                                          }
+                                          onChange={(e) =>
+                                            handleRowFieldChange(
+                                              index,
+                                              field.name.split(".")[1],
+                                              e.target.value,
+                                              setFieldValue,
+                                              values // Pass values for proper context
+                                            )
+                                          }
                                           className={`${
                                             isEditable
                                               ? ""
@@ -275,6 +388,7 @@ export default function ViewLiquidation() {
                                 ))}
                               </tbody>
                             </table>
+
                             {/* Conditionally render "Add Row" button */}
                             {isEditable && (
                               <button
@@ -283,8 +397,8 @@ export default function ViewLiquidation() {
                                   arrayHelpers.push({
                                     date: "",
                                     particulars: "",
-                                    expenses: "",
-                                    cashFromAccounting: "",
+                                    expenses: 0,
+                                    cash_from_accounting: 0,
                                     balance: "",
                                     vatIncluded: false,
                                   })
@@ -329,6 +443,7 @@ export default function ViewLiquidation() {
                         </div>
                       </div>
                     </div>
+
                     {/* Take Notes Section */}
                     <div className="mb-4">
                       <h4 className="font-semibold">Take Notes</h4>
@@ -343,8 +458,8 @@ export default function ViewLiquidation() {
                                   name={`notesRows[${index}].note`}
                                   className="input"
                                   placeholder="Enter note"
-                                  disabled={!isEditable} // Disable input when not editable
-                                  readOnly={!isEditable} // Make field read-only when not editable
+                                  disabled={!isEditable}
+                                  readOnly={!isEditable}
                                 />
 
                                 {/* Conditionally render "Remove" button */}

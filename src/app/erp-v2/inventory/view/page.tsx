@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchUserList } from "@/api/User/fetchUserList";
 import { fetchRoleData } from "@/api/Roles/Roles";
 import Detail from "./Detail";
+import View from "./[id]/View";
 
 /** components */
 
@@ -36,7 +37,7 @@ export default function Page() {
 
   return (
     <div className="p-4 sm:ml-64">
-      <Detail />
+      <View />
     </div>
   );
 }

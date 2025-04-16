@@ -15,6 +15,7 @@ import AddCashRequest from "../cash-request/_components/Modal/AddCashRequest";
 import AddQuotations from "./_components/Modal/AddQuotations";
 import Config from "./_components/Modal/Config";
 import View from "./_components/Modal/View";
+import { fetchQuoList, Quatations } from "@/api/quotation/fetchQuo";
 
 /** components */
 
@@ -34,26 +35,27 @@ export default function QuotationDropdown() {
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
 
-  const { isLoading, error, data } = useQuery<User[]>({
-    queryKey: ["users"],
-    queryFn: fetchUserList,
+  const { isLoading, error, data } = useQuery<Quatations[]>({
+    queryKey: ["quotations"],
+    queryFn: fetchQuoList,
   });
 
-  if (isLoading) return <div>Loading...</div>;
+  //   if (isLoading) return <div>Loading...</div>;
 
-  if (error instanceof Error)
-    return <div>An error has occurred: {error.message}</div>;
+  //   if (error instanceof Error)
+  //     return <div>An error has occurred: {error.message}</div>;
 
   const filteredData = useMemo(() => {
     return data?.filter(
       (user) =>
-        user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.role.toLowerCase().includes(searchTerm.toLowerCase())
+        user.quotation_no.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.project_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.client.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [searchTerm, data]);
 
-  const totalPages = Math.ceil(filteredData!.length / rowsPerPage);
+  //   const totalPages = Math.ceil(filteredData!.length / rowsPerPage);
+  const totalPages = Math.ceil((filteredData?.length || 0) / rowsPerPage);
 
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
@@ -113,11 +115,11 @@ export default function QuotationDropdown() {
       <table className="table table-xs table-zebra w-full">
         <thead>
           <tr className="text-blue-500">
-            <th>Serial #</th>
-            <th>Instruction</th>
-            <th>Total</th>
-            <th>Requested by</th>
-            <th>Date Requested</th>
+            <th>quotation</th>
+            <th>project</th>
+            <th>To</th>
+            <th>created by</th>
+            <th>Date created</th>
             <th>Status</th>
             <th>Actions</th>
           </tr>
@@ -135,25 +137,25 @@ export default function QuotationDropdown() {
                 key={user.id}
                 className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
               >
-                <td className="text-xs">{user.full_name}</td>
-                <td className="text-xs">{user.department}</td>
-                <td className="text-xs">{user.role}</td>
-                <td className="text-xs">{user.role}</td>
-                <td className="text-xs">{user.role}</td>
+                <td className="text-xs">{user.quotation_no}</td>
+                <td className="text-xs">{user.project_name}</td>
+                <td className="text-xs">{user.client}</td>
+                <td className="text-xs">{user.created_by}</td>
+                <td className="text-xs">{user.date_created}</td>
                 <td className="text-xs">
                   <span
                     className={`${
-                      user.is_active
+                      user.status
                         ? "bg-green-500 text-white"
                         : "bg-red-500 text-white"
                     } py-1 px-3 rounded-full`}
                   >
-                    {user.is_active ? "Active" : "Inactive"}
+                    {user.status ? "Active" : "Inactive"}
                   </span>
                 </td>
                 <td className="text-xs flex gap-2">
                   {/* <PersonalInformation id={user.id} /> */}
-                  <View />
+                  <View id={user.id} />
                   {/* <ModuleAccess /> */}
                   <button className="btn btn-error">Delet</button>
                 </td>

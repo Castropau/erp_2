@@ -1,54 +1,43 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-/**state */
+/** state */
 import React, { useState, useMemo } from "react";
 
 /** api */
-import { fetchUserList } from "@/api/User/fetchUserList";
+import { fetchBomList } from "@/api/bill_of_materials/fetchBill";
+import AddLaborOfComputation from "../labor_of_computation/_compoments/Modal/AddLaborOfComputation";
 import PersonalInformation from "../user/_components/Modal/PersonalInformation";
 import ModuleAccess from "../user/_components/Modal/ModuleAccess";
-import CreateUser from "../user/_components/Modal/CreateUser";
-import AddLaborOfComputation from "../labor_of_computation/_compoments/Modal/AddLaborOfComputation";
 
-/** components */
-
-// import PersonalInformation from "../Modal/PersonalInformation";
-
-interface User {
-  id: number; // id as an integer
-  full_name: string; // full_name as a string
-  department: string; // department as a string
-  role: string;
-  is_active: boolean;
-  is_superuser: boolean;
-}
+/** interfaces */
+import { Bom } from "@/api/bom-quotation/fetchBom";
+import EditBom from "./_components/Modal/EditBom";
+import { fetchUserLists } from "@/api/bill_of_materials/fetchUsers";
 
 export default function BillOfMaterials() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
 
-  const { isLoading, error, data } = useQuery<User[]>({
-    queryKey: ["users"],
-    queryFn: fetchUserList,
+  // Fetch BOM list
+  const { isLoading, error, data } = useQuery<Bom[]>({
+    queryKey: ["bom"],
+    queryFn: fetchBomList,
   });
 
-  if (isLoading) return <div>Loading...</div>;
-
-  if (error instanceof Error)
-    return <div>An error has occurred: {error.message}</div>;
-
+  // Filter data based on search term
   const filteredData = useMemo(() => {
     return data?.filter(
-      (user) =>
-        user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.role.toLowerCase().includes(searchTerm.toLowerCase())
+      (bom) =>
+        bom.bom_no.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        bom.project_name.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [searchTerm, data]);
 
-  const totalPages = Math.ceil(filteredData!.length / rowsPerPage);
+  // Pagination
+  // const totalPages = Math.ceil(filteredData!.length / rowsPerPage);
+  const totalPages = Math.ceil((filteredData?.length || 0) / rowsPerPage);
 
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
@@ -62,9 +51,10 @@ export default function BillOfMaterials() {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
-  function setShowRegisterModal(arg0: boolean): void {
-    throw new Error("Function not implemented.");
-  }
+  if (isLoading) return <div>Loading...</div>;
+
+  if (error instanceof Error)
+    return <div>An error has occurred: {error.message}</div>;
 
   return (
     <div className="overflow-x-auto">
@@ -106,42 +96,52 @@ export default function BillOfMaterials() {
       <table className="table table-xs table-zebra w-full">
         <thead>
           <tr className="text-blue-500">
-            <th>Full Name123</th>
-            <th>Department</th>
-            <th>Role</th>
-            <th>Active</th>
+            <th>BOM No</th>
+            <th>Project Name</th>
+            <th>Client</th>
+            <th>Date</th>
+            <th>Prepared By</th>
+            <th>Status</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {filteredData?.length === 0 ? (
             <tr>
-              <td colSpan={5} className="text-center text-gray-500 py-4">
+              <td colSpan={7} className="text-center text-gray-500 py-4">
                 No records found
               </td>
             </tr>
           ) : (
-            currentRows?.map((user, index) => (
+            currentRows?.map((bom, index) => (
               <tr
-                key={user.id}
+                key={bom.id}
                 className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
               >
-                <td className="text-xs">{user.full_name}</td>
-                <td className="text-xs">{user.department}</td>
-                <td className="text-xs">{user.role}</td>
+                <td className="text-xs">{bom.bom_no}</td>
+                <td className="text-xs">{bom.project_name}</td>
+                <td className="text-xs">{bom.client}</td>
+
+                <td className="text-xs">{bom.date_created}</td>
+                {/* Replace with actual date */}
+                <td className="text-xs">{bom.created_by}</td>
+                {/* Replace with actual prepared by info */}
                 <td className="text-xs">
                   <span
                     className={`${
-                      user.is_active
+                      bom.status === "Approved To Be Revised"
                         ? "bg-green-500 text-white"
                         : "bg-red-500 text-white"
                     } py-1 px-3 rounded-full`}
                   >
-                    {user.is_active ? "Active" : "Inactive"}
+                    {bom.status === "Approved To Be Revised"
+                      ? "Approved To Be Revised"
+                      : "Pending"}
                   </span>
                 </td>
+
                 <td className="text-xs flex gap-2">
-                  <PersonalInformation id={user.id} />
+                  <EditBom id={bom.id} />
                   <ModuleAccess />
                 </td>
               </tr>
@@ -149,6 +149,7 @@ export default function BillOfMaterials() {
           )}
         </tbody>
       </table>
+
       <div className="flex justify-end items-center mt-4 gap-2">
         <button
           onClick={handlePrev}

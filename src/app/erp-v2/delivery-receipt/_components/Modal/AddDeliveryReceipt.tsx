@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import {
   QueryClient,
   useMutation,
+  useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
 
@@ -17,27 +18,29 @@ import { registerUser } from "@/api/User/registerUser";
 import { RegisterEmployee } from "@/interfaces/RegisterEmployee";
 import { Field, Form, Formik } from "formik";
 import { FaPlusCircle } from "react-icons/fa";
+import { AddDelivery } from "@/api/delivery_receipt/addDelivery";
+import { fetchReleasedBy } from "@/api/delivery_receipt/fetchReleased";
 
 export default function AddDeliveryReceipt() {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
-  const [formData, setFormData] = useState<RegisterEmployee>({
-    first_name: "",
-    middle_name: "",
-    last_name: "",
-    suffix: "",
-    birth_date: "",
-    sex: false,
-    address: "",
-    email: "",
-    contact_number: "",
-    department: "",
-    role: "",
-    username: "",
-    password: "",
-    password2: "",
-  });
 
   const queryClient = useQueryClient();
+
+  const {
+    mutate: registerQuotation,
+    isError,
+    error,
+  } = useMutation({
+    mutationFn: (data: AddDelivery) => AddDelivery(data),
+    onSuccess: () => {
+      console.log("delivery registered successfully");
+      queryClient.invalidateQueries({ queryKey: ["delivery"] });
+      setShowRegisterModal(false);
+    },
+    onError: (error: any) => {
+      console.error("Registration error:", error);
+    },
+  });
 
   const handleInputChanged = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -53,6 +56,10 @@ export default function AddDeliveryReceipt() {
       [name]: type === "radio" ? checked : value,
     }));
   };
+  const { data: ReleasedData } = useQuery({
+    queryKey: ["released"],
+    queryFn: fetchReleasedBy, // Assume fetchDepartmentsList is an API call to fetch departments (projects)
+  });
 
   const { mutate: registerEmployee } = useMutation({
     mutationFn: (data: RegisterEmployee) => registerUser(data),
@@ -68,28 +75,6 @@ export default function AddDeliveryReceipt() {
     },
   });
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    console.log("Form data to submit:", formData);
-    registerEmployee(formData); // trigger the mutation with form data
-    // reset form after submit
-    setFormData({
-      first_name: "",
-      middle_name: "",
-      last_name: "",
-      suffix: "",
-      birth_date: "",
-      sex: false,
-      address: "",
-      email: "",
-      contact_number: "",
-      department: "",
-      role: "",
-      username: "",
-      password: "",
-      password2: "",
-    });
-  };
   const [rows, setRows] = useState([{ no: 1, quantity: "", description: "" }]);
 
   const handleAddRow = () => {
@@ -120,23 +105,45 @@ export default function AddDeliveryReceipt() {
               <h3 className="font-bold text-lg">Create New Delivery Receipt</h3>
               <Formik
                 initialValues={{
-                  first_name: "",
-                  middle_name: "",
-                  last_name: "",
-                  suffix: "",
-                  sex: "",
-                  birth_date: "",
-                  contact_number: "",
+                  terms: "",
+                  po_no: "",
+                  or_no: "",
+                  salesman: "",
+                  approved_by: "",
+                  released_by: "",
+                  date: "",
+                  date_released: "",
+                  delivered_to: "",
+                  tin: "",
+                  business_style: "",
                   address: "",
-                  email: "",
-                  department: "",
-                  role: "",
-                  username: "",
-                  password: "",
-                  password2: "",
+                  note: "",
                 }}
                 onSubmit={(values) => {
-                  console.log(values);
+                  const deliveryPayload = {
+                    items: rows.map((row, index) => ({
+                      order: `${index + 1}.0`,
+                      quantity: row.quantity,
+                      description: row.description,
+                    })),
+                    date: values.date,
+                    date_released: values.date_released,
+                    created_by: "", // You can autofill this if current user info is available
+                    delivered_to: values.delivered_to,
+                    tin: values.tin,
+                    business_style: values.business_style,
+                    address: values.address,
+                    note: values.note,
+                    terms: values.terms,
+                    po_no: values.po_no,
+                    or_no: values.or_no,
+                    salesman: parseInt(values.salesman),
+                    approved_by: parseInt(values.approved_by),
+                    released_by: parseInt(values.released_by),
+                  };
+
+                  registerQuotation(deliveryPayload);
+                  console.log(deliveryPayload);
                 }}
               >
                 <Form className="py-4">
@@ -145,49 +152,52 @@ export default function AddDeliveryReceipt() {
                       {[
                         {
                           type: "text",
-                          name: "first_name",
+                          name: "terms",
                           placeholder: "Enter Terms",
                           label: "Terms:",
                         },
                         {
                           type: "text",
-                          name: "middle_name",
-                          placeholder: "Enter P.O no.",
+                          name: "or_no",
+                          placeholder: "Enter O.R no.",
                           label: "O.R No. ",
                         },
                         {
+                          type: "text",
+                          name: "po_no",
+                          placeholder: "Enter P.O no.",
+                          label: "P.O No. ",
+                        },
+                        {
                           type: "select",
-                          name: "department",
+                          name: "salesman",
                           label: "Sales man",
-                          options: [
-                            { value: "", label: "Select department" },
-                            { value: "1", label: "Crimson" },
-                            { value: "Amber", label: "Amber" },
-                            { value: "Velvet", label: "Velvet" },
-                          ],
+                          options:
+                            ReleasedData?.map((user) => ({
+                              value: user.id.toString(),
+                              label: user.full_name,
+                            })) || [],
                         },
                         {
                           type: "select",
-                          name: "suffix",
+                          name: "approved_by",
                           label: "Approved by",
-                          options: [
-                            { value: "", label: "Select department" },
-                            { value: "1", label: "Crimson" },
-                            { value: "Amber", label: "Amber" },
-                            { value: "Velvet", label: "Velvet" },
-                          ],
+                          options:
+                            ReleasedData?.map((user) => ({
+                              value: user.id.toString(),
+                              label: user.full_name,
+                            })) || [],
                         },
                         {
                           type: "select",
-                          name: "birth_date",
+                          name: "released_by",
                           placeholder: "",
                           label: "Released by",
-                          options: [
-                            { value: "", label: "Select department" },
-                            { value: "1", label: "Crimson" },
-                            { value: "Amber", label: "Amber" },
-                            { value: "Velvet", label: "Velvet" },
-                          ],
+                          options:
+                            ReleasedData?.map((user) => ({
+                              value: user.id.toString(),
+                              label: user.full_name,
+                            })) || [],
                         },
                       ].map((item) => (
                         <div key={item.name} className="mb-4">
@@ -203,6 +213,8 @@ export default function AddDeliveryReceipt() {
                               name={item.name}
                               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                             >
+                              <option value="">Select {item.label}</option>
+
                               {item.options?.map((option) => (
                                 <option key={option.value} value={option.value}>
                                   {option.label}
@@ -228,37 +240,43 @@ export default function AddDeliveryReceipt() {
                       {[
                         {
                           type: "date",
-                          name: "department",
+                          name: "date",
                           //   placeholder: "Date:",
                           label: "Date:",
                         },
                         {
                           type: "text",
-                          name: "department",
+                          name: "delivered_to",
                           placeholder: "Delivered to",
                           label: "Delivered to",
                         },
                         {
                           type: "text",
-                          name: "department",
+                          name: "tin",
                           placeholder: "TIN:",
                           label: "TIN",
                         },
                         {
                           type: "text",
-                          name: "department",
+                          name: "business_style",
                           placeholder: "Business Style:",
                           label: "Business Style",
                         },
                         {
                           type: "text",
-                          name: "department",
+                          name: "address",
+                          placeholder: "address:",
+                          label: "address",
+                        },
+                        {
+                          type: "text",
+                          name: "note",
                           placeholder: "NOTE:",
                           label: "NOTE",
                         },
                         {
                           type: "date",
-                          name: "department",
+                          name: "date_released",
                           //   placeholder: "Date:",
                           label: "Date Released:",
                         },

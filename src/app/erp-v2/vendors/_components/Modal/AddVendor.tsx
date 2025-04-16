@@ -21,6 +21,8 @@ import { fetchDepartmentsList } from "@/api/User/fetchDepartmentList";
 import { fetchRoleList } from "@/api/User/fetchRoleList";
 import { CiCirclePlus } from "react-icons/ci";
 import { CreateCategory } from "@/api/inventory/CreateCategory";
+import { CreateVendor } from "@/api/vendor/addVendor";
+import { fetchCountryList } from "@/api/vendor/fetchCountry";
 
 export default function AddVendor() {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
@@ -29,14 +31,14 @@ export default function AddVendor() {
   const queryClient = useQueryClient();
 
   const {
-    mutate: registerCategory,
+    mutate: registerVendor,
     isError,
     error,
   } = useMutation({
-    mutationFn: (data: CreateCategory) => CreateCategory(data),
+    mutationFn: (data: CreateVendor) => CreateVendor(data),
     onSuccess: () => {
-      console.log("category registered successfully");
-      queryClient.invalidateQueries({ queryKey: ["category"] });
+      console.log("vendor registered successfully");
+      queryClient.invalidateQueries({ queryKey: ["vendor"] });
       setShowRegisterModal(false);
     },
     onError: (error: any) => {
@@ -51,8 +53,8 @@ export default function AddVendor() {
     error: Derror,
     data: departmentList,
   } = useQuery({
-    queryKey: ["departments"],
-    queryFn: fetchDepartmentsList,
+    queryKey: ["country"],
+    queryFn: fetchCountryList,
   });
 
   // roles
@@ -69,7 +71,7 @@ export default function AddVendor() {
           onClick={() => setShowRegisterModal(true)}
         >
           <CiCirclePlus className="w-6 h-6 btn-info" />
-          Add Liquidation
+          Add vendor
         </button>
       </div>
       <div>
@@ -87,10 +89,17 @@ export default function AddVendor() {
 
               <Formik
                 initialValues={{
-                  category: "",
+                  vendor: "",
+                  contact_number: "",
+                  contact_person: "",
+                  tin: "",
+                  email: "",
+                  country: "",
+                  bank_details: "",
+                  address: "",
                 }}
                 onSubmit={(values, { resetForm }) => {
-                  registerCategory(values);
+                  registerVendor(values);
                   resetForm();
                   console.log(values);
                 }}
@@ -101,19 +110,19 @@ export default function AddVendor() {
                     {[
                       {
                         type: "text",
-                        name: "category",
+                        name: "vendor",
                         placeholder: "Enter Vendor name",
                         label: "Vendor Name",
                       },
                       {
                         type: "text",
-                        name: "phone_number",
-                        placeholder: "Enter Vendor name",
+                        name: "contact_number",
+                        placeholder: "Phone number",
                         label: "Phone number",
                       },
                       {
                         type: "email",
-                        name: "category",
+                        name: "email",
                         placeholder: "Enter Email",
                         label: "Email",
                       },
@@ -137,13 +146,13 @@ export default function AddVendor() {
                       },
                       {
                         type: "text",
-                        name: "contact",
+                        name: "contact_person",
                         placeholder: "Enter Contact",
                         label: "Contact Person",
                       },
                       {
                         type: "text",
-                        name: "bank",
+                        name: "bank_details",
                         placeholder: "Enter Bank Details",
                         label: "Bank Details",
                       },

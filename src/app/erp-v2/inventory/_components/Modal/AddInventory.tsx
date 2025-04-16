@@ -79,9 +79,9 @@ export default function AddCategory() {
                 srp: 0,
                 quantity: 0,
                 description: "",
-                item_reference: 0,
-                location: 0,
-                category: 0,
+                item_reference: 2,
+                location: 1,
+                category: 2,
               }}
               onSubmit={(values, { resetForm }) => {
                 createCategory(values);
@@ -286,12 +286,20 @@ export default function AddCategory() {
                         Location
                       </label>
                       <Field
-                        type="text"
-                        id="location"
-                        name="location"
+                        as="select"
+                        id="item_reference"
+                        name="item_reference"
                         className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                        placeholder="Enter location"
-                      />
+                        required
+                      >
+                        {/* Render item references as options */}
+                        {itemList?.map((item) => (
+                          <option key={item.id} value={item.id}>
+                            {item.item}{" "}
+                            {/* This will display the item's name */}
+                          </option>
+                        ))}
+                      </Field>
                     </div>
 
                     <div className="mb-4">
@@ -302,12 +310,20 @@ export default function AddCategory() {
                         Category Name
                       </label>
                       <Field
-                        type="text"
-                        id="category"
-                        name="category"
+                        as="select"
+                        id="item_reference"
+                        name="item_reference"
                         className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                        placeholder="Enter category name"
-                      />
+                        required
+                      >
+                        {/* Render item references as options */}
+                        {itemList?.map((item) => (
+                          <option key={item.id} value={item.id}>
+                            {item.item}{" "}
+                            {/* This will display the item's name */}
+                          </option>
+                        ))}
+                      </Field>
                     </div>
                   </div>
                 </div>

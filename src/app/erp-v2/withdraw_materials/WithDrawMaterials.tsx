@@ -12,45 +12,36 @@ import CreateUser from "../user/_components/Modal/CreateUser";
 import AddLaborOfComputation from "../labor_of_computation/_compoments/Modal/AddLaborOfComputation";
 import CreateMaterialRequest from "./add-material-request/CreateMaterialRequest";
 import Link from "next/link";
+import {
+  fetchWithdrawList,
+  Withdraw,
+} from "@/api/withdraw-materials/fetchWithdraw";
 
 /** components */
 
 // import PersonalInformation from "../Modal/PersonalInformation";
-
-interface User {
-  id: number; // id as an integer
-  full_name: string; // full_name as a string
-  department: string; // department as a string
-  role: string;
-  is_active: boolean;
-  is_superuser: boolean;
-}
 
 export default function WithDrawMaterials() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
 
-  const { isLoading, error, data } = useQuery<User[]>({
-    queryKey: ["users"],
-    queryFn: fetchUserList,
+  const { isLoading, error, data } = useQuery<Withdraw[]>({
+    queryKey: ["withdraw"],
+    queryFn: fetchWithdrawList,
   });
-
-  if (isLoading) return <div>Loading...</div>;
-
-  if (error instanceof Error)
-    return <div>An error has occurred: {error.message}</div>;
 
   const filteredData = useMemo(() => {
     return data?.filter(
       (user) =>
-        user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.role.toLowerCase().includes(searchTerm.toLowerCase())
+        user.serial_no.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.purpose.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.status.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [searchTerm, data]);
 
-  const totalPages = Math.ceil(filteredData!.length / rowsPerPage);
+  //   const totalPages = Math.ceil(filteredData!.length / rowsPerPage);
+  const totalPages = Math.ceil((filteredData?.length || 0) / rowsPerPage);
 
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
@@ -67,6 +58,11 @@ export default function WithDrawMaterials() {
   function setShowRegisterModal(arg0: boolean): void {
     throw new Error("Function not implemented.");
   }
+
+  if (isLoading) return <div>Loading...</div>;
+
+  if (error instanceof Error)
+    return <div>An error has occurred: {error.message}</div>;
 
   return (
     <div className="overflow-x-auto">
@@ -132,26 +128,16 @@ export default function WithDrawMaterials() {
                 key={user.id}
                 className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
               >
-                <td className="text-xs">{user.full_name}</td>
-                <td className="text-xs">{user.full_name}</td>
-                <td className="text-xs">{user.department}</td>
-                <td className="text-xs">{user.role}</td>
-                <td className="text-xs">
-                  <span
-                    className={`${
-                      user.is_active
-                        ? "bg-green-500 text-white"
-                        : "bg-red-500 text-white"
-                    } py-1 px-3 rounded-full`}
-                  >
-                    {user.is_active ? "Active" : "Inactive"}
-                  </span>
-                </td>
+                <td className="text-xs">{user.serial_no}</td>
+                <td className="text-xs">{user.purpose}</td>
+                <td className="text-xs">{user.status}</td>
+                <td className="text-xs">{user.date_needed}</td>
+                <td className="text-xs">{user.name_of_requestor.full_name}</td>
                 <td className="text-xs flex gap-2">
                   {/* <PersonalInformation id={user.id} /> */}
                   <Link
                     className="btn btn-success"
-                    href="/erp-v2/withdraw_materials/view"
+                    href={`/erp-v2/withdraw_materials/view/${user.id}`}
                   >
                     View
                   </Link>

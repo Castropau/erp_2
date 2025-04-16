@@ -84,7 +84,10 @@ const InventoryCard = () => {
               {isDropdownOpen === inventory.id && (
                 <div className="absolute right-0 mt-2 w-36 bg-white rounded-md shadow-lg z-10">
                   <div className="py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
-                    <Link href="/erp-v2/inventory/view">View</Link>
+                    {/* <Link href="{`/erp-v2/inventory/view/${user}`}"> */}
+                    <Link href={`/erp-v2/inventory/view/${inventory.id}`}>
+                      View
+                    </Link>
                   </div>
                   <div className="py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">
                     Delete

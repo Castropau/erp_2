@@ -1,7 +1,7 @@
 "use client";
 import { Formik, Form, Field } from "formik";
 import React, { useState } from "react";
-import AddUnit from "../../cheque-request/_components/Modal/AddUnit";
+import AddUnit from "../cheque-request/_components/Modal/AddUnit";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChequeItems } from "@/api/cheque-request/fetchItems";
 import { ChequeUnits } from "@/api/cheque-request/fetchUnits";
@@ -14,6 +14,10 @@ import { deleteItem } from "@/api/cheque-request/DeleteItem";
 import { deleteLocation } from "@/api/cheque-request/DeleteLocation";
 import Link from "next/link";
 import { IoMdArrowBack } from "react-icons/io";
+// import ViewClients from "../../_components/Modal/ViewClients";
+import { useParams } from "next/navigation";
+import { fetchClientDataById } from "@/api/clients/fetchClientsView";
+import ViewClients from "./_components/Modal/ViewClients";
 
 function View() {
   const [isEditable, setIsEditable] = useState(false); // State to toggle between edit and view mode
@@ -26,6 +30,9 @@ function View() {
   const [searchTermLocation, setSearchTermLocation] = useState("");
   const [currentPageItems, setCurrentPageItems] = useState(1);
   const [currentPageUnits, setCurrentPageUnits] = useState(1);
+
+  const params = useParams();
+  const id = Number(params?.id);
 
   const handleEditToggle = () => {
     setIsEditable(!isEditable);
@@ -45,7 +52,17 @@ function View() {
     queryKey: ["items"],
     queryFn: ChequeItems,
   });
+  const {
+    data: VendorData,
+    isLoading: isCLoading,
+    isError: cerror,
+    error: cerrors,
+  } = useQuery({
+    queryKey: ["client", id],
+    queryFn: () => fetchClientDataById(id),
 
+    enabled: !!id,
+  });
   const {
     isLoading: isUnitsLoading,
     error: UnitsError,
@@ -136,19 +153,17 @@ function View() {
   return (
     <>
       <div className="ml-auto">
-        <Link href="/erp-v2/vendors">
+        <Link href="/erp-v2/clients">
           <button className="btn btn-info">
             <IoMdArrowBack />
-            Back to Cash Request
+            Back to Clients
           </button>
         </Link>
       </div>
       <div className="grid grid-cols-2 gap-6">
-        {/* First Column: Personal Information Input */}
         <div className="space-y-4">
           <h2 className="text-xl font-semibold flex justify-between items-center">
             Personal Information
-            {/* Button to toggle between Edit and Update */}
             <div className="flex space-x-2">
               {!isEditable ? (
                 <button
@@ -166,7 +181,7 @@ function View() {
                     Cancel
                   </button>
                   <button
-                    onClick={handleEditToggle} // This would be where you handle the update logic
+                    onClick={handleEditToggle}
                     className="px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600"
                   >
                     Update
@@ -179,23 +194,21 @@ function View() {
           {/* Profile Image */}
           <div className="flex justify-center mb-4">
             <img
-              src="https://via.placeholder.com/100" // Replace with the actual profile image URL
+              src="https://via.placeholder.com/100"
               alt="Profile"
               className="w-24 h-24 rounded-full border-2 border-gray-300"
             />
           </div>
 
-          {/* Name Input */}
-          {/* Formik Form for Personal Information */}
           <Formik
             initialValues={{
-              username: "", // Replace with actual initial values if needed
-              email: "", // Replace with actual initial values if needed
-              phone: "", // Replace with actual initial values if needed
+              username: "",
+              email: "",
+              phone: "",
             }}
             onSubmit={(values) => {
-              console.log("Updated Values:", values); // Handle form submission (like updating backend)
-              setIsEditable(false); // Exit edit mode after submission
+              console.log("Updated Values:", values);
+              setIsEditable(false);
             }}
           >
             <Form className="space-y-6 md:space-y-8">
@@ -320,9 +333,9 @@ function View() {
               <table className="min-w-full table-auto border-collapse">
                 <thead>
                   <tr className="text-blue-500">
-                    <th className="p-2 text-left">Product #</th>
+                    <th className="p-2 text-left">Quotation #</th>
                     <th className="p-2 text-left">Product Name</th>
-                    <th className="p-2 text-left">Active</th>
+
                     <th className="p-2 text-left">Actions</th>
                   </tr>
                 </thead>
@@ -331,29 +344,8 @@ function View() {
                     <tr key={location.id} className="border-b">
                       <td className="p-2">{location.unit_of_measurement}</td>
                       <td className="p-2">{location.unit_of_measurement}</td>
-                      <td className="p-2">{location.unit_of_measurement}</td>
                       <td className="p-2">
-                        <button
-                          className="btn btn-primary mr-2"
-                          onClick={() => {
-                            setSelectedLocation(location);
-                            setIsLocationModalOpen(true);
-                          }}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="btn btn-secondary"
-                          onClick={() => {
-                            const confirmDelete = window.confirm(
-                              "Are you sure you want to delete this location?"
-                            );
-                            if (confirmDelete)
-                              deleteLocationMutation(location.id);
-                          }}
-                        >
-                          Delete
-                        </button>
+                        <ViewClients />
                       </td>
                     </tr>
                   ))}

@@ -34,6 +34,7 @@ export interface ChequeId {
   address: string;
   date_of_purchase: string;
   remarks: string;
+  
 } 
 
 export async function fetchChequeById(id: string): Promise<ChequeId> {
