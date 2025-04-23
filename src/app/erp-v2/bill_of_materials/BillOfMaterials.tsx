@@ -14,6 +14,7 @@ import ModuleAccess from "../user/_components/Modal/ModuleAccess";
 import { Bom } from "@/api/bom-quotation/fetchBom";
 import EditBom from "./_components/Modal/EditBom";
 import { fetchUserLists } from "@/api/bill_of_materials/fetchUsers";
+import AddBom from "./_components/Modal/AddBom";
 
 export default function BillOfMaterials() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -89,7 +90,7 @@ export default function BillOfMaterials() {
         </label>
 
         <div className="ml-auto">
-          <AddLaborOfComputation />
+          <AddBom />
         </div>
       </div>
 

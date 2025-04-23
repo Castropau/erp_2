@@ -13,6 +13,7 @@ import {
   FetchLaborComputation,
   LaborComputation,
 } from "@/api/labor_of_computation/LaborOfComputations";
+import EditLabor from "./_compoments/Modal/EditLabor";
 
 /** components */
 
@@ -127,7 +128,7 @@ export default function LaborOfComputation() {
                 <td className="text-xs">{labor.system}</td>
 
                 <td className="text-xs flex gap-2">
-                  <PersonalInformation id={labor.id} />
+                  <EditLabor id={labor.id} />
                   <ModuleAccess />
                 </td>
               </tr>

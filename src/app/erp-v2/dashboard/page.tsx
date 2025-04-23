@@ -21,10 +21,14 @@ export default function User() {
     queryFn: fetchRoleData,
   });
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <div className="text-center text-lg">Loading...</div>;
 
   if (error instanceof Error)
-    return <div>An error has occurred: {error.message}</div>;
+    return (
+      <div className="text-center text-lg">
+        An error has occurred: {error.message}
+      </div>
+    );
 
   const uniqueDepartments = new Set(data?.map((user) => user.department));
   const departmentCount = uniqueDepartments.size;
@@ -36,13 +40,14 @@ export default function User() {
   const usersCount = uniqueUsers.size;
 
   return (
-    <div className="p-4 sm:ml-64">
-      <h1>Dashboard</h1>
-      <div className="grid grid-cols-4 gap-3 mb-5">
+    <div className="p-6 sm:ml-64 bg-gray-100 min-h-screen">
+      <h1 className="text-3xl font-bold text-gray-900 mb-6">Dashboard</h1>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-5">
+        {/* Dashboard Cards */}
         <DashboardCard title={`Total of ${usersCount} Users`} name="Users" />
         <DashboardCard
           title={`Total of ${departmentCount} Orders`}
-          name="Departments"
+          name="Orders"
           icon={
             <svg
               stroke="currentColor"
@@ -53,13 +58,13 @@ export default function User() {
               width="1em"
               xmlns="http://www.w3.org/2000/svg"
             >
-              <path d="M48 0C21.5 0 0 21.5 0 48V464c0 26.5 21.5 48 48 48h96V432c0-26.5 21.5-48 48-48s48 21.5 48 48v80h89.9c-6.3-10.2-9.9-22.2-9.9-35.1c0-46.9 25.8-87.8 64-109.2V271.8 48c0-26.5-21.5-48-48-48H48zM64 240c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V240zm112-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H176c-8.8 0-16-7.2-16-16V240c0-8.8 7.2-16 16-16zm80 16c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H272c-8.8 0-16-7.2-16-16V240zM80 96h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16zm80 16c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H176c-8.8 0-16-7.2-16-16V112zM272 96h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H272c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16zM576 272a80 80 0 1 0 -160 0 80 80 0 1 0 160 0zM352 477.1c0 19.3 15.6 34.9 34.9 34.9H605.1c19.3 0 34.9-15.6 34.9-34.9c0-51.4-41.7-93.1-93.1-93.1H445.1c-51.4 0-93.1 41.7-93.1 93.1z"></path>
+              <path d="M48 0C21.5 0 0 21.5 0 48V464c0 26.5 21.5 48 48 48h96V432c0-26.5 21.5-48 48-48s48 21.5 48 48v80h89.9c-6.3-10.2-9.9-22.2-9.9-35.1c0-46.9 25.8-87.8 64-109.2V271.8 48c0-26.5-21.5-48-48-48H48zM64 240c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V240zm112-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H176c-8.8 0-16-7.2-16-16V240c0-8.8 7.2-16 16-16zm80 16c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H272c-8.8 0-16-7.2-16-16V240c0-8.8 7.2-16 16-16zM80 96h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16zm80 16c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H176c-8.8 0-16-7.2-16-16V112zM272 96h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H272c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16zM576 272a80 80 0 1 0 -160 0 80 80 0 1 0 160 0zM352 477.1c0 19.3 15.6 34.9 34.9 34.9H605.1c19.3 0 34.9-15.6 34.9-34.9c0-51.4-41.7-93.1-93.1-93.1H445.1c-51.4 0-93.1 41.7-93.1 93.1z"></path>
             </svg>
           }
         />
         <DashboardCard
           title={`Total of ${roleCount} Sales`}
-          name="Roles"
+          name="Sales"
           icon={
             <svg
               stroke="currentColor"
@@ -78,7 +83,7 @@ export default function User() {
         />
         <DashboardCard
           title={`Total of ${roleCount} Marketing`}
-          name="Roles"
+          name="Marketing"
           icon={
             <svg
               stroke="currentColor"
@@ -96,6 +101,7 @@ export default function User() {
           }
         />
       </div>
+      {/* Placeholder for additional content */}
       <div className="overflow-x-auto">{/* <CreateUser /> */}</div>
       {/* <UserList /> */}
     </div>

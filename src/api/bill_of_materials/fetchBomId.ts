@@ -88,6 +88,7 @@ interface LaborHeader{
 
 interface GenHeader{
     id: number,
+    header: string,
     items: GenItem[],
     header_sub_total: string,
     order: string,

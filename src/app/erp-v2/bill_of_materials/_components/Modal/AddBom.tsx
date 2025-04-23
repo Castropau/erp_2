@@ -1,4 +1,5 @@
 // import { fetchbomId } from "@/api/bill_of_materials/fetchBomId";
+import { registerBom } from "@/api/bill_of_materials/addBom";
 import { BomId, fetchbomId } from "@/api/bill_of_materials/fetchBomId";
 import { fetchbomClient } from "@/api/bill_of_materials/fetchClients";
 import { fetchbomUser } from "@/api/bill_of_materials/fetchUsers";
@@ -18,43 +19,27 @@ interface DeviceRow {
 interface BomIds {
   id: number;
 }
-const EditBom = (props: BomIds) => {
-  const queryClient = useQueryClient();
-
-  const { id } = props;
-  const {
-    data: BomData,
-    isLoading: Rloading,
-    isError: ReceiptError,
-    error: rerror,
-  } = useQuery({
-    queryKey: ["bom", id],
-    queryFn: () => fetchbomId(id),
-    enabled: !!id,
-  });
-  const { mutate: updateBom } = useMutation({
-    mutationFn: (data: updateBomId) => updatebomId(id, data),
-    onSuccess: () => {
-      console.log("delivery updated successfully");
-      queryClient.invalidateQueries({ queryKey: ["bom", id] });
-    },
-    onError: (error) => {
-      console.error("Error updating quotation:", error);
-    },
-  });
-  const [activeNav, setActiveNav] = useState(1);
+const AddBom = () => {
   const [showEditModal, setShowEditModal] = useState(false);
+  const [activeNav, setActiveNav] = useState(1);
   const [deviceRows, setDeviceRows] = useState<DeviceRow[]>([]);
 
-  const [formData, setFormData] = useState({
-    input1: BomData?.bom_no || "",
-    input2: BomData?.date_created || "",
-    input3: "",
-    input4: "",
-    input5: "",
-    input6: "",
-    input7: "",
-    input8: "",
+  const queryClient = useQueryClient();
+
+  const {
+    mutate: registerbom,
+    isError,
+    error,
+  } = useMutation({
+    mutationFn: (bomData: AddBom) => registerBom(bomData),
+    onSuccess: () => {
+      console.log("bom registered successfully");
+      queryClient.invalidateQueries({ queryKey: ["bom"] });
+      setShowEditModal(false);
+    },
+    onError: (error: any) => {
+      console.error("Registration error:", error);
+    },
   });
   const {
     isLoading: Uloading,
@@ -72,62 +57,6 @@ const EditBom = (props: BomIds) => {
     queryKey: ["client"],
     queryFn: fetchbomClient,
   });
-
-  useEffect(() => {
-    if (BomData && BomData.device_header) {
-      const headersFromData = BomData.device_header.map((header) => ({
-        title: header.header || "",
-        rows: header.items.map((item) => ({
-          item: item.item,
-          description: item.description,
-          quantity: item.quantity.toString(),
-          unit_of_measurement: item.unit_of_measurement.toString(),
-          srp: item.srp,
-        })),
-      }));
-
-      setNewHeaders(headersFromData);
-    }
-  }, [BomData]);
-
-  useEffect(() => {
-    if (BomData?.device_items) {
-      // If device_items is an array:
-      const devices = Array.isArray(BomData.device_items)
-        ? BomData.device_items
-        : [BomData.device_items]; // fallback for single item
-
-      const formattedDevices = devices.map((device) => ({
-        item: device.item || "",
-        description: device.description || "",
-        quantity: device.quantity || 0,
-        unit_of_measurement: device.unit_of_measurement || "", // or you can hardcode a default
-        // srp: device.item.srp || 0,
-        srp: device.srp || 0,
-
-        // total_amount: device.total_amount || 0, // Fetching the total_amount
-        // total_amount: device.srp * device.quantity || 0,
-        // total_amount: (device.srp || 0) * (device.quantity || 0), // ✅ computed from srp * quantity
-        total_amount: (device.srp || 0) * (device.quantity || 0), // ✅ computed from srp * quantity
-      }));
-
-      setDeviceRows(formattedDevices);
-    }
-  }, [BomData]);
-  useEffect(() => {
-    if (BomData) {
-      setFormData({
-        input1: BomData.bom_no || "",
-        input2: BomData.date_created || "", // Add any other default values as needed
-        input3: BomData.sic.full_name || "",
-        input4: BomData.client.client || "",
-        input5: BomData.status || "",
-        input6: BomData.eic.full_name || "",
-        input7: BomData.project_name || "",
-        input8: BomData.project_site || "",
-      });
-    }
-  }, [BomData]);
 
   // Handle changes in input fields
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -184,32 +113,6 @@ const EditBom = (props: BomIds) => {
       return updatedRows;
     });
   };
-
-  //   const addHeader = (e?: React.MouseEvent<HTMLButtonElement>) => {
-  //     e?.preventDefault(); // prevent default form behavior if event passed
-
-  //     setNewHeaders((prev) => [
-  //       ...prev,
-  //       {
-  //         title: "",
-  //         rows: [
-  //           {
-  //             item: "",
-  //             description: "",
-  //             quantity: "",
-  //             unit_of_measurement: "",
-  //             amount: "",
-  //           },
-  //         ],
-  //       },
-  //     ]);
-  //   };
-
-  //   const updateNewHeaderTitle = (index: number, value: string) => {
-  //     const updated = [...newHeaders];
-  //     updated[index].title = value;
-  //     setNewHeaders(updated);
-  //   };
   const updateNewHeaderTitle = (headerIndex: number, newTitle: string) => {
     setNewHeaders((prevHeaders) => {
       const updatedHeaders = [...prevHeaders];
@@ -218,25 +121,6 @@ const EditBom = (props: BomIds) => {
     });
   };
 
-  //   const updateNewHeaderRow = (
-  //     headerIndex: number,
-  //     rowIndex: number,
-  //     key: keyof DeviceRow,
-  //     value: string
-  //   ) => {
-  //     const updated = [...newHeaders];
-  //     const row = updated[headerIndex].rows[rowIndex];
-  //     row[key] = value;
-
-  //     const quantity = parseFloat(row.quantity);
-  //     const unitPrice = parseFloat(row.unitPrice);
-  //     row.amount =
-  //       !isNaN(quantity) && !isNaN(unitPrice)
-  //         ? (quantity * unitPrice).toFixed(2)
-  //         : "";
-
-  //     setNewHeaders(updated);
-  //   };
   const updateNewHeaderRow = (
     headerIndex: number,
     rowIndex: number,
@@ -261,44 +145,6 @@ const EditBom = (props: BomIds) => {
     });
     setNewHeaders(updated);
   };
-  //   const addRowToNewHeader = (headerIndex: number) => {
-  //     setNewHeaders((prevHeaders) => {
-  //       const updatedHeaders = [...prevHeaders];
-  //       updatedHeaders[headerIndex].rows.push({
-  //         item: "",
-  //         description: "",
-  //         quantity: "",
-  //         unit_of_measurement: "",
-  //         amount: "",
-  //       });
-  //       return updatedHeaders;
-  //     });
-  //   };
-  //   const addRowToNewHeader = (headerIndex: number) => {
-  //     setNewHeaders((prevHeaders) => {
-  //       const updatedHeaders = [...prevHeaders];
-
-  //       // Ensure that we are adding only one row and not multiple
-  //       updatedHeaders[headerIndex].rows = [
-  //         ...updatedHeaders[headerIndex].rows,
-  //         {
-  //           item: "",
-  //           description: "",
-  //           quantity: "",
-  //           unit_of_measurement: "",
-  //           amount: "",
-  //         },
-  //       ];
-
-  //       return updatedHeaders;
-  //     });
-  //   };
-
-  //   const removeRowFromNewHeader = (headerIndex: number, rowIndex: number) => {
-  //     const updated = [...newHeaders];
-  //     updated[headerIndex].rows.splice(rowIndex, 1);
-  //     setNewHeaders(updated);
-  //   };
   const removeRowFromNewHeader = (headerIndex: number, rowIndex: number) => {
     setNewHeaders((prevHeaders) => {
       const updatedHeaders = [...prevHeaders];
@@ -496,24 +342,6 @@ const EditBom = (props: BomIds) => {
     setDeviceRows2(updated);
   };
 
-  useEffect(() => {
-    if (BomData?.material_header) {
-      const headersFromMaterial = BomData.material_header.map((header) => ({
-        title: header.header || "Untitled Header",
-        rows: header.items.map((item) => ({
-          item: item.item,
-          description: item.description,
-          quantity: item.quantity.toString(),
-          unit_of_measurement: item.unit_of_measurement,
-          srp: item.srp.toString(),
-          amount: item.total_amount.toString(),
-        })),
-      }));
-
-      setNewHeaders2(headersFromMaterial);
-    }
-  }, [BomData]);
-
   const [deviceRows3, setDeviceRows3] = useState<DeviceRow[]>([]);
   const [newHeaders3, setNewHeaders3] = useState<
     { title: string; rows: DeviceRow[] }[]
@@ -618,40 +446,6 @@ const EditBom = (props: BomIds) => {
     updated.splice(index, 1);
     setDeviceRows3(updated);
   };
-  useEffect(() => {
-    if (BomData?.labor_header) {
-      const headersFromLabor = BomData.labor_header.map((header) => ({
-        title: header.header || "Labor Header",
-        rows: Array.isArray(header.items)
-          ? header.items.map((item) => ({
-              item: item.item,
-              description: item.description || "",
-              quantity: item.quantity?.toString() || "0",
-              unit_of_measurement: item.unit_of_measurement || "",
-              amount: item.total_amount?.toString() || "0",
-            }))
-          : [],
-      }));
-
-      setNewHeaders3(headersFromLabor);
-    }
-  }, [BomData]);
-
-  useEffect(() => {
-    if (BomData?.labor_items) {
-      const laborItemsFormatted: DeviceRow[] = BomData.labor_items.map(
-        (labor) => ({
-          item: labor.item || "",
-          description: labor.description || "",
-          quantity: labor.quantity?.toString() || "0",
-          unit_of_measurement: labor.unit_of_measurement || "",
-          amount: labor.total_amount?.toString() || "0",
-        })
-      );
-
-      setDeviceRows3(laborItemsFormatted);
-    }
-  }, [BomData]);
 
   const updateDeviceRow3 = (
     rowIndex: number,
@@ -788,128 +582,6 @@ const EditBom = (props: BomIds) => {
     updated.splice(index, 1);
     setDeviceRows4(updated);
   };
-  //   useEffect(() => {
-  //     if (BomData?.general_header) {
-  //       const headersFromGeneral = BomData.general_header.map((header) => ({
-  //         title: header.item || "General Header",
-  //         rows: [
-  //           {
-  //             item: header.item || "",
-  //             description: header.description || "",
-  //             unit_of_measurement: header.unit_of_measurement || "",
-  //             quantity: header.quantity || 0,
-  //             srp: header.srp || 0,
-  //             amount: header.header_sub_total?.toString() || "0",
-  //           },
-  //         ],
-  //       }));
-
-  //       setNewHeaders4(headersFromGeneral);
-  //     }
-  //   }, [BomData]);
-  // useEffect(() => {
-  //   if (BomData?.labor_items) {
-  //     const laborItemsFormatted: DeviceRow[] = BomData.labor_items.map(
-  //       (labor) => ({
-  //         item: labor.item || "",
-  //         description: labor.description || "",
-  //         quantity: labor.quantity?.toString() || "0",
-  //         unit_of_measurement: labor.unit_of_measurement || "",
-  //         amount: labor.total_amount?.toString() || "0",
-  //       })
-  //     );
-
-  //     setDeviceRows3(laborItemsFormatted);
-  //   }
-  // }, [BomData]);
-  //   useEffect(() => {
-  //     if (BomData?.general_header) {
-  //       // Flatten the general_header data to populate deviceRows4
-  //       const rowsFromGeneral = BomData.general_header.flatMap((header) =>
-  //         header.items.map((item) => ({
-  //           item: item.item || "",
-  //           description: item.description || "",
-  //           quantity: item.quantity?.toString() || "", // Ensure this is a string for input
-  //           unit_of_measurement: item.unit_of_measurement || "",
-  //           amount: (item.quantity * item.srp).toFixed(2),
-  //         }))
-  //       );
-
-  //       // Update deviceRows4 with the extracted rows
-  //       setDeviceRows4(rowsFromGeneral);
-  //     }
-  //   }, [BomData]);
-  //   useEffect(() => {
-  //     if (BomData?.general_header) {
-  //       setDeviceRows4((prevRows) => {
-  //         const rowsFromGeneral = BomData.general_header.flatMap(
-  //           (header, hIndex) =>
-  //             header.items.map((item, iIndex) => {
-  //               const existing = prevRows.find(
-  //                 (row) =>
-  //                   row.item === item.item &&
-  //                   row.description === item.description &&
-  //                   row.quantity === item.quantity?.toString()
-  //               );
-
-  //               return {
-  //                 item: item.item || "",
-  //                 description: item.description || "",
-  //                 quantity: item.quantity?.toString() || "",
-  //                 unit_of_measurement: item.unit_of_measurement || "",
-  //                 amount: (item.quantity * item.srp).toFixed(2),
-  //                 subrows: existing?.subrows || [], // 🛠 Preserve existing subrows
-  //               };
-  //             })
-  //         );
-
-  //         return rowsFromGeneral;
-  //       });
-  //     }
-  //   }, [BomData]);
-  useEffect(() => {
-    if (BomData?.general_header) {
-      const rowsFromGeneral = BomData.general_header.map((header) => {
-        return {
-          item: header.item || "",
-          description: header.description || "",
-          quantity: header.quantity?.toString() || "",
-          unit_of_measurement: header.unit_of_measurement || "",
-          amount: ((header.quantity || 0) * (header.srp || 0)).toFixed(2),
-          srp: header.srp?.toString() || "0",
-          subrows:
-            header.items?.map((item) => ({
-              item: item.item || "",
-              description: item.description || "",
-              quantity: item.quantity?.toString() || "",
-              unit_of_measurement: item.unit_of_measurement || "",
-              amount: ((item.quantity || 0) * (item.srp || 0)).toFixed(2),
-            })) || [],
-        };
-      });
-
-      setDeviceRows4(rowsFromGeneral);
-    }
-  }, [BomData]);
-
-  //   useEffect(() => {
-  //     if (BomData?.general_header) {
-  //       const generalRowsFormatted: DeviceRow[] = BomData.general_header.map(
-  //         (general) => ({
-  //           item: general.item || "",
-  //           description: general.description || "",
-  //           quantity: general.quantity?.toString() || "0",
-  //           unitPrice: general.description?.toString() || "0",
-  //           amount:
-  //             (parseFloat(general.quantity) * parseFloat(general.srp)).toFixed(
-  //               2
-  //             ) || "0",
-  //         })
-  //       );
-
-  //       setDeviceRows4(generalRowsFormatted);
-  //     }
-  //   }, [BomData]);
 
   const addSubRow4 = (rowIndex: number) => {
     const updatedRows = [...deviceRows4];
@@ -979,57 +651,39 @@ const EditBom = (props: BomIds) => {
     });
   };
 
-  if (Rloading) {
-    return <div>Loading...</div>;
-  }
+  //   if (Rloading) {
+  //     return <div>Loading...</div>;
+  //   }
 
-  if (ReceiptError) {
-    return <div>Error: {rerror?.message}</div>;
-  }
+  //   if (ReceiptError) {
+  //     return <div>Error: {rerror?.message}</div>;
+  //   }
   return (
     <div>
       <button
         className="btn btn-primary text-white px-6 py-2 rounded-md shadow hover:bg-blue-600"
         onClick={() => setShowEditModal(true)}
       >
-        View
+        Add
       </button>
 
       {showEditModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-5xl overflow-y-auto max-h-[90vh]">
             <h2 className="text-2xl font-semibold mb-6 text-center text-gray-800">
-              Edit BOM
+              Add BOM
             </h2>
-            {/* Form Inputs */}
-            {/* <div className="grid grid-cols-2 gap-6 mb-6">
-              {Object.keys(formData).map((key, index) => (
-                <div key={index} className="flex flex-col">
-                  <label className="text-sm font-medium text-gray-700 mb-2">
-                    {`Input ${index + 1}`}
-                  </label>
-                  <input
-                    type="text"
-                    name={key}
-                    value={formData[key as keyof typeof formData]}
-                    onChange={handleInputChange}
-                    className="input input-bordered w-full p-3 rounded-md border border-gray-300"
-                    placeholder={`Input ${index + 1}`}
-                  />
-                </div>
-              ))}
-            </div> */}
             <Formik
               initialValues={{
-                input1: BomData?.bom_no || "",
-                input2: BomData?.date || "",
-                input3: BomData?.sic.id || "",
-                input4: BomData?.client.id || "",
-                input5: BomData?.status || "",
-                input6: BomData?.eic.id || "",
-                input7: BomData?.project_name || "",
-                input8: BomData?.project_site || "",
-                input9: BomData?.first_header || "",
+                input1: "",
+                input2: "",
+                input3: "",
+                input4: "",
+                input5: "",
+                input6: "",
+                input7: "",
+                input8: "",
+                input9: "",
               }}
               enableReinitialize={true} // important to update if BomData changes
               onSubmit={(values) => {
@@ -1137,76 +791,6 @@ const EditBom = (props: BomIds) => {
                     }),
                   })),
 
-                  // general
-                  //   general_items: deviceRows4.map((row, index) => {
-                  //     const quantity = Number(row.quantity) || 0;
-                  //     const srp = Number(row.srp) || 0;
-                  //     return {
-                  //       item: row.item,
-                  //       description: row.description,
-                  //       quantity,
-                  //       srp,
-                  //       unit_of_measurement: row.unit_of_measurement || "",
-                  //       total_amount: quantity * srp,
-                  //       order: index + 1,
-                  //     };
-                  //   }),
-
-                  //   general_header: newHeaders4.map((header, hIndex) => ({
-                  //     header: header.title,
-                  //     header_sub_total: header.rows.reduce((sum, row) => {
-                  //       const quantity = Number(row.quantity) || 0;
-                  //       const srp = Number(row.unit_of_measurement) || 0;
-                  //       return sum + quantity * srp;
-                  //     }, 0),
-                  //     items: header.rows.map((row, rIndex) => {
-                  //       const quantity = Number(row.quantity) || 0;
-                  //       const srp = Number(row.unit_of_measurement) || 0;
-                  //       return {
-                  //         item: row.item,
-                  //         description: row.description,
-                  //         quantity,
-                  //         srp,
-                  //         unit_of_measurement: row.unit_of_measurement || "",
-                  //         total_amount: quantity * srp,
-                  //         order: rIndex + 1,
-                  //       };
-                  //     }),
-                  //   })),
-                  //   general_header: deviceRows4.map((row, index) => ({
-                  //     item: row.item,
-                  //     description: row.description,
-                  //     quantity: row.quantity || 0,
-                  //     srp: row.srp || 0,
-                  //     unit_of_measurement: row.unit_of_measurement || "",
-                  //     total_amount: Number(row.total_amount),
-                  //     order: index + 1,
-                  //   })),
-                  //   general_header: deviceRows4.map((row, index) => ({
-                  //     id: index + 1, // Set a unique ID based on index
-                  //     header: row.item || "", // Set header to item or fallback to empty string
-                  //     items: [
-                  //       {
-                  //         id: index + 1, // Item ID based on index
-                  //         item: row.item || "", // Item name, fallback if empty
-                  //         description: row.description || "", // Item description
-                  //         quantity: Number(row.quantity) || 0, // Quantity (default to 0 if missing)
-                  //         srp: Number(row.srp) || 0, // SRP (default to 0 if missing)
-                  //         unit_of_measurement: row.unit_of_measurement || "", // Unit of measurement (fallback to empty string)
-                  //         total_amount:
-                  //           (Number(row.quantity) || 0) * (Number(row.srp) || 0), // Calculate total amount
-                  //         order: index + 1, // Order based on index
-                  //       },
-                  //     ],
-                  //     header_sub_total:
-                  //       (Number(row.quantity) || 0) * (Number(row.srp) || 0), // Subtotal for header (can be customized)
-                  //     order: (index + 1).toString(), // Set order based on index
-                  //     item: row.item || "", // Fallback to empty string if no item
-                  //     description: row.description || "", // Fallback to empty string if no description
-                  //     quantity: Number(row.quantity) || 0, // Quantity
-                  //     unit_of_measurement: row.unit_of_measurement || "", // Unit of measurement
-                  //     srp: Number(row.srp) || 0, // SRP
-                  //   })),
                   general_header: deviceRows4.map((row, index) => ({
                     // id: index + 1,
                     order: index + 1,
@@ -1232,7 +816,7 @@ const EditBom = (props: BomIds) => {
                 };
 
                 console.log(payload);
-                updateBom(payload);
+                registerbom(payload);
               }}
             >
               {({ values, handleChange }) => (
@@ -1646,7 +1230,8 @@ const EditBom = (props: BomIds) => {
                     <>
                       <div className="space-y-6">
                         <div className="flex justify-end gap-4">
-                          <button
+                          {/* <button
+                            type="button"
                             className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
                             onClick={() =>
                               setDeviceRows2([
@@ -1662,7 +1247,7 @@ const EditBom = (props: BomIds) => {
                             }
                           >
                             Add Row
-                          </button>
+                          </button> */}
                           <button
                             type="button"
                             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
@@ -2460,4 +2045,4 @@ const EditBom = (props: BomIds) => {
   );
 };
 
-export default EditBom;
+export default AddBom;

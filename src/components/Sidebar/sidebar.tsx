@@ -1,361 +1,249 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { MdDashboard } from "react-icons/md";
-import { IoIosArrowDown, IoMdCard, IoMdCart } from "react-icons/io";
-import { FaMoneyBillAlt, FaRegUserCircle } from "react-icons/fa";
-import { HiOutlineCalculator, HiDocumentCurrencyDollar } from "react-icons/hi2";
-import { BsPersonFillGear, BsPersonVcard } from "react-icons/bs";
-import { MdReceiptLong, MdOutlineInventory } from "react-icons/md";
-import { PiHandWithdraw } from "react-icons/pi";
-import { HiClipboardDocumentList } from "react-icons/hi2";
+import React, { useState } from "react";
+import { useSidebar } from "../Context/SidebarContext"; // Import the useSidebar hook
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { MdDashboard, MdOutlineInventory, MdReceiptLong } from "react-icons/md";
+import { IoIosArrowForward, IoMdCard, IoMdCart } from "react-icons/io";
 import { FaStore } from "react-icons/fa6";
+import {
+  HiOutlineCalculator,
+  HiClipboardDocumentList,
+  HiDocumentCurrencyDollar,
+} from "react-icons/hi2";
+import { PiHandWithdraw } from "react-icons/pi";
+import { BsPersonVcard, BsPersonFillGear } from "react-icons/bs";
+import { FaMoneyBillAlt, FaRegUserCircle } from "react-icons/fa";
+import { IoIosArrowDown } from "react-icons/io";
 
-function Sidebar() {
-  const [isRequisitionDropdownOpen, setIsRequisitionDropdownOpen] =
-    useState(false);
-  const [isQuotationDropdownOpen, setIsQuotationDropdownOpen] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+// Icon wrapper to ensure consistent size everywhere
+const IconWrapper = ({ children }: { children: React.ReactNode }) => (
+  <div className="w-6 h-6 flex items-center justify-center text-xl">
+    {children}
+  </div>
+);
 
-  const toggleRequisitionDropdown = () => {
-    setIsRequisitionDropdownOpen(!isRequisitionDropdownOpen);
+const navSections = [
+  {
+    items: [
+      {
+        name: "Dashboard",
+        icon: <MdDashboard />,
+        path: "/erp-v2/dashboard",
+      },
+    ],
+  },
+  {
+    title: "Accounting",
+    items: [
+      {
+        name: "Requisition",
+        icon: <IoMdCard />,
+        subItems: [
+          { name: "Cash Request", path: "/erp-v2/cash-request" },
+          { name: "Cheque Request", path: "/erp-v2/cheque-request" },
+        ],
+      },
+      {
+        name: "Liquidation",
+        icon: <HiOutlineCalculator />,
+        path: "/erp-v2/liquidation",
+      },
+    ],
+  },
+  {
+    title: "CRM",
+    items: [
+      {
+        name: "Quotation",
+        icon: <HiDocumentCurrencyDollar />,
+        subItems: [
+          { name: "Quotation", path: "/erp-v2/quotation" },
+          { name: "BOM Quotation", path: "/erp-v2/bom-quotation" },
+        ],
+      },
+      {
+        name: "Vendors",
+        icon: <FaStore />,
+        path: "/erp-v2/vendors",
+      },
+      {
+        name: "Clients",
+        icon: <BsPersonVcard />,
+        path: "/erp-v2/clients",
+      },
+      {
+        name: "Delivery Receipt",
+        icon: <MdReceiptLong />,
+        path: "/erp-v2/delivery-receipt",
+      },
+    ],
+  },
+  {
+    title: "SCM",
+    items: [
+      {
+        name: "Purchase Order",
+        icon: <IoMdCart />,
+        path: "/erp-v2/purchase-order",
+      },
+    ],
+  },
+  {
+    title: "Warehouse Management",
+    items: [
+      {
+        name: "Inventory",
+        icon: <MdOutlineInventory />,
+        path: "/erp-v2/inventory",
+      },
+      {
+        name: "Withdraw Materials",
+        icon: <PiHandWithdraw />,
+        path: "/erp-v2/withdraw_materials",
+      },
+      {
+        name: "Product Master List",
+        icon: <HiClipboardDocumentList />,
+        path: "/erp-v2/product_master_list",
+      },
+    ],
+  },
+  {
+    title: "Manufacturing Production",
+    items: [
+      {
+        name: "Bill of Materials",
+        icon: <FaMoneyBillAlt />,
+        path: "/erp-v2/bill_of_materials",
+      },
+      {
+        name: "Labor of Computation",
+        icon: <BsPersonFillGear />,
+        path: "/erp-v2/labor_of_computation",
+      },
+    ],
+  },
+  {
+    title: "Account Management",
+    items: [
+      {
+        name: "Users",
+        icon: <FaRegUserCircle />,
+        path: "/erp-v2/user",
+      },
+    ],
+  },
+];
+
+const Sidebar = () => {
+  const pathname = usePathname();
+  const { isCollapsed, toggleSidebar } = useSidebar(); // Use the context's state and toggle function
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+
+  const toggleDropdown = (name: string) => {
+    setOpenDropdown((prev) => (prev === name ? null : name));
   };
 
-  const toggleQuotationDropdown = () => {
-    setIsQuotationDropdownOpen(!isQuotationDropdownOpen);
-  };
-
-  const toggleSidebar = () => {
-    setIsCollapsed(!isCollapsed);
-  };
-
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    // Save the theme preference to localStorage to persist it across sessions
-    localStorage.setItem("theme", isDarkMode ? "light" : "dark");
-  };
-
-  useEffect(() => {
-    // Check the saved theme preference from localStorage on component mount
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme) {
-      setIsDarkMode(savedTheme === "dark");
-    }
-  }, []);
+  const isActive = (path: string) => pathname === path;
 
   return (
-    <>
-      <aside
-        id="default-sidebar"
-        className={`fixed top-0 left-0 z-40 h-screen transition-all duration-300 ${
-          isCollapsed ? "translate-x-full sm:translate-x-0" : "translate-x-0"
-        }`}
-        aria-label="Sidebar"
-      >
-        <div
-          className={`h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800 ${
-            isCollapsed ? "w-16" : "w-64"
-          } transition-all duration-300`}
-        >
-          <button
-            className="text-white bg-gray-800 p-2 rounded-lg absolute top-4 right-4"
-            onClick={toggleSidebar}
-          >
-            {isCollapsed ? ">" : "<"}
-          </button>
-
-          <ul className="text-xs">
-            <li
-              className={`flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group ${
-                isCollapsed ? "mt-10" : ""
-              }`}
-            >
-              <a href="/erp-v2/dashboard" className="flex items-center">
-                <MdDashboard className="w-6 h-6 text-xs" />
-
-                {!isCollapsed && <span className="ms-3">Dashboard</span>}
-              </a>
-            </li>
-
-            <div
-              className={`text-xs font-extrabold text-neutral-400 tracking-wider whitespace-nowrap ml-3 py-3 ${
-                isCollapsed ? "hidden" : ""
-              }`}
-            >
-              Accounting
-            </div>
-
-            {/* Requisition Dropdown */}
-            <li>
-              <a
-                href="#"
-                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-                onClick={toggleRequisitionDropdown}
-              >
-                <IoMdCard className="w-6 h-6 text-xs" />
-                {!isCollapsed && (
-                  <>
-                    <span className="flex-1 ms-3 whitespace-nowrap">
-                      Requisition
-                    </span>
-                    <span className="items-center justify-center w-3 h-3 p-3 ms-3 text-sm font-medium">
-                      <IoIosArrowDown />
-                    </span>
-                  </>
-                )}
-              </a>
-              {isRequisitionDropdownOpen && !isCollapsed && (
-                <ul className="pl-8 mt-2 space-y-2">
-                  <li>
-                    <a
-                      href="/erp-v2/cash-request"
-                      className="block p-2 text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600"
-                    >
-                      Cash Request
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="/erp-v2/cheque-request"
-                      className="block p-2 text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600"
-                    >
-                      Cheque Request
-                    </a>
-                  </li>
-                </ul>
+    <aside
+      className={`fixed top-19 left-0 z-40 h-screen transition-all duration-300 bg-white dark:bg-gray-900 overflow-y-auto border-r border-gray-200 dark:border-gray-800 ${
+        isCollapsed ? "w-16" : "w-64"
+      } p-4`}
+      onMouseEnter={() => {
+        if (isCollapsed) {
+          toggleSidebar(); // Expands the sidebar
+        }
+      }}
+      onMouseLeave={() => {
+        if (isCollapsed) {
+          toggleSidebar(); // Collapses the sidebar
+        }
+      }} // Collapses the sidebar
+    >
+      <div className="flex flex-col h-full p-4">
+        <div className="flex-1 overflow-y-auto"></div>
+        <ul className="text-sm font-medium space-y-2">
+          {navSections.map((section, sectionIndex) => (
+            <li key={section.title ?? `section-${sectionIndex}`}>
+              {/* Section title */}
+              {section.title && !isCollapsed && (
+                <div className="text-xs font-extrabold text-neutral-400 tracking-wider ml-3 py-3">
+                  {section.title}
+                </div>
               )}
-            </li>
+              <ul className="space-y-1">
+                {section.items.map((item, itemIndex) => (
+                  <li key={`${item.name}-${section.title ?? sectionIndex}`}>
+                    {item.subItems ? (
+                      <>
+                        {/* Dropdown button */}
+                        <button
+                          onClick={() => toggleDropdown(item.name)}
+                          className="flex items-center justify-between w-full p-2 text-left text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                        >
+                          <div className="flex items-center gap-2">
+                            <IconWrapper>{item.icon}</IconWrapper>
+                            {!isCollapsed && (
+                              <span className="ms-3">{item.name}</span>
+                            )}
+                          </div>
+                          {!isCollapsed && (
+                            <IoIosArrowDown
+                              className={`transition-transform duration-200 ${
+                                openDropdown === item.name ? "rotate-180" : ""
+                              }`}
+                            />
+                          )}
+                        </button>
 
-            <li>
-              <a
-                href="/erp-v2/liquidation"
-                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <HiOutlineCalculator className="w-6 h-6 text-xs" />
-                {!isCollapsed && (
-                  <span className="flex-1 ms-3 whitespace-nowrap">
-                    Liquidation
-                  </span>
-                )}
-              </a>
-            </li>
-
-            <div
-              className={`text-xs font-extrabold text-neutral-400 tracking-wider whitespace-nowrap ml-3 py-3 ${
-                isCollapsed ? "hidden" : ""
-              }`}
-            >
-              CRM
-            </div>
-
-            {/* Quotation Dropdown */}
-            <li>
-              <a
-                href="#"
-                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-                onClick={toggleQuotationDropdown}
-              >
-                <HiDocumentCurrencyDollar className="w-6 h-6 text-xs" />
-                {!isCollapsed && (
-                  <>
-                    <span className="flex-1 ms-3 whitespace-nowrap">
-                      Quotation
-                    </span>
-                    <span className="items-center justify-center w-3 h-3 p-3 ms-3 text-sm font-medium">
-                      <IoIosArrowDown />
-                    </span>
-                  </>
-                )}
-              </a>
-              {isQuotationDropdownOpen && !isCollapsed && (
-                <ul className="pl-8 mt-2 space-y-2">
-                  <li>
-                    <a
-                      href="/erp-v2/quotation"
-                      className="block p-2 text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600"
-                    >
-                      Quotation
-                    </a>
+                        {openDropdown === item.name && !isCollapsed && (
+                          <ul className="ml-9 mt-1 space-y-1">
+                            {item.subItems.map((sub, subIndex) => (
+                              <li key={`${sub.name}-${item.name}-${subIndex}`}>
+                                <Link
+                                  href={sub.path}
+                                  className={`block p-2 rounded-lg ${
+                                    isActive(sub.path)
+                                      ? "bg-gray-200 dark:bg-gray-700 text-black dark:text-white"
+                                      : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"
+                                  }`}
+                                >
+                                  {sub.name}
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </>
+                    ) : (
+                      <Link
+                        href={item.path}
+                        className={`flex items-center p-2 rounded-lg group ${
+                          isActive(item.path)
+                            ? "bg-gray-200 dark:bg-gray-700 text-black dark:text-white"
+                            : "text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                        }`}
+                      >
+                        <IconWrapper>{item.icon}</IconWrapper>
+                        {!isCollapsed && (
+                          <span className="ms-3 whitespace-nowrap">
+                            {item.name}
+                          </span>
+                        )}
+                      </Link>
+                    )}
                   </li>
-                  <li>
-                    <a
-                      href="/erp-v2/bom-quotation"
-                      className="block p-2 text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600"
-                    >
-                      BOM Quotation
-                    </a>
-                  </li>
-                </ul>
-              )}
+                ))}
+              </ul>
             </li>
-
-            <li>
-              <a
-                href="/erp-v2/vendors"
-                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <FaStore className="w-6 h-6 text-xs" />
-                {!isCollapsed && (
-                  <span className="flex-1 ms-3 whitespace-nowrap">Vendors</span>
-                )}
-              </a>
-            </li>
-
-            <li>
-              <a
-                href="/erp-v2/clients"
-                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <BsPersonVcard className="w-6 h-6 text-xs" />
-                {!isCollapsed && (
-                  <span className="flex-1 ms-3 whitespace-nowrap">Clients</span>
-                )}
-              </a>
-            </li>
-
-            <li>
-              <a
-                href="/erp-v2/delivery-receipt"
-                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <MdReceiptLong className="w-6 h-6 text-xs" />
-                {!isCollapsed && (
-                  <span className="flex-1 ms-3 whitespace-nowrap">
-                    Delivery Receipt
-                  </span>
-                )}
-              </a>
-            </li>
-
-            <div
-              className={`text-xs font-extrabold text-neutral-400 tracking-wider whitespace-nowrap ml-3 py-3 ${
-                isCollapsed ? "hidden" : ""
-              }`}
-            >
-              SCM
-            </div>
-
-            <li>
-              <a
-                href="/erp-v2/purchase-order"
-                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <IoMdCart className="w-6 h-6 text-xs" />
-                {!isCollapsed && (
-                  <span className="flex-1 ms-3 whitespace-nowrap">
-                    Purchase Order
-                  </span>
-                )}
-              </a>
-            </li>
-            <div
-              className={`text-xs font-extrabold text-neutral-400 tracking-wider whitespace-nowrap ml-3 py-3 ${
-                isCollapsed ? "hidden" : ""
-              }`}
-            >
-              Warehouse Management
-            </div>
-
-            <li>
-              <a
-                href="/erp-v2/inventory"
-                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <MdOutlineInventory className="w-6 h-6 text-xs" />
-                {!isCollapsed && (
-                  <span className="flex-1 ms-3 whitespace-nowrap">
-                    Inventory
-                  </span>
-                )}
-              </a>
-            </li>
-
-            <li>
-              <a
-                href="/erp-v2/withdraw_materials"
-                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <PiHandWithdraw className="w-6 h-6 text-xs" />
-                {!isCollapsed && (
-                  <span className="flex-1 ms-3 whitespace-nowrap">
-                    Withdraw Materials
-                  </span>
-                )}
-              </a>
-            </li>
-
-            <li>
-              <a
-                href="/erp-v2/product_master_list"
-                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <HiClipboardDocumentList className="w-6 h-6 text-xs" />
-                {!isCollapsed && (
-                  <span className="flex-1 ms-3 whitespace-nowrap">
-                    Product Master List
-                  </span>
-                )}
-              </a>
-            </li>
-            <div
-              className={`text-xs font-extrabold text-neutral-400 tracking-wider whitespace-nowrap ml-3 py-3 ${
-                isCollapsed ? "hidden" : ""
-              }`}
-            >
-              Manufacturing
-            </div>
-
-            <li>
-              <a
-                href="/erp-v2/bill_of_materials"
-                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <FaMoneyBillAlt className="w-6 h-6 text-xs" />
-                {!isCollapsed && (
-                  <span className="flex-1 ms-3 whitespace-nowrap">
-                    Bill of Materials
-                  </span>
-                )}
-              </a>
-            </li>
-
-            <li>
-              <a
-                href="/erp-v2/labor_of_computation"
-                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <BsPersonFillGear className="w-6 h-6 text-xs" />
-                {!isCollapsed && (
-                  <span className="flex-1 ms-3 whitespace-nowrap">
-                    Labor of Computation
-                  </span>
-                )}
-              </a>
-            </li>
-            <div
-              className={`text-xs font-extrabold text-neutral-400 tracking-wider whitespace-nowrap ml-3 py-3 ${
-                isCollapsed ? "hidden" : ""
-              }`}
-            >
-              Accounting
-            </div>
-
-            <li>
-              <a
-                href="/erp-v2/user"
-                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-              >
-                <FaRegUserCircle className="w-6 h-6 text-xs" />
-                {!isCollapsed && (
-                  <span className="flex-1 ms-3 whitespace-nowrap">Users</span>
-                )}
-              </a>
-            </li>
-          </ul>
-        </div>
-      </aside>
-    </>
+          ))}
+        </ul>
+      </div>
+    </aside>
   );
-}
+};
 
 export default Sidebar;

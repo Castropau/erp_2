@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 /**state */
 import React, { useState, useMemo } from "react";
 
@@ -17,6 +17,8 @@ import {
   RequisitionCash,
 } from "@/api/cash-request/fetchCashRequest";
 import EditCashRequest from "./_components/Modal/EditCashRequest";
+import { DeleteCash, deleteCashRequest } from "@/api/cash-request/deleteCash";
+import { FaTrash } from "react-icons/fa6";
 
 /** components */
 
@@ -32,16 +34,6 @@ export default function CashRequest() {
     queryFn: fetchCashRequest,
   });
 
-  //   const filteredData = useMemo(() => {
-  //     return data?.filter(
-  //       (user) =>
-  //         user.serial_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //         user.special_instructions
-  //           .toLowerCase()
-  //           .includes(searchTerm.toLowerCase())
-  //     );
-  //   }, [searchTerm, data]);
-
   const filteredData = useMemo(() => {
     if (!data) return [];
 
@@ -56,7 +48,7 @@ export default function CashRequest() {
       );
     });
   }, [searchTerm, data]);
-
+  const queryClient = useQueryClient();
   const totalPages = Math.ceil((filteredData?.length || 0) / rowsPerPage);
 
   const indexOfLastRow = currentPage * rowsPerPage;
@@ -74,13 +66,62 @@ export default function CashRequest() {
   function setShowRegisterModal(arg0: boolean): void {
     throw new Error("Function not implemented.");
   }
-  if (isLoading) return <div>Loading...</div>;
+
+  const { mutate: deleteCash } = useMutation({
+    mutationFn: (id: number) => deleteCashRequest(id),
+    onSuccess: () => {
+      console.log("Deleted successfully");
+      queryClient.invalidateQueries({ queryKey: ["cash"] });
+    },
+    onError: (error) => {
+      console.error("Error deleting cash:", error);
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center ">
+        <table className="table table-xs table-zebra w-full">
+          <tbody>
+            {[...Array(5)].map((_, index) => (
+              <tr
+                key={index}
+                className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
+              >
+                <td className="text-xs">
+                  <div className="skeleton w-16 h-4 bg-gray-300 rounded"></div>
+                </td>
+                <td className="text-xs">
+                  <div className="skeleton w-24 h-4 bg-gray-300 rounded"></div>
+                </td>
+                <td className="text-xs">
+                  <div className="skeleton w-20 h-4 bg-gray-300 rounded"></div>
+                </td>
+                <td className="text-xs">
+                  <div className="skeleton w-24 h-4 bg-gray-300 rounded"></div>
+                </td>
+                <td className="text-xs">
+                  <div className="skeleton w-20 h-4 bg-gray-300 rounded"></div>
+                </td>
+                <td className="text-xs">
+                  <div className="skeleton w-16 h-4 bg-gray-300 rounded"></div>
+                </td>
+                <td className="text-xs">
+                  <div className="skeleton w-24 h-4 bg-gray-300 rounded"></div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
 
   if (error instanceof Error)
     return <div>An error has occurred: {error.message}</div>;
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto ">
       <div className="flex items-center justify-between mb-4 gap-4">
         <label className="input flex-grow w-2/3">
           <svg
@@ -119,17 +160,17 @@ export default function CashRequest() {
         </div>
       </div>
 
-      <h1>Cash request</h1>
-      <table className="table table-xs table-zebra w-full">
-        <thead>
-          <tr className="text-blue-500">
-            <th>Serial #</th>
-            <th>Instruction</th>
-            <th>Total</th>
-            <th>Requested by</th>
-            <th>Date Requested</th>
-            <th>Status</th>
-            <th>Actions</th>
+      <h1 className="text-2xl font-semibold mb-4">Cash Requests</h1>
+      <table className="table table-xs w-full border-t border-gray-200 bg-white rounded-lg shadow-lg">
+        <thead className="bg-gray-500 text-white">
+          <tr className="text-white-600 text-sm font-medium">
+            <th className="px-4 py-2">Serial #</th>
+            <th className="px-4 py-2">Instruction</th>
+            <th className="px-4 py-2">Total</th>
+            <th className="px-4 py-2">Requested by</th>
+            <th className="px-4 py-2">Date Requested</th>
+            <th className="px-4 py-2">Status</th>
+            <th className="px-4 py-2">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -143,7 +184,9 @@ export default function CashRequest() {
             currentRows?.map((user, index) => (
               <tr
                 key={user.id}
-                className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
+                className={`transition duration-300 ease-in-out ${
+                  index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                } hover:bg-gray-200`}
               >
                 <td className="text-xs">{user.serial_no}</td>
                 <td className="text-xs">{user.special_instructions}</td>
@@ -164,7 +207,20 @@ export default function CashRequest() {
                 <td className="text-xs flex gap-2">
                   {/* <PersonalInformation id={user.id} /> */}
                   <EditCashRequest id={user.id} />
-                  <ModuleAccess />
+                  <button
+                    className="btn btn-error"
+                    onClick={() => {
+                      if (
+                        confirm(
+                          "Are you sure you want to delete this cash request?"
+                        )
+                      ) {
+                        deleteCash(user.id);
+                      }
+                    }}
+                  >
+                    <FaTrash />
+                  </button>
                 </td>
               </tr>
             ))
@@ -174,17 +230,17 @@ export default function CashRequest() {
       <div className="flex justify-end items-center mt-4 gap-2">
         <button
           onClick={handlePrev}
-          className="btn bg-blue-500 text-xs text-white hover:bg-blue-600 disabled:bg-gray-300"
+          className="btn btn-sm bg-blue-500 text-white hover:bg-blue-600 disabled:bg-gray-300"
           disabled={currentPage === 1}
         >
           Previous
         </button>
-        <span className="text-xs mr-2">
+        <span className="text-sm mr-2">
           Page {currentPage} of {totalPages}
         </span>
         <button
           onClick={handleNext}
-          className="btn bg-blue-500 text-xs text-white hover:bg-blue-600 disabled:bg-gray-300"
+          className="btn btn-sm bg-blue-500 text-white hover:bg-blue-600 disabled:bg-gray-300"
           disabled={currentPage === totalPages}
         >
           Next
