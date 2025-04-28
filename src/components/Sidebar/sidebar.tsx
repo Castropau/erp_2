@@ -149,99 +149,84 @@ const Sidebar = () => {
 
   return (
     <aside
-      className={`fixed top-19 left-0 z-40 h-screen transition-all duration-300 bg-white dark:bg-gray-900 overflow-y-auto border-r border-gray-200 dark:border-gray-800 ${
+      className={`fixed top-19 left-0 z-40 h-screen transition-all duration-300 bg-[#800000] text-white overflow-y-auto border-r border-black dark:bg-gray-900 ${
         isCollapsed ? "w-16" : "w-64"
       } p-4`}
-      onMouseEnter={() => {
-        if (isCollapsed) {
-          toggleSidebar(); // Expands the sidebar
-        }
-      }}
-      onMouseLeave={() => {
-        if (isCollapsed) {
-          toggleSidebar(); // Collapses the sidebar
-        }
-      }} // Collapses the sidebar
     >
-      <div className="flex flex-col h-full p-4">
-        <div className="flex-1 overflow-y-auto"></div>
-        <ul className="text-sm font-medium space-y-2">
-          {navSections.map((section, sectionIndex) => (
-            <li key={section.title ?? `section-${sectionIndex}`}>
-              {/* Section title */}
-              {section.title && !isCollapsed && (
-                <div className="text-xs font-extrabold text-neutral-400 tracking-wider ml-3 py-3">
-                  {section.title}
-                </div>
-              )}
-              <ul className="space-y-1">
-                {section.items.map((item, itemIndex) => (
-                  <li key={`${item.name}-${section.title ?? sectionIndex}`}>
-                    {item.subItems ? (
-                      <>
-                        {/* Dropdown button */}
-                        <button
-                          onClick={() => toggleDropdown(item.name)}
-                          className="flex items-center justify-between w-full p-2 text-left text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
-                        >
-                          <div className="flex items-center gap-2">
-                            <IconWrapper>{item.icon}</IconWrapper>
-                            {!isCollapsed && (
-                              <span className="ms-3">{item.name}</span>
-                            )}
-                          </div>
-                          {!isCollapsed && (
-                            <IoIosArrowDown
-                              className={`transition-transform duration-200 ${
-                                openDropdown === item.name ? "rotate-180" : ""
-                              }`}
-                            />
-                          )}
-                        </button>
-
-                        {openDropdown === item.name && !isCollapsed && (
-                          <ul className="ml-9 mt-1 space-y-1">
-                            {item.subItems.map((sub, subIndex) => (
-                              <li key={`${sub.name}-${item.name}-${subIndex}`}>
-                                <Link
-                                  href={sub.path}
-                                  className={`block p-2 rounded-lg ${
-                                    isActive(sub.path)
-                                      ? "bg-gray-200 dark:bg-gray-700 text-black dark:text-white"
-                                      : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"
-                                  }`}
-                                >
-                                  {sub.name}
-                                </Link>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </>
-                    ) : (
-                      <Link
-                        href={item.path}
-                        className={`flex items-center p-2 rounded-lg group ${
-                          isActive(item.path)
-                            ? "bg-gray-200 dark:bg-gray-700 text-black dark:text-white"
-                            : "text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
-                        }`}
+      <ul className="text-sm font-medium space-y-2">
+        {navSections.map((section, sectionIndex) => (
+          <li key={section.title ?? `section-${sectionIndex}`}>
+            {section.title && !isCollapsed && (
+              <div className="text-xs font-bold text-white tracking-wider ml-3 py-3 uppercase">
+                {section.title}
+              </div>
+            )}
+            <ul className="space-y-1">
+              {section.items.map((item, itemIndex) => (
+                <li key={`${item.name}-${section.title ?? sectionIndex}`}>
+                  {item.subItems ? (
+                    <>
+                      <button
+                        onClick={() => toggleDropdown(item.name)}
+                        className="flex items-center justify-between w-full p-2 text-left text-white hover:bg-red-700 rounded-lg"
                       >
-                        <IconWrapper>{item.icon}</IconWrapper>
+                        <div className="flex items-center gap-2">
+                          <IconWrapper>{item.icon}</IconWrapper>
+                          {!isCollapsed && (
+                            <span className="ms-3">{item.name}</span>
+                          )}
+                        </div>
                         {!isCollapsed && (
-                          <span className="ms-3 whitespace-nowrap">
-                            {item.name}
-                          </span>
+                          <IoIosArrowDown
+                            className={`transition-transform duration-200 ${
+                              openDropdown === item.name ? "rotate-180" : ""
+                            }`}
+                          />
                         )}
-                      </Link>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </li>
-          ))}
-        </ul>
-      </div>
+                      </button>
+
+                      {openDropdown === item.name && !isCollapsed && (
+                        <ul className="ml-9 mt-1 space-y-1">
+                          {item.subItems.map((sub, subIndex) => (
+                            <li key={`${sub.name}-${item.name}-${subIndex}`}>
+                              <Link
+                                href={sub.path}
+                                className={`block p-2 rounded-lg ${
+                                  isActive(sub.path)
+                                    ? "bg-white text-[#800000] font-semibold"
+                                    : "text-white hover:bg-red-600"
+                                }`}
+                              >
+                                {sub.name}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </>
+                  ) : (
+                    <Link
+                      href={item.path}
+                      className={`flex items-center p-2 rounded-lg ${
+                        isActive(item.path)
+                          ? "bg-white text-[#800000] font-semibold"
+                          : "text-white hover:bg-red-600"
+                      }`}
+                    >
+                      <IconWrapper>{item.icon}</IconWrapper>
+                      {!isCollapsed && (
+                        <span className="ms-3 whitespace-nowrap">
+                          {item.name}
+                        </span>
+                      )}
+                    </Link>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
     </aside>
   );
 };

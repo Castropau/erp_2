@@ -108,9 +108,11 @@ export default function CreateUser() {
       <div>
         {/* Registration Modal */}
         {showRegisterModal && (
-          <dialog open className="modal">
-            <div className="modal-box w-11/12 max-w-7xl">
-              <h3 className="font-bold text-lg">Register User</h3>
+          <dialog open className="modal mt-15 backdrop-blur-sm">
+            <div className="modal-box w-11/12 max-w-7xl max-h-[80vh] overflow-y-auto dark:bg-gray-dark">
+              <h3 className="font-bold text-lg dark:text-white">
+                Register User
+              </h3>
               <Formik
                 initialValues={{
                   first_name: "",
@@ -135,7 +137,7 @@ export default function CreateUser() {
                 }}
               >
                 <Form className="py-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 dark:text-white">
                     <div>
                       {[
                         { type: "heading", level: 2, text: "User Information" },
@@ -191,7 +193,7 @@ export default function CreateUser() {
                         <div key={item.name} className="mb-4">
                           <label
                             htmlFor={item.name}
-                            className="block text-sm font-medium text-gray-700"
+                            className="block text-sm font-medium "
                           >
                             {item.label}
                           </label>
@@ -271,7 +273,7 @@ export default function CreateUser() {
                         <div key={item.name} className="mb-4">
                           <label
                             htmlFor={item.name}
-                            className="block text-sm font-medium text-gray-700"
+                            className="block text-sm font-medium "
                           >
                             {item.label}
                           </label>
@@ -330,7 +332,7 @@ export default function CreateUser() {
                         <div key={item.name} className="mb-4">
                           <label
                             htmlFor={item.name}
-                            className="block text-sm font-medium text-gray-700"
+                            className="block text-sm font-medium "
                           >
                             {item.label}
                           </label>
@@ -338,7 +340,7 @@ export default function CreateUser() {
                             as="select"
                             id={item.name}
                             name={item.name}
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                            className="dark:bg-gray-dark mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                             required
                           >
                             {item.options?.map((option) => (
@@ -389,7 +391,7 @@ export default function CreateUser() {
                         <div key={item.name} className="mb-4">
                           <label
                             htmlFor={item.name}
-                            className="block text-sm font-medium text-gray-700"
+                            className="block text-sm font-medium "
                           >
                             {item.label}
                           </label>

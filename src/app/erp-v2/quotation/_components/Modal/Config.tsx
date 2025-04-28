@@ -53,8 +53,8 @@ export default function Config() {
       </div>
 
       {showRegisterModal && (
-        <dialog open className="modal">
-          <div className="modal-box w-11/12 max-w-7xl">
+        <dialog open className="modal backdrop-blur-sm mt-15">
+          <div className="modal-box w-11/12 max-w-7xl max-h-[80vh] overflow-y-auto dark:bg-gray-dark dark:text-white">
             <h3 className="font-bold text-lg">Quotations</h3>
 
             <Formik
@@ -84,10 +84,10 @@ export default function Config() {
                         label: "Terms & Conditions",
                       },
                     ].map((item) => (
-                      <div key={item.name} className="mb-4 col-span-2">
+                      <div key={item.name} className="mb-4 col-span-2 ">
                         <label
                           htmlFor={item.name}
-                          className="block text-sm font-medium text-gray-700"
+                          className="block text-sm font-medium text-gray-700 dark:bg-gray-dark dark:text-white"
                         >
                           {item.label}
                         </label>

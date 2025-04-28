@@ -111,8 +111,8 @@ function PersonalInformation(props: PersonalInformationProps) {
         Personal Information
       </button>
       {showEditModal && (
-        <dialog open className="modal">
-          <div className="modal-box">
+        <dialog open className="modal mt-15">
+          <div className="modal-box max-h-[80vh] overflow-y-auto">
             <h3 className="font-bold text-lg">Edit User</h3>
             {isUserLoading ? (
               <p>Loading user data...</p>
@@ -143,7 +143,7 @@ function PersonalInformation(props: PersonalInformationProps) {
                 }}
               >
                 {({ values, handleChange, handleBlur }) => (
-                  <Form className="py-4">
+                  <Form className="py-4 text-start">
                     <div className="mb-4">
                       <label
                         htmlFor="edit_user_id"

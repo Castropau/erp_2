@@ -78,9 +78,9 @@ export default function AddCategory() {
       <div>
         {/* Registration Modal */}
         {showRegisterModal && (
-          <dialog open className="modal">
-            <div className="modal-box w-11/12 max-w-7xl">
-              <h3 className="font-bold text-lg">Register User</h3>
+          <dialog open className="modal backdrop-blur-sm">
+            <div className="modal-box w-11/12 max-w-7xl dark:bg-gray-dark ">
+              <h3 className="font-bold text-lg">Register category</h3>
               <Formik
                 initialValues={{
                   category: "",
@@ -96,7 +96,7 @@ export default function AddCategory() {
                     <div className="mb-4">
                       <label
                         htmlFor="category"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-medium "
                       >
                         Category
                       </label>

@@ -103,9 +103,11 @@ export default function AddLaborOfComputation() {
       <div>
         {/* Registration Modal */}
         {showRegisterModal && (
-          <dialog open className="modal">
-            <div className="modal-box w-11/12 max-w-7xl">
-              <h3 className="font-bold text-lg">Register User</h3>
+          <dialog open className="modal backdrop-blur-sm mt-15">
+            <div className="modal-box w-11/12 max-w-7xl dark:bg-gray-dark dark:text-white max-h-[80vh] overflow-y-auto">
+              <h3 className="font-bold text-lg dark:text-white">
+                Register User
+              </h3>
               <form className="py-4" onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Column 1: Personal Information and Contact Information */}
@@ -114,7 +116,7 @@ export default function AddLaborOfComputation() {
                     <div className="mb-4">
                       <label
                         htmlFor="first_name"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-medium "
                       >
                         First Name
                       </label>
@@ -132,7 +134,7 @@ export default function AddLaborOfComputation() {
                     <div className="mb-4">
                       <label
                         htmlFor="middle_name"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-medium "
                       >
                         Middle Name
                       </label>
@@ -149,7 +151,7 @@ export default function AddLaborOfComputation() {
                     <div className="mb-4">
                       <label
                         htmlFor="last_name"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-medium "
                       >
                         Last Name
                       </label>
@@ -167,7 +169,7 @@ export default function AddLaborOfComputation() {
                     <div className="mb-4">
                       <label
                         htmlFor="suffix"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-medium "
                       >
                         Suffix
                       </label>
@@ -182,9 +184,7 @@ export default function AddLaborOfComputation() {
                       />
                     </div>
                     <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
-                        Sex
-                      </label>
+                      <label className="block text-sm font-medium ">Sex</label>
                       <div className="flex items-center">
                         <input
                           type="radio"
@@ -215,7 +215,7 @@ export default function AddLaborOfComputation() {
                     <div className="mb-4">
                       <label
                         htmlFor="date_of_birth"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-medium "
                       >
                         Date of Birth
                       </label>
@@ -235,7 +235,7 @@ export default function AddLaborOfComputation() {
                     <div className="mb-4">
                       <label
                         htmlFor="phone"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-medium "
                       >
                         Phone Number
                       </label>
@@ -253,7 +253,7 @@ export default function AddLaborOfComputation() {
                     <div className="mb-4">
                       <label
                         htmlFor="address"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-medium "
                       >
                         Address
                       </label>
@@ -271,7 +271,7 @@ export default function AddLaborOfComputation() {
                     <div className="mb-4">
                       <label
                         htmlFor="email"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-medium "
                       >
                         Email
                       </label>
@@ -296,14 +296,14 @@ export default function AddLaborOfComputation() {
                     <div className="mb-4">
                       <label
                         htmlFor="department"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-medium "
                       >
                         Department
                       </label>
                       <select
                         id="department"
                         name="department"
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                        className="dark:bg-gray-dark mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                         value={formData.department}
                         onChange={handleInputChanged}
                         required
@@ -319,14 +319,14 @@ export default function AddLaborOfComputation() {
                     <div className="mb-4">
                       <label
                         htmlFor="role"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-medium "
                       >
                         Role
                       </label>
                       <select
                         id="role"
                         name="role"
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                        className="dark:bg-gray-dark mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                         value={formData.role}
                         onChange={handleInputChanged}
                         required
@@ -346,7 +346,7 @@ export default function AddLaborOfComputation() {
                     <div className="mb-4">
                       <label
                         htmlFor="username"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-medium "
                       >
                         Username
                       </label>
@@ -364,7 +364,7 @@ export default function AddLaborOfComputation() {
                     <div className="mb-4">
                       <label
                         htmlFor="password"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-medium "
                       >
                         Password
                       </label>
@@ -382,7 +382,7 @@ export default function AddLaborOfComputation() {
                     <div className="mb-4">
                       <label
                         htmlFor="password2"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-medium "
                       >
                         Confirm Password
                       </label>

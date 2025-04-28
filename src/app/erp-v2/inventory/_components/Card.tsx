@@ -1,6 +1,6 @@
 import { FetchInventories, Inventories } from "@/api/inventory/Inventory";
 import { useQuery } from "@tanstack/react-query";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { FaListAlt } from "react-icons/fa";
 import { IoGrid, IoGridOutline } from "react-icons/io5";
 import AddInventory from "./Modal/AddInventory";
@@ -8,6 +8,11 @@ import Export from "./Modal/Export";
 import Link from "next/link";
 
 const InventoryCard = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const rowsPerPage = 10;
+
   const { isLoading, error, data } = useQuery<Inventories[]>({
     queryKey: ["inventory"],
     queryFn: FetchInventories,
@@ -20,7 +25,68 @@ const InventoryCard = () => {
     setDropdownOpen((prevId) => (prevId === id ? null : id));
   };
 
-  if (isLoading) return <div>Loading...</div>;
+  const filteredData = useMemo(() => {
+    return data?.filter(
+      (user) =>
+        (user.item || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (user.category || "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        (user.description || "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
+    );
+  }, [searchTerm, data]);
+
+  const totalPages = Math.ceil((filteredData?.length || 0) / rowsPerPage);
+
+  const indexOfLastRow = currentPage * rowsPerPage;
+  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+  const currentRows = filteredData?.slice(indexOfFirstRow, indexOfLastRow);
+
+  const handlePrev = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+
+  if (isLoading)
+    return (
+      <div className="p-4 sm:ml-64">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 animate-pulse">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="bg-gray-100 p-4 rounded-lg shadow-md relative"
+            >
+              {/* Image skeleton */}
+              <div className="w-full h-48 bg-gray-300 rounded-md mb-4"></div>
+
+              {/* Title */}
+              <div className="h-5 bg-gray-300 rounded w-2/3 mb-2"></div>
+
+              {/* Description */}
+              <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+
+              {/* Category */}
+              <div className="h-4 bg-gray-200 rounded w-1/3 mb-1"></div>
+
+              {/* Quantity */}
+              <div className="h-4 bg-gray-200 rounded w-1/4 mb-1"></div>
+
+              {/* Unit */}
+              <div className="h-4 bg-gray-200 rounded w-1/4 mb-1"></div>
+
+              {/* Dropdown Icon */}
+              <div className="absolute top-2 right-2 w-6 h-6 bg-gray-300 rounded-full"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+
   if (error instanceof Error)
     return <div>An error has occurred: {error.message}</div>;
 
@@ -34,7 +100,7 @@ const InventoryCard = () => {
         {data?.map((inventory) => (
           <div
             key={inventory.id}
-            className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 relative"
+            className="bg-red-300 p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 relative"
           >
             <img
               src={inventory.photos}
@@ -42,7 +108,7 @@ const InventoryCard = () => {
               className="w-full h-48 object-cover rounded-md mb-4"
             />
             <h4 className="text-lg font-medium">{inventory.item}</h4>
-            <p className="text-sm text-gray-500">{inventory.specification}</p>
+            <p className="text-sm text-gray-700">{inventory.specification}</p>
             <div className="mt-2">
               <span className="text-sm font-semibold">Category:</span>{" "}
               {inventory.category}
@@ -102,31 +168,143 @@ const InventoryCard = () => {
   );
 
   const renderListView = () => (
-    <table className="min-w-full table-auto">
-      <thead>
-        <tr className="text-blue-500">
-          <th>Item</th>
-          <th>Category</th>
-          <th>Quantity</th>
-          <th>Unit</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data?.map((inventory) => (
-          <tr key={inventory.id} className="border-b">
-            <td className="p-2">{inventory.item}</td>
-            <td className="p-2">{inventory.category}</td>
-            <td className="p-2">{inventory.quantity}</td>
-            <td className="p-2">{inventory.unit_of_measurement}</td>
-            <td className="p-2 flex justify-center gap-2">
-              <button className="text-blue-500">View</button>
-              <button className="text-red-500">Delete</button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <>
+      <div className="p-6 rounded-md shadow-md">
+        <label className="relative w-full max-w-sm">
+          {/* Search Input */}
+          <input
+            type="search"
+            className="dark:text-white w-full py-2 pl-10 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
+            placeholder="Search"
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
+            }}
+          />
+
+          {/* Search Icon (left) */}
+          <svg
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-700 pointer-events-none"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            width="20"
+            height="20"
+          >
+            <g
+              strokeLinejoin="round"
+              strokeLinecap="round"
+              strokeWidth="2.5"
+              fill="none"
+              stroke="currentColor"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.3-4.3" />
+            </g>
+          </svg>
+
+          {/* {searchTerm && (
+            <button
+              type="button"
+              onClick={() => setSearchTerm("")}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+            >
+              ×
+            </button>
+          )} */}
+        </label>
+      </div>
+
+      <div className="overflow-auto rounded-lg shadow-lg border border-gray-600">
+        <table className="table table-xs w-full border-t rounded-lg shadow-lg bg-white text-sm">
+          <thead className="bg-gray-700 text-white">
+            <tr className="text-white-600 text-sm font-medium">
+              <th className="px-4 py-3 text-left text-sm font-semibold">
+                Item
+              </th>
+              <th className="px-4 py-3 text-left text-sm font-semibold">
+                Category
+              </th>
+              <th className="px-4 py-3 text-right text-sm font-semibold">
+                Quantity
+              </th>
+              <th className="px-4 py-3 text-left text-sm font-semibold">
+                Unit
+              </th>
+              <th className="px-4 py-3 text-center text-sm font-semibold">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {filteredData?.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={7}
+                  className="text-center text-gray-500 py-4 font-semi-bold dark:text-white dark:bg-gray-dark"
+                >
+                  No records found
+                </td>
+              </tr>
+            ) : (
+              currentRows?.map((inventory, index) => (
+                <tr
+                  key={inventory.id}
+                  className={`transition-colors duration-300 ease-in-out
+    ${
+      index % 2 === 0
+        ? "bg-gray-50 dark:bg-gray-800"
+        : "bg-white dark:bg-gray-900"
+    }
+    text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700`}
+                >
+                  <td className="px-4 py-3 text-xs">{inventory.item}</td>
+                  <td className="px-4 py-3 text-xs ">{inventory.category}</td>
+                  <td className="px-4 py-3 text-xs text-right ">
+                    {inventory.quantity}
+                  </td>
+                  <td className="px-4 py-3 text-xs">
+                    {inventory.unit_of_measurement}
+                  </td>
+                  <td className="px-4 py-3 text-xs text-center">
+                    <div className="inline-flex gap-2 justify-center">
+                      <Link href={`/erp-v2/inventory/view/${inventory.id}`}>
+                        <button className="text-blue-600 hover:underline">
+                          View
+                        </button>
+                      </Link>
+                      <button className="text-red-600 hover:underline">
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+
+        <div className="flex justify-end items-center gap-3 p-4 bg-gray-50 border-t dark:bg-gray-dark dark:text-white">
+          <button
+            onClick={handlePrev}
+            disabled={currentPage === 1}
+            className="px-4 py-1.5 bg-gray-700 text-white rounded hover:bg-gray-800 disabled:bg-gray-400 transition"
+          >
+            Previous
+          </button>
+          <span className="text-sm text-gray-700">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={handleNext}
+            disabled={currentPage === totalPages}
+            className="px-4 py-1.5 bg-gray-700 text-white rounded hover:bg-gray-800 disabled:bg-gray-400 transition"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    </>
   );
 
   return (

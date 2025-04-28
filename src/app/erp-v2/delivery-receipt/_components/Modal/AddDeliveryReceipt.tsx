@@ -100,8 +100,8 @@ export default function AddDeliveryReceipt() {
       <div>
         {/* Registration Modal */}
         {showRegisterModal && (
-          <dialog open className="modal">
-            <div className="modal-box w-11/12 max-w-7xl">
+          <dialog open className="modal mt-15 backdrop-blur-sm">
+            <div className="modal-box w-11/12 max-w-7xl max-h-[80vh] overflow-y-auto dark:bg-gray-dark dark:text-white">
               <h3 className="font-bold text-lg">Create New Delivery Receipt</h3>
               <Formik
                 initialValues={{
@@ -203,7 +203,7 @@ export default function AddDeliveryReceipt() {
                         <div key={item.name} className="mb-4">
                           <label
                             htmlFor={item.name}
-                            className="block text-sm font-medium text-gray-700"
+                            className="block text-sm font-medium "
                           >
                             {item.label}
                           </label>
@@ -284,7 +284,7 @@ export default function AddDeliveryReceipt() {
                         <div key={item.name} className="mb-4">
                           <label
                             htmlFor={item.name}
-                            className="block text-sm font-medium text-gray-700"
+                            className="block text-sm font-medium "
                           >
                             {item.label}
                           </label>

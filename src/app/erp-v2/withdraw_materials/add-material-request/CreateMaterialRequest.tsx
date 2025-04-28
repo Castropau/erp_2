@@ -75,7 +75,7 @@ function CreateMaterialRequest() {
         </button>
       </Link>
 
-      <div className="p-6 bg-gray-50">
+      <div className="p-6 bg-gray-50 dark:bg-gray-dark dark:text-white">
         <h2 className="text-xl font-bold mb-6">Create Material Request</h2>
 
         <Formik
@@ -115,13 +115,13 @@ function CreateMaterialRequest() {
               <Form>
                 <div className="mb-4 flex gap-4">
                   <div className="w-1/3">
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium ">
                       Name of Requestor
                     </label>
                     <Field
                       as="select"
                       name="name_of_requestor"
-                      className="mt-1 p-2 border border-gray-300 rounded w-full"
+                      className="mt-1 p-2 border border-gray-300 rounded w-full dark:bg-gray-dark"
                     >
                       <option value="" disabled>
                         Select Requestor
@@ -135,7 +135,7 @@ function CreateMaterialRequest() {
                   </div>
 
                   <div className="w-1/3">
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium ">
                       Date of Request
                     </label>
                     <Field
@@ -146,7 +146,7 @@ function CreateMaterialRequest() {
                   </div>
 
                   <div className="w-1/3">
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium ">
                       Date Needed
                     </label>
                     <Field
@@ -158,9 +158,7 @@ function CreateMaterialRequest() {
                 </div>
 
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Purpose
-                  </label>
+                  <label className="block text-sm font-medium ">Purpose</label>
                   <Field
                     type="text"
                     name="purpose"
@@ -244,8 +242,8 @@ function CreateMaterialRequest() {
 
                 {/* Modal */}
                 {showModal && (
-                  <div className="fixed inset-0 bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white p-6 rounded-lg w-2/4 shadow-lg">
+                  <div className="fixed inset-0 bg-opacity-50 flex justify-center items-center z-50 backdrop-blur-sm ">
+                    <div className="bg-white p-6 rounded-lg w-2/4 shadow-lg dark:bg-gray-dark">
                       <h3 className="text-lg font-semibold mb-4">
                         Select Items1
                       </h3>

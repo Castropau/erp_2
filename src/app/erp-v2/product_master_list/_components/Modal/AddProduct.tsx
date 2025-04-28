@@ -127,8 +127,8 @@ export default function AddProduct() {
       <div>
         {/* Registration Modal */}
         {showRegisterModal && (
-          <dialog open className="modal">
-            <div className="modal-box w-11/12 max-w-7xl">
+          <dialog open className="modal mt-15 backdrop-blur-sm">
+            <div className="modal-box w-11/12 max-w-7xl max-h-[80vh] overflow-y-auto dark:bg-gray-dark dark:text-white">
               <h3 className="font-bold text-lg">Add item</h3>
               <Formik
                 initialValues={{
@@ -189,7 +189,7 @@ export default function AddProduct() {
                           <div key={item.name} className="mb-4">
                             <label
                               htmlFor={item.name}
-                              className="block text-sm font-medium text-gray-700"
+                              className="block text-sm font-medium "
                             >
                               {item.label}
                             </label>
@@ -231,7 +231,7 @@ export default function AddProduct() {
                           <div key={item.name} className="mb-4">
                             <label
                               htmlFor={item.name}
-                              className="block text-sm font-medium text-gray-700"
+                              className="block text-sm font-medium "
                             >
                               {item.label}
                             </label>
@@ -239,7 +239,7 @@ export default function AddProduct() {
                               as="select"
                               id={item.name}
                               name={item.name}
-                              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 dark:bg-gray-dark"
                             >
                               <option value="">Select {item.label}</option>
                               {item.options.map((option) => (
@@ -275,7 +275,7 @@ export default function AddProduct() {
                           <div key={item.name} className="mb-4">
                             <label
                               htmlFor={item.name}
-                              className="block text-sm font-medium text-gray-700"
+                              className="block text-sm font-medium "
                             >
                               {item.label}
                             </label>
@@ -290,7 +290,7 @@ export default function AddProduct() {
                         ))}
 
                         {/* VAT Checkbox */}
-                        <div className="mb-4 flex items-center gap-2">
+                        <div className="mb-4 flex items-center gap-2 ">
                           <input
                             type="checkbox"
                             id="vat_exempted"
@@ -299,11 +299,11 @@ export default function AddProduct() {
                             onChange={(e) =>
                               setFieldValue("vat_exempted", e.target.checked)
                             }
-                            className="checkbox"
+                            className="checkbox border-gray-300 dark:border-gray-600 dark:bg-gray-800  dark:checked:bg-white"
                           />
                           <label
                             htmlFor="vat_exempted"
-                            className="text-sm font-medium text-gray-700"
+                            className="text-sm font-medium text-gray-800 dark:text-white"
                           >
                             Apply VAT
                           </label>
@@ -315,7 +315,7 @@ export default function AddProduct() {
                     <div className="mb-4">
                       <label
                         htmlFor="description"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-medium "
                       >
                         Description
                       </label>

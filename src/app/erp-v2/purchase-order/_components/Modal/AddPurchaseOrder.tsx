@@ -76,15 +76,15 @@ export default function AddPurchaseOrder() {
           className="btn btn-info"
           onClick={() => setShowRegisterModal(true)}
         >
-          <CiCirclePlus className="w-6 h-6 btn-info" />
+          <FaCirclePlus className="w-6 h-6 btn-info" />
           Add Purchase Order
         </button>
       </div>
 
       {/* Registration Modal */}
       {showRegisterModal && (
-        <dialog open className="modal">
-          <div className="modal-box w-11/12 max-w-7xl">
+        <dialog open className="modal mt-15 backdrop-blur-sm">
+          <div className="modal-box w-11/12 max-w-7xl max-h-[80vh] overflow-y-auto dark:bg-gray-dark dark:text-white">
             <h3 className="font-bold text-lg">Create New Purchase Order</h3>
             <Formik
               initialValues={{
@@ -147,13 +147,13 @@ export default function AddPurchaseOrder() {
                   <Form className="py-4">
                     {/* Dropdown for Project Selection */}
                     <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
+                      <label className="block text-sm font-medium">
                         Company
                       </label>
                       <Field
                         as="select"
                         name="project"
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 dark:bg-gray-dark"
                         // onChange={(e) => {
                         //   setSelectedProject(e.target.value);
                         //   setFieldValue("project", e.target.value);
@@ -222,7 +222,7 @@ export default function AddPurchaseOrder() {
                                 <Field
                                   as="select"
                                   name={item.name}
-                                  className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                  className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-dark dark:text-white"
                                   required
                                 >
                                   <option value="">Select {item.label}</option>
@@ -237,7 +237,7 @@ export default function AddPurchaseOrder() {
                                   type={item.type}
                                   name={item.name}
                                   placeholder={item.placeholder}
-                                  className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                  className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-dark dark:text-white"
                                   required
                                 />
                               )}
@@ -252,7 +252,7 @@ export default function AddPurchaseOrder() {
                       <Field
                         as="textarea"
                         name="terms"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 mt-2"
+                        className="bg-gray-50 border border-gray-300 dark:bg-gray-dark rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  dark:text-white mt-2"
                         placeholder="Enter terms and conditions for this quotation"
                       />
                     </div>
@@ -287,21 +287,21 @@ export default function AddPurchaseOrder() {
                                       <Field
                                         type="text"
                                         name={`tableRows[${index}].item`}
-                                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-dark dark:text-white"
                                       />
                                     </td>
                                     <td className="p-2">
                                       <Field
                                         type="text"
                                         name={`tableRows[${index}].description`}
-                                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-dark dark:text-white"
                                       />
                                     </td>
                                     <td className="p-2">
                                       <Field
                                         type="number"
                                         name={`tableRows[${index}].srp`}
-                                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-dark dark:text-white"
                                         onChange={(e) => {
                                           const srp =
                                             parseFloat(e.target.value) || 0;
@@ -327,7 +327,7 @@ export default function AddPurchaseOrder() {
                                       <Field
                                         type="number"
                                         name={`tableRows[${index}].quantity`}
-                                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-dark dark:text-white"
                                         onChange={(e) => {
                                           const quantity =
                                             parseFloat(e.target.value) || 0;
@@ -354,7 +354,7 @@ export default function AddPurchaseOrder() {
                                         type="number"
                                         name={`tableRows[${index}].total`}
                                         readOnly
-                                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-dark dark:text-white"
                                       />
                                     </td>
                                     <td className="p-2">
@@ -401,7 +401,7 @@ export default function AddPurchaseOrder() {
                           <Field
                             type="number"
                             name="discount"
-                            className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                            className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-dark dark:text-white"
                             onChange={(e) => {
                               const discount = parseFloat(e.target.value) || 0;
                               setFieldValue("discount", discount);
@@ -415,7 +415,7 @@ export default function AddPurchaseOrder() {
                           <Field
                             type="number"
                             name="vat"
-                            className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                            className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-dark dark:text-white"
                             onChange={(e) => {
                               const vat = parseFloat(e.target.value);
                               setFieldValue("vat", vat);
@@ -430,7 +430,7 @@ export default function AddPurchaseOrder() {
                             type="number"
                             value={totalExpenses}
                             readOnly
-                            className="bg-gray-200 p-2 rounded-md w-full"
+                            className="bg-gray-200 p-2 rounded-md w-full dark:bg-gray-dark dark:border border-white"
                           />
                         </div>
 
@@ -444,7 +444,7 @@ export default function AddPurchaseOrder() {
                               return totalExpenses * vat;
                             })()}
                             readOnly
-                            className="bg-gray-200 p-2 rounded-md w-full"
+                            className="bg-gray-200 p-2 rounded-md w-full dark:bg-gray-dark dark:border border-white"
                           />
                         </div>
                       </div>
@@ -466,7 +466,7 @@ export default function AddPurchaseOrder() {
                               return totalExpenses - discountAmount + vatAmount;
                             })()}
                             readOnly
-                            className="bg-gray-200 p-2 rounded-md w-full"
+                            className="bg-gray-200 p-2 rounded-md w-full dark:bg-gray-dark dark:border border-white"
                           />
                         </div>
                       </div>

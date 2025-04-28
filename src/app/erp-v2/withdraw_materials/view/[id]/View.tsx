@@ -155,7 +155,18 @@ function View() {
   });
 
   if (!id) return <div>Loading route params...</div>;
-  if (isLoading) return <div>Loading data...</div>;
+  if (isLoading) {
+    return (
+      <div className="p-4 flex justify-center items-center min-h-screen">
+        <div className="flex flex-col items-center space-y-4">
+          {/* Loading Spinner */}
+          <div className="w-16 h-16 border-4 border-t-4 border-gray-800 border-dashed rounded-full animate-spin"></div>
+
+          <span className="text-lg text-gray-700">Please wait...</span>
+        </div>
+      </div>
+    );
+  }
   if (isError) return <div>Error fetching data: {error.message}</div>;
 
   return (
@@ -167,7 +178,7 @@ function View() {
           back
         </button>
       </Link>
-      <div className="p-6 bg-gray-50">
+      <div className="p-6 bg-gray-50 dark:bg-gray-dark dark:text-white">
         <h2 className="text-xl font-bold mb-6">{WithdrawData?.serial_no}</h2>
 
         {/* Edit/Cancel Icon */}
@@ -211,7 +222,7 @@ function View() {
             <div className="mb-4 flex gap-4">
               {/* Name of Requestor */}
               <div className="w-1/3">
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium">
                   Name of Requestor
                 </label>
                 <Field
@@ -233,7 +244,7 @@ function View() {
 
               {/* Date of Request */}
               <div className="w-1/3">
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium">
                   Date of Request
                 </label>
                 <Field
@@ -246,9 +257,7 @@ function View() {
 
               {/* Date Needed */}
               <div className="w-1/3">
-                <label className="block text-sm font-medium text-gray-700">
-                  Date Needed
-                </label>
+                <label className="block text-sm font-medium">Date Needed</label>
                 <Field
                   name="dateNeeded"
                   type="date"
@@ -260,9 +269,7 @@ function View() {
 
             {/* Purpose */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">
-                Purpose
-              </label>
+              <label className="block text-sm font-medium">Purpose</label>
               <Field
                 name="purpose"
                 type="text"

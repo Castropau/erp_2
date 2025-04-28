@@ -2010,7 +2010,16 @@ const EditLabor = (props: BomIds) => {
   };
 
   if (Rloading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center space-x-2">
+        {/* Spinner */}
+        <div className="w-6 h-6 border-4 border-dashed border-gray-400 border-t-transparent rounded-full animate-spin dark:border-gray-200 dark:border-t-transparent"></div>
+
+        <span className="text-sm text-gray-700 dark:text-gray-300">
+          Loading...
+        </span>
+      </div>
+    );
   }
 
   if (ReceiptError) {
@@ -2026,9 +2035,16 @@ const EditLabor = (props: BomIds) => {
       </button>
 
       {showEditModal && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-5xl overflow-y-auto max-h-[90vh]">
-            <h2 className="text-2xl font-semibold mb-6 text-center text-gray-800">
+        <div className="fixed inset-0 flex items-center justify-center z-50 mt-17 backdrop-blur-sm">
+          <div
+            className="absolute inset-0"
+            onClick={() => setShowEditModal(false)}
+          />
+          <div
+            className="relative z-10 bg-white p-8 rounded-lg shadow-xl w-full max-w-5xl overflow-y-auto max-h-[90vh] dark:bg-gray-dark"
+            onClick={(e) => e.stopPropagation()} // Prevent modal click from closing
+          >
+            <h2 className="text-2xl font-semibold mb-6 text-center">
               Edit BOM
             </h2>
             {/* Form Inputs */}
@@ -2061,60 +2077,55 @@ const EditLabor = (props: BomIds) => {
               }}
               enableReinitialize={true}
               onSubmit={(values) => {
-               const processHeaders = (headersArray) =>
-                 headersArray
-                   .filter((header) => header.rows?.length > 0)
-                   .map((header, headerIndex) => ({
-                     
-                     header: header.title || `Header ${headerIndex + 1}`,
-                     items: header.rows
-                       .filter(
-                         (item) =>
-                           !item.rows &&
-                           Object.values(item).some(
-                             (val) =>
-                               val !== null &&
-                               val !== undefined &&
-                               val.toString().trim() !== ""
-                           )
-                       )
-                       .map((item, itemIndex) => ({
-                        
-                         item: item.item,
-                         ratio: item.ratio,
-                         unit: item.unit,
-                         quantity: Number(item.quantity) || 0,
-                         manpower: Number(item.manpower) || 0,
-                         labor_cost: Number(item.labor_cost) || 0,
-                         order: Number(item.order) || 0,
-                       })),
-                     sub_headers: header.rows
-                       .filter((sub) => sub.rows?.length > 0)
-                       .map((sub, subIndex) => ({
-                        
-                         sub_header: sub.title || `Sub Header ${subIndex + 1}`,
-                         items: sub.rows
-                           .filter((item) =>
-                             Object.values(item).some(
-                               (val) =>
-                                 val !== null &&
-                                 val !== undefined &&
-                                 val.toString().trim() !== ""
-                             )
-                           )
-                           .map((item, itemIndex) => ({
-                            
-                             item: item.item,
-                             ratio: item.ratio,
-                             unit: item.unit,
-                             quantity: Number(item.quantity) || 0,
-                             manpower: Number(item.manpower) || 0,
-                             labor_cost: Number(item.labor_cost) || 0,
-                             order: Number(item.order) || 0,
-                           })),
-                       })),
-                   }));
-
+                const processHeaders = (headersArray) =>
+                  headersArray
+                    .filter((header) => header.rows?.length > 0)
+                    .map((header, headerIndex) => ({
+                      header: header.title || `Header ${headerIndex + 1}`,
+                      items: header.rows
+                        .filter(
+                          (item) =>
+                            !item.rows &&
+                            Object.values(item).some(
+                              (val) =>
+                                val !== null &&
+                                val !== undefined &&
+                                val.toString().trim() !== ""
+                            )
+                        )
+                        .map((item, itemIndex) => ({
+                          item: item.item,
+                          ratio: item.ratio,
+                          unit: item.unit,
+                          quantity: Number(item.quantity) || 0,
+                          manpower: Number(item.manpower) || 0,
+                          labor_cost: Number(item.labor_cost) || 0,
+                          order: Number(item.order) || 0,
+                        })),
+                      sub_headers: header.rows
+                        .filter((sub) => sub.rows?.length > 0)
+                        .map((sub, subIndex) => ({
+                          sub_header: sub.title || `Sub Header ${subIndex + 1}`,
+                          items: sub.rows
+                            .filter((item) =>
+                              Object.values(item).some(
+                                (val) =>
+                                  val !== null &&
+                                  val !== undefined &&
+                                  val.toString().trim() !== ""
+                              )
+                            )
+                            .map((item, itemIndex) => ({
+                              item: item.item,
+                              ratio: item.ratio,
+                              unit: item.unit,
+                              quantity: Number(item.quantity) || 0,
+                              manpower: Number(item.manpower) || 0,
+                              labor_cost: Number(item.labor_cost) || 0,
+                              order: Number(item.order) || 0,
+                            })),
+                        })),
+                    }));
 
                 const formData = {
                   project_name: values.input1,
@@ -2136,10 +2147,10 @@ const EditLabor = (props: BomIds) => {
             >
               {({ values, handleChange }) => (
                 <Form>
-                  <div className="grid grid-cols-2 gap-6 mb-6">
+                  <div className="grid grid-cols-2 gap-6 mb-6 text-start">
                     {Object.keys(values).map((key, index) => (
                       <div key={index} className="flex flex-col">
-                        <label className="text-sm font-medium text-gray-700 mb-2">
+                        <label className="text-sm font-medium  mb-2">
                           {(() => {
                             switch (key) {
                               case "input1":
@@ -2178,7 +2189,7 @@ const EditLabor = (props: BomIds) => {
                             name={key}
                             value={values[key]}
                             onChange={handleChange}
-                            className="input input-bordered w-full p-3 rounded-md border border-gray-300"
+                            className="dark:bg-gray-dark input input-bordered w-full  rounded-md border border-gray-300"
                           >
                             <option value="">Select BOM</option>
                             {BomData?.map((client) => (
@@ -2224,7 +2235,7 @@ const EditLabor = (props: BomIds) => {
                             name={key}
                             value={values[key]}
                             onChange={handleChange}
-                            className="input input-bordered w-full p-3 rounded-md border border-gray-300"
+                            className="dark:bg-gray-dark input input-bordered w-full p-3 rounded-md border border-gray-300"
                             placeholder={
                               key === "input9"
                                 ? "Enter First Header"
@@ -2235,12 +2246,12 @@ const EditLabor = (props: BomIds) => {
                       </div>
                     ))}
                   </div>
-                  <button
+                  {/* <button
                     type="submit"
                     className="bg-blue-600 text-white px-6 py-2 rounded-md"
                   >
                     Save
-                  </button>
+                  </button> */}
                   {/* Navigation */}
                   <div className="flex justify-between gap-2 mb-6">
                     {[
@@ -2280,8 +2291,8 @@ const EditLabor = (props: BomIds) => {
                         </div>
 
                         {/* Device Table */}
-                        <table className="table-auto w-full text-sm text-left text-gray-700 border">
-                          <thead className="bg-gray-100">
+                        <table className="table-auto w-full text-sm text-left  border">
+                          <thead className="bg-gray-100 dark:bg-gray-dark">
                             <tr>
                               <th className="px-4 py-2">Item</th>
                               <th className="px-4 py-2">ratio</th>
@@ -3070,7 +3081,7 @@ const EditLabor = (props: BomIds) => {
                             {/* Main Header */}
                             <tr>
                               <td colSpan={8}>
-                                <div className="border p-4 bg-gray-50 rounded space-y-4 mt-4">
+                                <div className="border p-4 bg-gray-50 rounded space-y-4 mt-4 dark:bg-gray-dark">
                                   <input
                                     type="text"
                                     placeholder="Main Header Title"
@@ -3095,7 +3106,7 @@ const EditLabor = (props: BomIds) => {
                                   subHeader.manuallyAdded) && (
                                   <tr>
                                     <td colSpan={8}>
-                                      <div className="border p-4 bg-gray-100 rounded space-y-4 mt-4">
+                                      <div className="border p-4 bg-gray-100 rounded space-y-4 mt-4 dark:bg-gray-dark">
                                         <input
                                           type="text"
                                           placeholder="Sub Header Title"
@@ -3233,8 +3244,8 @@ const EditLabor = (props: BomIds) => {
                         </div>
 
                         {/* Device Table */}
-                        <table className="table-auto w-full text-sm text-left text-gray-700 border">
-                          <thead className="bg-gray-100">
+                        <table className="table-auto w-full text-sm text-left  border ">
+                          <thead className="bg-gray-100 dark:bg-gray-dark">
                             <tr>
                               <th className="px-4 py-2">Item2</th>
                               <th className="px-4 py-2">Description</th>
@@ -3271,7 +3282,7 @@ const EditLabor = (props: BomIds) => {
                             {/* Main Header */}
                             <tr>
                               <td colSpan={8}>
-                                <div className="border p-4 bg-gray-50 rounded space-y-4 mt-4">
+                                <div className="border p-4 bg-gray-50 rounded space-y-4 mt-4 dark:bg-gray-dark">
                                   <input
                                     type="text"
                                     placeholder="Main Header Title"
@@ -3296,7 +3307,7 @@ const EditLabor = (props: BomIds) => {
                                   subHeader.manuallyAdded) && (
                                   <tr>
                                     <td colSpan={8}>
-                                      <div className="border p-4 bg-gray-100 rounded space-y-4 mt-4">
+                                      <div className="border p-4 bg-gray-100 rounded space-y-4 mt-4 dark:bg-gray-dark">
                                         <input
                                           type="text"
                                           placeholder="Sub Header Title"
@@ -3438,8 +3449,8 @@ const EditLabor = (props: BomIds) => {
                         </div>
 
                         {/* Device Table */}
-                        <table className="table-auto w-full text-sm text-left text-gray-700 border">
-                          <thead className="bg-gray-100">
+                        <table className="table-auto w-full text-sm text-left  border">
+                          <thead className="bg-gray-100 dark:bg-gray-dark">
                             <tr>
                               <th className="px-4 py-2">Item3</th>
                               <th className="px-4 py-2">Description</th>
@@ -3562,7 +3573,7 @@ const EditLabor = (props: BomIds) => {
                             {/* Main Header */}
                             <tr>
                               <td colSpan={8}>
-                                <div className="border p-4 bg-gray-50 rounded space-y-4 mt-4">
+                                <div className="border p-4 bg-gray-50 rounded space-y-4 mt-4 dark:bg-gray-dark">
                                   <input
                                     type="text"
                                     placeholder="Main Header Title"
@@ -3587,7 +3598,7 @@ const EditLabor = (props: BomIds) => {
                                   subHeader.manuallyAdded) && (
                                   <tr>
                                     <td colSpan={8}>
-                                      <div className="border p-4 bg-gray-100 rounded space-y-4 mt-4">
+                                      <div className="border p-4 bg-gray-100 rounded space-y-4 mt-4 dark:bg-gray-dark">
                                         <input
                                           type="text"
                                           placeholder="Sub Header Title"
@@ -3697,7 +3708,7 @@ const EditLabor = (props: BomIds) => {
                       </div>
                     </>
                   )}
-                  Unit Price{" "}
+                  {/* Unit Price{" "} */}
                   {activeNav === 4 && (
                     <>
                       <div className="space-y-6">
@@ -3731,8 +3742,8 @@ const EditLabor = (props: BomIds) => {
 
                         {/* Device Table */}
                         <div className="overflow-x-auto">
-                          <table className="table-auto w-full text-sm text-left text-gray-700 border">
-                            <thead className="bg-gray-100">
+                          <table className="table-auto w-full text-sm text-left  border">
+                            <thead className="bg-gray-100 dark:bg-gray-dark">
                               <tr>
                                 <th className="px-4 py-2">Item4</th>
                                 <th className="px-4 py-2">Description</th>
@@ -3978,7 +3989,7 @@ const EditLabor = (props: BomIds) => {
                               {/* Main Header */}
                               <tr>
                                 <td colSpan={8}>
-                                  <div className="border p-4 bg-gray-50 rounded space-y-4 mt-4">
+                                  <div className="border p-4 bg-gray-50 rounded space-y-4 mt-4 dark:bg-gray-dark">
                                     <input
                                       type="text"
                                       placeholder="Main Header Title"
@@ -4003,7 +4014,7 @@ const EditLabor = (props: BomIds) => {
                                     subHeader.manuallyAdded) && (
                                     <tr>
                                       <td colSpan={8}>
-                                        <div className="border p-4 bg-gray-100 rounded space-y-4 mt-4">
+                                        <div className="border p-4 bg-gray-100 rounded space-y-4 mt-4 dark:bg-gray-dark">
                                           <input
                                             type="text"
                                             placeholder="Sub Header Title"
@@ -4148,8 +4159,8 @@ const EditLabor = (props: BomIds) => {
 
                         {/* Device Table */}
                         <div className="overflow-x-auto">
-                          <table className="table-auto w-full text-sm text-left text-gray-700 border">
-                            <thead className="bg-gray-100">
+                          <table className="table-auto w-full text-sm text-left border">
+                            <thead className="bg-gray-100 dark:bg-gray-dark">
                               <tr>
                                 <th className="px-4 py-2">Item4</th>
                                 <th className="px-4 py-2">Description</th>
@@ -4395,7 +4406,7 @@ const EditLabor = (props: BomIds) => {
                               {/* Main Header */}
                               <tr>
                                 <td colSpan={8}>
-                                  <div className="border p-4 bg-gray-50 rounded space-y-4 mt-4">
+                                  <div className="border p-4 bg-gray-50 rounded space-y-4 mt-4 dark:bg-gray-dark">
                                     <input
                                       type="text"
                                       placeholder="Main Header Title"
@@ -4420,7 +4431,7 @@ const EditLabor = (props: BomIds) => {
                                     subHeader.manuallyAdded) && (
                                     <tr>
                                       <td colSpan={8}>
-                                        <div className="border p-4 bg-gray-100 rounded space-y-4 mt-4">
+                                        <div className="border p-4 bg-gray-100 rounded space-y-4 mt-4 dark:bg-gray-dark">
                                           <input
                                             type="text"
                                             placeholder="Sub Header Title"

@@ -980,7 +980,16 @@ const EditBom = (props: BomIds) => {
   };
 
   if (Rloading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center space-x-2">
+        {/* Spinner */}
+        <div className="w-6 h-6 border-4 border-dashed border-gray-400 border-t-transparent rounded-full animate-spin dark:border-gray-200 dark:border-t-transparent"></div>
+
+        <span className="text-sm text-gray-700 dark:text-gray-300">
+          Loading...
+        </span>
+      </div>
+    );
   }
 
   if (ReceiptError) {
@@ -996,9 +1005,16 @@ const EditBom = (props: BomIds) => {
       </button>
 
       {showEditModal && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-5xl overflow-y-auto max-h-[90vh]">
-            <h2 className="text-2xl font-semibold mb-6 text-center text-gray-800">
+        <div className="fixed inset-0 flex items-center justify-center z-50 mt-15 backdrop-blur-sm ">
+          <div
+            className="absolute inset-0 "
+            onClick={() => setShowEditModal(false)}
+          />
+          <div
+            className="relative z-10 bg-white p-8 rounded-lg shadow-xl w-full max-w-5xl overflow-y-auto max-h-[90vh] dark:bg-gray-dark"
+            onClick={(e) => e.stopPropagation()} // Prevent modal click from closing
+          >
+            <h2 className="text-2xl font-semibold mb-6 text-center ">
               Edit BOM
             </h2>
             {/* Form Inputs */}
@@ -1237,10 +1253,10 @@ const EditBom = (props: BomIds) => {
             >
               {({ values, handleChange }) => (
                 <Form>
-                  <div className="grid grid-cols-2 gap-6 mb-6">
+                  <div className="grid grid-cols-2 gap-6 mb-6 text-start">
                     {Object.keys(values).map((key, index) => (
                       <div key={index} className="flex flex-col">
-                        <label className="text-sm font-medium text-gray-700 mb-2">
+                        <label className="text-sm font-medium  mb-2">
                           {(() => {
                             switch (key) {
                               case "input1":
@@ -1274,7 +1290,7 @@ const EditBom = (props: BomIds) => {
                             name={key}
                             value={values[key]}
                             onChange={handleChange}
-                            className="input input-bordered w-full p-3 rounded-md border border-gray-300"
+                            className="dark:bg-gray-dark input input-bordered w-full  rounded-md border border-gray-300"
                           />
                         ) : key === "input3" ? (
                           // 👤 SIC Dropdown
@@ -1282,7 +1298,7 @@ const EditBom = (props: BomIds) => {
                             name={key}
                             value={values[key]}
                             onChange={handleChange}
-                            className="input input-bordered w-full p-3 rounded-md border border-gray-300"
+                            className="dark:bg-gray-dark input input-bordered w-full  rounded-md border border-gray-300"
                           >
                             <option value="">Select SIC</option>
                             {udata?.map((user) => (
@@ -1297,7 +1313,7 @@ const EditBom = (props: BomIds) => {
                             name={key}
                             value={values[key]}
                             onChange={handleChange}
-                            className="input input-bordered w-full p-3 rounded-md border border-gray-300"
+                            className="dark:bg-gray-dark input input-bordered w-full  rounded-md border border-gray-300"
                           >
                             <option value="">Select Client</option>
                             {clientdata?.map((client) => (
@@ -1312,7 +1328,7 @@ const EditBom = (props: BomIds) => {
                             name={key}
                             value={values[key]}
                             onChange={handleChange}
-                            className="input input-bordered w-full p-3 rounded-md border border-gray-300"
+                            className="dark:bg-gray-dark input input-bordered w-full  rounded-md border border-gray-300"
                           >
                             <option value="">Select Status</option>
                             <option value="Pending">Pending</option>
@@ -1327,7 +1343,7 @@ const EditBom = (props: BomIds) => {
                             name={key}
                             value={values[key]}
                             onChange={handleChange}
-                            className="input input-bordered w-full p-3 rounded-md border border-gray-300"
+                            className="dark:bg-gray-dark input input-bordered w-full  rounded-md border border-gray-300"
                           >
                             <option value="">Select EIC</option>
                             {udata?.map((user) => (
@@ -1343,7 +1359,7 @@ const EditBom = (props: BomIds) => {
                             name={key}
                             value={values[key]}
                             onChange={handleChange}
-                            className="input input-bordered w-full p-3 rounded-md border border-gray-300"
+                            className="dark:bg-gray-dark input input-bordered w-full p-3 rounded-md border border-gray-300"
                             placeholder={
                               key === "input9"
                                 ? "Enter First Header"
@@ -1354,12 +1370,12 @@ const EditBom = (props: BomIds) => {
                       </div>
                     ))}
                   </div>
-                  <button
+                  {/* <button
                     type="submit"
                     className="bg-blue-600 text-white px-6 py-2 rounded-md"
                   >
                     Save
-                  </button>
+                  </button> */}
                   {/* Navigation */}
                   <div className="flex justify-between gap-2 mb-6">
                     {["Devices", "Materials", "Labor", "General", "Save"].map(
@@ -1412,8 +1428,8 @@ const EditBom = (props: BomIds) => {
                         </div>
 
                         {/* Device Table */}
-                        <table className="table-auto w-full text-sm text-left text-gray-700 border">
-                          <thead className="bg-gray-100">
+                        <table className="table-auto w-full text-sm text-left  border ">
+                          <thead className="bg-gray-100 dark:bg-gray-dark">
                             <tr>
                               <th className="px-4 py-2">Item</th>
                               <th className="px-4 py-2">Description</th>
@@ -1522,7 +1538,7 @@ const EditBom = (props: BomIds) => {
                                       // Optionally: Recalculate quantity or srp based on the total amount
                                     }}
                                     readOnly // Optional: Make it readonly or editable depending on your requirements
-                                    className="w-full border p-1 rounded bg-gray-100 text-gray-700"
+                                    className="w-full border p-1 rounded bg-gray-100 text-gray-700 dark:bg-gray-dark dark:border-white dark:text-white"
                                   />
                                 </td>
 
@@ -1541,7 +1557,7 @@ const EditBom = (props: BomIds) => {
                         {newHeaders.map((header, headerIndex) => (
                           <tr key={headerIndex}>
                             <td colSpan={6}>
-                              <div className="border p-4 bg-gray-50 rounded space-y-4 mt-4">
+                              <div className="border p-4 bg-gray-50 rounded space-y-4 mt-4 dark:bg-gray-dark">
                                 <input
                                   type="text"
                                   placeholder="Header Title"
@@ -1609,7 +1625,7 @@ const EditBom = (props: BomIds) => {
                                   </button>
 
                                   <div className="space-x-2 flex items-center">
-                                    <span className="text-sm font-semibold text-gray-700">
+                                    <span className="text-sm font-semibold ">
                                       Subtotal: $
                                       {getNewHeaderSubtotal(
                                         header.rows
@@ -1673,8 +1689,8 @@ const EditBom = (props: BomIds) => {
                         </div>
 
                         {/* Device Table */}
-                        <table className="table-auto w-full text-sm text-left text-gray-700 border">
-                          <thead className="bg-gray-100">
+                        <table className="table-auto w-full text-sm text-left  border">
+                          <thead className="bg-gray-100 dark:bg-gray-dark">
                             <tr>
                               <th className="px-4 py-2">Item2</th>
                               <th className="px-4 py-2">Description</th>
@@ -1709,7 +1725,7 @@ const EditBom = (props: BomIds) => {
                         {newHeaders2.map((header, headerIndex) => (
                           <tr key={headerIndex}>
                             <td colSpan={6}>
-                              <div className="border p-4 bg-gray-50 rounded space-y-4 mt-4">
+                              <div className="border p-4 bg-gray-50 rounded space-y-4 mt-4 dark:bg-gray-dark">
                                 <label htmlFor="">header title</label>
                                 <input
                                   type="text"
@@ -1743,7 +1759,7 @@ const EditBom = (props: BomIds) => {
                                       { key: "srp", label: "SRP" },
                                     ].map(({ key, label }) => (
                                       <div key={key} className="flex flex-col">
-                                        <label className="text-xs text-gray-600 mb-1">
+                                        <label className="text-xs mb-1">
                                           {label}
                                         </label>
                                         <input
@@ -1857,8 +1873,8 @@ const EditBom = (props: BomIds) => {
                         </div>
 
                         {/* Device Table */}
-                        <table className="table-auto w-full text-sm text-left text-gray-700 border">
-                          <thead className="bg-gray-100">
+                        <table className="table-auto w-full text-sm text-left  border">
+                          <thead className="bg-gray-100 dark:bg-gray-dark">
                             <tr>
                               <th className="px-4 py-2">Item3</th>
                               <th className="px-4 py-2">Description</th>
@@ -1959,7 +1975,7 @@ const EditBom = (props: BomIds) => {
                                     type="text"
                                     value={row.amount}
                                     readOnly
-                                    className="w-full border p-1 rounded bg-gray-100 text-gray-700"
+                                    className="w-full border p-1 rounded bg-gray-100 dark:bg-gray-dark dark:border-white dark:text-white"
                                   />
                                 </td>
                                 <td className="px-4 py-2">
@@ -1979,7 +1995,7 @@ const EditBom = (props: BomIds) => {
                         {newHeaders3.map((header, headerIndex) => (
                           <div
                             key={headerIndex}
-                            className="border p-4 bg-gray-50 rounded space-y-4 mt-4"
+                            className="border p-4 bg-gray-50 rounded space-y-4 mt-4 dark:bg-gray-dark"
                           >
                             <input
                               type="text"
@@ -2045,7 +2061,7 @@ const EditBom = (props: BomIds) => {
                               </button>
 
                               <div className="space-x-2 flex items-center">
-                                <span className="text-sm font-semibold text-gray-700">
+                                <span className="text-sm font-semibold ">
                                   Subtotal: $
                                   {getNewHeaderSubtotal3(header.rows).toFixed(
                                     2
@@ -2074,7 +2090,7 @@ const EditBom = (props: BomIds) => {
                       </div>
                     </>
                   )}
-                  Unit Price{" "}
+                  {/* Unit Price{" "} */}
                   {activeNav === 4 && (
                     <>
                       <div className="space-y-6">
@@ -2108,8 +2124,8 @@ const EditBom = (props: BomIds) => {
 
                         {/* Device Table */}
                         <div className="overflow-x-auto">
-                          <table className="table-auto w-full text-sm text-left text-gray-700 border">
-                            <thead className="bg-gray-100">
+                          <table className="table-auto w-full text-sm text-left  border">
+                            <thead className="bg-gray-100 dark:bg-gray-dark">
                               <tr>
                                 <th className="px-4 py-2">Item4</th>
                                 <th className="px-4 py-2">Description</th>
@@ -2207,7 +2223,7 @@ const EditBom = (props: BomIds) => {
                                         type="text"
                                         value={row.amount}
                                         readOnly
-                                        className="w-full border p-1 rounded bg-gray-100 text-gray-700"
+                                        className="w-full border p-1 rounded bg-gray-100 dark:bg-gray-dark"
                                       />
                                     </td>
                                     <td className="px-4 py-2">
@@ -2330,7 +2346,7 @@ const EditBom = (props: BomIds) => {
                                           type="text"
                                           value={subrow.amount}
                                           readOnly
-                                          className="w-full border p-1 rounded bg-gray-100 text-gray-700"
+                                          className="w-full border p-1 rounded bg-gray-100 dark:bg-gray-dark "
                                         />
                                       </td>
                                       <td className="px-4 py-2">

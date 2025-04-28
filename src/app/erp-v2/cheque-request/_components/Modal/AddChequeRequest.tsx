@@ -125,9 +125,11 @@ export default function AddChequeRequest() {
       </div>
 
       {showRegisterModal && (
-        <dialog open className="modal">
-          <div className="modal-box w-11/12 max-w-7xl">
-            <h3 className="font-bold text-lg">Create New Cash Request</h3>
+        <dialog open className="modal mt-15 backdrop-blur-sm">
+          <div className="modal-box w-11/12 max-w-7xl max-h-[80vh] overflow-y-auto dark:bg-gray-dark">
+            <h3 className="font-bold text-lg dark:text-white">
+              Create New Cash Request
+            </h3>
 
             <Formik
               initialValues={{
@@ -174,10 +176,13 @@ export default function AddChequeRequest() {
                           })) || [],
                       },
                     ].map((item) => (
-                      <div key={item.name} className="mb-4 col-span-2">
+                      <div
+                        key={item.name}
+                        className="mb-4 col-span-2 dark:text-white"
+                      >
                         <label
                           htmlFor={item.name}
-                          className="block text-sm font-medium text-gray-700"
+                          className="block text-sm font-medium text-gray-700 dark:text-white dark:bg-gray-dark"
                         >
                           {item.label}
                         </label>
@@ -187,7 +192,7 @@ export default function AddChequeRequest() {
                             as="select"
                             id={item.name}
                             name={item.name}
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 dark:text-white dark:bg-gray-800 dark:border-gray-700 dark:placeholder:text-gray-300"
                           >
                             <option value="">Select {item.label}</option>
                             {item.name === "serial_no"
@@ -222,11 +227,13 @@ export default function AddChequeRequest() {
                     ))}
 
                     <div className="col-span-2">
-                      <h2 className="font-bold text-lg mb-4">Items</h2>
+                      <h2 className="font-bold text-lg mb-4 dark:bg-gray-dark dark:text-white">
+                        Items
+                      </h2>
                       <FieldArray name="cheque_requisition_items">
                         {({ push, remove }) => (
                           <div>
-                            <div className="bg-white p-4 rounded-lg shadow-md mt-6">
+                            <div className="bg-white p-4 rounded-lg shadow-md mt-6 dark:bg-gray-dark">
                               <table className="min-w-full table-auto border-collapse">
                                 <thead>
                                   <tr className="text-blue-500">
@@ -256,42 +263,42 @@ export default function AddChequeRequest() {
                                           <td className="p-2">
                                             <Field
                                               name={`cheque_requisition_items[${index}].serial_no`}
-                                              className="bg-gray-50 border border-gray-300 rounded-lg block w-full p-2.5"
+                                              className="bg-gray-50 border border-gray-300 rounded-lg block w-full p-2.5 dark:bg-gray-dark dark:text-white"
                                               placeholder="Serial No"
                                             />
                                           </td>
                                           <td className="p-2">
                                             <Field
                                               name={`cheque_requisition_items[${index}].date_of_purchase`}
-                                              className="bg-gray-50 border border-gray-300 rounded-lg block w-full p-2.5"
+                                              className="bg-gray-50 border border-gray-300 rounded-lg block w-full p-2.5 dark:bg-gray-dark dark:text-white"
                                               placeholder="Date"
                                             />
                                           </td>
                                           <td className="p-2">
                                             <Field
                                               name={`cheque_requisition_items[${index}].description`}
-                                              className="bg-gray-50 border border-gray-300 rounded-lg block w-full p-2.5"
+                                              className="bg-gray-50 border border-gray-300 rounded-lg block w-full p-2.5 dark:bg-gray-dark dark:text-white"
                                               placeholder="Description"
                                             />
                                           </td>
                                           <td className="p-2">
                                             <Field
                                               name={`cheque_requisition_items[${index}].amount`}
-                                              className="bg-gray-50 border border-gray-300 rounded-lg block w-full p-2.5"
+                                              className="bg-gray-50 border border-gray-300 rounded-lg block w-full p-2.5 dark:bg-gray-dark dark:text-white"
                                               placeholder="Amount"
                                             />
                                           </td>
                                           <td className="p-2">
                                             <Field
                                               name={`cheque_requisition_items[${index}].cheque_no`}
-                                              className="bg-gray-50 border border-gray-300 rounded-lg block w-full p-2.5"
+                                              className="bg-gray-50 border border-gray-300 rounded-lg block w-full p-2.5 dark:bg-gray-dark dark:text-white"
                                               placeholder="Cheque No"
                                             />
                                           </td>
                                           <td className="p-2">
                                             <Field
                                               name={`cheque_requisition_items[${index}].remarks`}
-                                              className="bg-gray-50 border border-gray-300 rounded-lg block w-full p-2.5"
+                                              className="bg-gray-50 border border-gray-300 rounded-lg block w-full p-2.5 dark:bg-gray-dark dark:text-white"
                                               placeholder="Remarks"
                                             />
                                           </td>
@@ -322,7 +329,7 @@ export default function AddChequeRequest() {
 
                               {/* Cash Record Selection Dropdown */}
                               <select
-                                className="bg-gray-50 border border-gray-300 rounded-lg block w-full p-2.5"
+                                className="bg-gray-50 border border-gray-300 rounded-lg block w-full p-2.5 dark:bg-gray-dark dark:text-white"
                                 onChange={(e) => {
                                   const parsedValue: {
                                     id: number;
@@ -375,7 +382,7 @@ export default function AddChequeRequest() {
                       </FieldArray>
                     </div>
                   </div>
-                  <div className="mt-4 flex justify-between">
+                  <div className="mt-4 flex justify-between ">
                     {/* Only show the Select Cash Record dropdown if in editing mode */}
                     {isEditing && (
                       <select
@@ -397,7 +404,7 @@ export default function AddChequeRequest() {
                   </div>
 
                   {/* Total Display */}
-                  <div className="mt-4 flex justify-end">
+                  <div className="mt-4 flex justify-end dark:bg-gray-dark dark:text-white">
                     <span className="font-semibold text-lg">
                       Total: ₱{totalAmount.toFixed(2)}
                     </span>

@@ -148,22 +148,44 @@ function Page(props: PageProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Item Table */}
-        <div className="bg-white p-4 rounded-lg shadow-md">
+        <div className="p-4 rounded-lg shadow-md bg-gray-600">
           <AddItem />
           {isItemsLoading ? (
             <div>Loading items...</div>
           ) : (
             <>
-              <input
-                type="search"
-                className="w-120 mb-4 p-2 border rounded"
-                placeholder="Search items"
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  setCurrentPageItems(1);
-                }}
-              />
+              <label className="relative w-full max-w-sm">
+                {/* Search Input */}
+                <input
+                  type="search"
+                  className="text-white w-full py-2 pl-10 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
+                  placeholder="Search item"
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                  }}
+                />
+
+                {/* Search Icon (left) */}
+                <svg
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  width="20"
+                  height="20"
+                >
+                  <g
+                    strokeLinejoin="round"
+                    strokeLinecap="round"
+                    strokeWidth="2.5"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.3-4.3" />
+                  </g>
+                </svg>
+              </label>
               <table className="min-w-full table-auto border-collapse">
                 <thead>
                   <tr className="text-blue-500">
@@ -173,7 +195,7 @@ function Page(props: PageProps) {
                 </thead>
                 <tbody>
                   {currentItemsRows?.map((item) => (
-                    <tr key={item.id} className="border-b">
+                    <tr key={item.id} className="border-b text-white">
                       <td className="p-2">{item.item}</td>
                       <td className="p-2">
                         <button
@@ -186,7 +208,7 @@ function Page(props: PageProps) {
                           Edit
                         </button>
                         <button
-                          className="btn btn-secondary"
+                          className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-md"
                           onClick={() => {
                             const confirmDelete = window.confirm(
                               "Are you sure you want to delete this item?"
@@ -204,7 +226,7 @@ function Page(props: PageProps) {
               <div className="flex justify-end items-center mt-4 gap-2">
                 <button
                   onClick={handlePrevItems}
-                  className="btn bg-blue-500 text-xs text-white hover:bg-blue-600 disabled:bg-gray-300"
+                  className="px-4 py-2 bg-gray-700 text-white rounded-md disabled:bg-gray-500 hover:bg-maroon-800 transition"
                   disabled={currentPageItems === 1}
                 >
                   Previous
@@ -214,7 +236,7 @@ function Page(props: PageProps) {
                 </span>
                 <button
                   onClick={handleNextItems}
-                  className="btn bg-blue-500 text-xs text-white hover:bg-blue-600 disabled:bg-gray-300"
+                  className="px-4 py-2 bg-gray-700 text-white rounded-md disabled:bg-gray-500 hover:bg-maroon-800 transition"
                   disabled={currentPageItems === totalPagesItems}
                 >
                   Next
@@ -225,22 +247,45 @@ function Page(props: PageProps) {
         </div>
 
         {/* Location Table */}
-        <div className="bg-white p-4 rounded-lg shadow-md">
+        <div className="bg-gray-600 p-4 rounded-lg shadow-md">
           <AddUnit />
           {isUnitsLoading ? (
             <div>Loading locations...</div>
           ) : (
             <>
-              <input
-                type="search"
-                className="w-120 mb-4 p-2 border rounded"
-                placeholder="Search locations"
-                value={searchTermLocation}
-                onChange={(e) => {
-                  setSearchTermLocation(e.target.value);
-                  setCurrentPageUnits(1);
-                }}
-              />
+              <label className="relative w-full max-w-sm">
+                {/* Search Input */}
+                <input
+                  type="search"
+                  className="text-white w-full py-2 pl-10 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
+                  placeholder="Search location"
+                  value={searchTermLocation}
+                  onChange={(e) => {
+                    setSearchTermLocation(e.target.value);
+                    setCurrentPageUnits(1);
+                  }}
+                />
+
+                {/* Search Icon (left) */}
+                <svg
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  width="20"
+                  height="20"
+                >
+                  <g
+                    strokeLinejoin="round"
+                    strokeLinecap="round"
+                    strokeWidth="2.5"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.3-4.3" />
+                  </g>
+                </svg>
+              </label>
               <table className="min-w-full table-auto border-collapse">
                 <thead>
                   <tr className="text-blue-500">
@@ -250,7 +295,7 @@ function Page(props: PageProps) {
                 </thead>
                 <tbody>
                   {currentUnitsRows?.map((location) => (
-                    <tr key={location.id} className="border-b">
+                    <tr key={location.id} className="border-b text-white">
                       <td className="p-2">{location.unit_of_measurement}</td>
                       <td className="p-2">
                         <button
@@ -263,7 +308,7 @@ function Page(props: PageProps) {
                           Edit
                         </button>
                         <button
-                          className="btn btn-secondary"
+                          className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-md"
                           onClick={() => {
                             const confirmDelete = window.confirm(
                               "Are you sure you want to delete this location?"
@@ -282,7 +327,7 @@ function Page(props: PageProps) {
               <div className="flex justify-end items-center mt-4 gap-2">
                 <button
                   onClick={handlePrevUnits}
-                  className="btn bg-blue-500 text-xs text-white hover:bg-blue-600 disabled:bg-gray-300"
+                  className="px-4 py-2 bg-gray-700 text-white rounded-md disabled:bg-gray-500 hover:bg-maroon-800 transition"
                   disabled={currentPageUnits === 1}
                 >
                   Previous
@@ -292,7 +337,7 @@ function Page(props: PageProps) {
                 </span>
                 <button
                   onClick={handleNextUnits}
-                  className="btn bg-blue-500 text-xs text-white hover:bg-blue-600 disabled:bg-gray-300"
+                  className="px-4 py-2 bg-gray-700 text-white rounded-md disabled:bg-gray-500 hover:bg-maroon-800 transition"
                   disabled={currentPageUnits === totalPagesUnits}
                 >
                   Next

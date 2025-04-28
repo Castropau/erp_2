@@ -192,9 +192,11 @@ function Detail(props: PageProps) {
       </div>
 
       {/* Formik Form */}
-      <div className="bg-white p-4 rounded-lg shadow-md">
+      <div className="bg-gray-300 p-4 rounded-lg shadow-md dark:bg-gray-dark dark:text-white">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-semibold">Cheque Details</h3>
+          <h3 className="text-2xl font-semibold mb-4 dark:bg-gray-dark dark:text-white">
+            Cheque Details
+          </h3>
           <div className="flex gap-4">
             <IoMdPrint className="cursor-pointer text-lg" title="Print" />
             <button onClick={handleEditToggle}>
@@ -273,13 +275,13 @@ function Detail(props: PageProps) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Form Fields for Cheque Details */}
               <div className="space-y-4">
-                <label className="block mb-2 text-sm font-medium text-gray-900">
+                <label className="block mb-2 text-sm font-medium text-gray-900 dark:bg-gray-dark dark:text-white">
                   Serial#
                 </label>
                 <Field
                   as="select"
                   name="serial_no"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-dark dark:text-white"
                   disabled={!isEditing} // Disable if not editing
                 >
                   <option value="">Select Serial No</option>
@@ -293,14 +295,14 @@ function Detail(props: PageProps) {
 
               {/* Requested By Field */}
               <div className="space-y-4">
-                <label className="block mb-2 text-sm font-medium text-gray-900">
+                <label className="block mb-2 text-sm font-medium text-gray-900 dark:bg-gray-dark dark:text-white">
                   Requested By
                 </label>
                 {isEditing ? (
                   <Field
                     as="select"
                     name="requested_by"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                    className="bg-gray-50 border dark:bg-gray-dark dark:text-white border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                   >
                     {isLoading ? (
                       <option value="">Loading users...</option>
@@ -317,7 +319,7 @@ function Detail(props: PageProps) {
                     type="text"
                     id="requested_by"
                     name="requested_by"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                    className="bg-gray-50 border border-gray-300 dark:bg-gray-dark dark:text-white text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                     value={cheque.requested_by?.full_name || ""}
                     readOnly
                   />
@@ -356,15 +358,15 @@ function Detail(props: PageProps) {
                   placeholder: "Organization Address",
                 },
               ].map((field) => (
-                <div key={field.name} className="space-y-4">
-                  <label className="block mb-2 text-sm font-medium text-gray-900">
+                <div key={field.name} className="space-y-4 ">
+                  <label className="block mb-2 text-sm font-medium text-gray-900 dark:bg-gray-dark dark:text-white">
                     {field.label}
                   </label>
                   <Field
                     type={field.type}
                     id={field.name}
                     name={field.name}
-                    className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                    className="bg-gray-50 border dark:bg-gray-dark dark:text-white border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                     placeholder={field.placeholder}
                     readOnly={!isEditing} // Toggle read-only based on isEditing
                   />
@@ -400,7 +402,7 @@ function Detail(props: PageProps) {
 
       {/* Table to display cheque items */}
       {/* Table to display cheque items */}
-      <div className="bg-white p-4 rounded-lg shadow-md mt-6">
+      <div className="bg-gray-200 p-4 rounded-lg shadow-md mt-6 dark:bg-gray-dark dark:text-white">
         <table className="min-w-full table-auto border-collapse">
           <thead>
             <tr className="text-blue-500">
@@ -514,7 +516,7 @@ function Detail(props: PageProps) {
           {/* Only show the Select Cash Record dropdown if in editing mode */}
           {isEditing && (
             <select
-              className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+              className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-dark dark:text-white"
               onChange={(e) => handleAddRow(Number(e.target.value))}
             >
               <option value="">Select Cash Record</option>

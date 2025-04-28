@@ -64,8 +64,8 @@ export default function AddCategory() {
 
       {/* Category Modal */}
       {showCategoryModal && (
-        <dialog open className="modal">
-          <div className="modal-box w-11/12 max-w-7xl">
+        <dialog open className="modal mt-15 backdrop-blur-sm">
+          <div className="modal-box w-11/12 max-w-7xl max-h-[80vh] overflow-y-auto dark:bg-gray-dark dark:text-white">
             <h3 className="font-bold text-lg">Add Category</h3>
             <Formik
               initialValues={{
@@ -97,7 +97,7 @@ export default function AddCategory() {
                     <div className="mb-4">
                       <label
                         htmlFor="item_reference"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-medium "
                       >
                         Item Reference
                       </label>
@@ -120,7 +120,7 @@ export default function AddCategory() {
                     <div className="mb-4">
                       <label
                         htmlFor="item"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-medium "
                       >
                         Item Name
                       </label>
@@ -137,7 +137,7 @@ export default function AddCategory() {
                     <div className="mb-4">
                       <label
                         htmlFor="brand"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-medium "
                       >
                         Brand
                       </label>
@@ -153,7 +153,7 @@ export default function AddCategory() {
                     <div className="mb-4">
                       <label
                         htmlFor="serial"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-medium "
                       >
                         Serial Number
                       </label>
@@ -169,7 +169,7 @@ export default function AddCategory() {
                     <div className="mb-4">
                       <label
                         htmlFor="model"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-medium "
                       >
                         Model
                       </label>
@@ -185,7 +185,7 @@ export default function AddCategory() {
                     <div className="mb-4">
                       <label
                         htmlFor="specification"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-medium "
                       >
                         Specification
                       </label>
@@ -201,7 +201,7 @@ export default function AddCategory() {
                     <div className="mb-4">
                       <label
                         htmlFor="unit_of_measurement"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-medium "
                       >
                         Unit of Measurement
                       </label>
@@ -217,7 +217,7 @@ export default function AddCategory() {
                     <div className="mb-4">
                       <label
                         htmlFor="srp"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-medium "
                       >
                         SRP (Suggested Retail Price)
                       </label>
@@ -233,7 +233,7 @@ export default function AddCategory() {
                     <div className="mb-4">
                       <label
                         htmlFor="quantity"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-medium "
                       >
                         Quantity
                       </label>
@@ -249,7 +249,7 @@ export default function AddCategory() {
                     <div className="mb-4">
                       <label
                         htmlFor="description"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-medium "
                       >
                         Description
                       </label>
@@ -281,7 +281,7 @@ export default function AddCategory() {
                     <div className="mb-4">
                       <label
                         htmlFor="location"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-medium "
                       >
                         Location
                       </label>
@@ -289,7 +289,7 @@ export default function AddCategory() {
                         as="select"
                         id="item_reference"
                         name="item_reference"
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 dark:bg-gray-dark"
                         required
                       >
                         {/* Render item references as options */}
@@ -305,7 +305,7 @@ export default function AddCategory() {
                     <div className="mb-4">
                       <label
                         htmlFor="category"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-medium "
                       >
                         Category Name
                       </label>

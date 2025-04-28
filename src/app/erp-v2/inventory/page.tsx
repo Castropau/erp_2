@@ -43,7 +43,12 @@ export default function Page() {
   ) => {
     setActiveView(view);
   };
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
 
   if (error instanceof Error)
     return <div>An error has occurred: {error.message}</div>;

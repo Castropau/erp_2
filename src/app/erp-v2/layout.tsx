@@ -9,7 +9,7 @@ export default function layout({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider>
       <SidebarProvider>
-        <div className="flex flex-col min-h-screen bg-gray-500">
+        <div className="flex flex-col min-h-screen bg-gray-500 dark:bg-gray-dark">
           {/* App Header */}
           <AppHeader />
           <div className="flex flex-1">

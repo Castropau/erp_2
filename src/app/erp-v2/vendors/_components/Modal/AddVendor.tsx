@@ -70,15 +70,15 @@ export default function AddVendor() {
           className="btn btn-info"
           onClick={() => setShowRegisterModal(true)}
         >
-          <CiCirclePlus className="w-6 h-6 btn-info" />
+          <FaCirclePlus className="w-6 h-6 btn-info" />
           Add vendor
         </button>
       </div>
       <div>
         {/* Registration Modal */}
         {showRegisterModal && (
-          <dialog open className="modal">
-            <div className="modal-box w-11/12 max-w-7xl">
+          <dialog open className="modal mt-15 backdrop-blur-sm">
+            <div className="modal-box w-11/12 max-w-7xl max-h-[80vh] overflow-y-auto dark:bg-gray-dark dark:text-white">
               <h3 className="font-bold text-lg">Create Vendor</h3>
               <span className="font-bold">
                 Fill out this information below to create new vendor

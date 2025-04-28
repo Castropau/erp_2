@@ -110,7 +110,7 @@ export default function ViewDeliveryReceipt(props: DeliveryId) {
     <>
       <div className="flex justify-start">
         <button
-          className="btn btn-info"
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow transition duration-200"
           onClick={() => setShowRegisterModal(true)}
         >
           <FaEye className="w-6 h-6 btn-info" />
@@ -120,8 +120,8 @@ export default function ViewDeliveryReceipt(props: DeliveryId) {
 
       {/* Registration Modal */}
       {showRegisterModal && (
-        <dialog open className="modal">
-          <div className="modal-box w-11/12 max-w-7xl">
+        <dialog open className="modal mt-15 backdrop-blur-sm">
+          <div className="modal-box w-11/12 max-w-7xl max-h-[80vh] overflow-y-auto dark:bg-gray-dark ">
             <div className="flex justify-between items-center">
               <h3 className="font-bold text-lg">Warehouse Released</h3>
               {/* Toggle between CiEdit and CiCircleBan based on editability */}
@@ -281,7 +281,7 @@ export default function ViewDeliveryReceipt(props: DeliveryId) {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         {warehouseReleasedFields.map((field) => (
                           <div key={field.name}>
-                            <label className="block mb-2 text-sm font-medium text-gray-700">
+                            <label className="block mb-2 text-sm font-medium ">
                               {field.label}
                             </label>
                             {field.type === "select" ? (
@@ -292,7 +292,7 @@ export default function ViewDeliveryReceipt(props: DeliveryId) {
                                   isEditable
                                     ? ""
                                     : "bg-gray-200 cursor-not-allowed"
-                                } border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5`}
+                                } border border-gray-300 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-dark`}
                                 disabled={!isEditable}
                               >
                                 <option value="">Select {field.label}</option>
@@ -310,7 +310,7 @@ export default function ViewDeliveryReceipt(props: DeliveryId) {
                                   isEditable
                                     ? ""
                                     : "bg-gray-200 cursor-not-allowed"
-                                } border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5`}
+                                } border border-gray-300 dark:bg-gray-dark rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5`}
                                 disabled={!isEditable}
                               />
                             )}
@@ -325,7 +325,7 @@ export default function ViewDeliveryReceipt(props: DeliveryId) {
                         <h4 className="font-bold text-lg">From</h4>
                         {fromFields.map((field) => (
                           <div key={field.name}>
-                            <label className="block mb-2 text-sm font-medium text-gray-700">
+                            <label className="block mb-2 text-sm font-medium ">
                               {field.label}
                             </label>
                             {field.type === "select" ? (
@@ -336,7 +336,7 @@ export default function ViewDeliveryReceipt(props: DeliveryId) {
                                   isEditable
                                     ? ""
                                     : "bg-gray-200 cursor-not-allowed"
-                                } border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5`}
+                                } border border-gray-300 dark:bg-gray-dark rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5`}
                                 disabled={!isEditable}
                               >
                                 <option value="">Select {field.label}</option>
@@ -355,7 +355,7 @@ export default function ViewDeliveryReceipt(props: DeliveryId) {
                                   isEditable
                                     ? ""
                                     : "bg-gray-200 cursor-not-allowed"
-                                } border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5`}
+                                } border border-gray-300 dark:bg-gray-dark rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5`}
                                 disabled={!isEditable}
                               />
                             )}
@@ -368,7 +368,7 @@ export default function ViewDeliveryReceipt(props: DeliveryId) {
                         <h4 className="font-bold text-lg">To</h4>
                         {toFields.map((field) => (
                           <div key={field.name}>
-                            <label className="block mb-2 text-sm font-medium text-gray-700">
+                            <label className="block mb-2 text-sm font-medium ">
                               {field.label}
                             </label>
                             <Field
@@ -379,7 +379,7 @@ export default function ViewDeliveryReceipt(props: DeliveryId) {
                                 isEditable
                                   ? ""
                                   : "bg-gray-200 cursor-not-allowed"
-                              } border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5`}
+                              } border border-gray-300 dark:bg-gray-dark rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5`}
                               disabled={!isEditable}
                             />
                           </div>
@@ -440,7 +440,7 @@ export default function ViewDeliveryReceipt(props: DeliveryId) {
                                         name={`items[${index}].quantity`}
                                         className={`w-full border p-2 ${
                                           !isEditable &&
-                                          "bg-gray-200 cursor-not-allowed"
+                                          "bg-gray-200 cursor-not-allowed dark:bg-gray-dark"
                                         }`}
                                         disabled={!isEditable}
                                       />
@@ -452,7 +452,7 @@ export default function ViewDeliveryReceipt(props: DeliveryId) {
                                         name={`items[${index}].description`}
                                         className={`w-full border p-2 ${
                                           !isEditable &&
-                                          "bg-gray-200 cursor-not-allowed"
+                                          "bg-gray-200 cursor-not-allowed dark:bg-gray-dark"
                                         }`}
                                         disabled={!isEditable}
                                       />

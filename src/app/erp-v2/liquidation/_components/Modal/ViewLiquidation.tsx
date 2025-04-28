@@ -122,7 +122,7 @@ export default function ViewLiquidation(props: LiquidationId) {
     <>
       <div className="flex justify-start">
         <button
-          className="btn btn-info"
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow transition duration-200"
           onClick={() => setShowRegisterModal(true)}
         >
           <FaEye className="w-6 h-6 btn-info" />
@@ -132,8 +132,8 @@ export default function ViewLiquidation(props: LiquidationId) {
 
       {/* Registration Modal */}
       {showRegisterModal && (
-        <dialog open className="modal">
-          <div className="modal-box w-11/12 max-w-7xl">
+        <dialog open className="modal mt-15 backdrop-blur-sm">
+          <div className="modal-box w-11/12 max-w-7xl max-h-[80vh] overflow-y-auto dark:bg-gray-dark">
             <div className="flex justify-between items-center">
               <h3 className="font-bold text-lg">Cash Request</h3>
               {/* Toggle between CiEdit and CiCircleBan based on editability */}
@@ -253,7 +253,7 @@ export default function ViewLiquidation(props: LiquidationId) {
                             },
                           ].map((item) => (
                             <div key={item.name}>
-                              <label className="block mb-2 text-sm font-medium text-gray-700">
+                              <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-white">
                                 {item.label}
                               </label>
                               {item.type === "select" ? (
@@ -264,7 +264,7 @@ export default function ViewLiquidation(props: LiquidationId) {
                                     isEditable
                                       ? ""
                                       : "bg-gray-200 cursor-not-allowed"
-                                  } border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5`}
+                                  } border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-dark dark:text-white`}
                                   disabled={!isEditable}
                                   required
                                 >
@@ -284,7 +284,7 @@ export default function ViewLiquidation(props: LiquidationId) {
                                     isEditable
                                       ? ""
                                       : "bg-gray-200 cursor-not-allowed"
-                                  } border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5`}
+                                  } border border-gray-300 dark:bg-gray-dark dark:text-white text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5`}
                                   disabled={!isEditable}
                                   required
                                 />
@@ -372,7 +372,7 @@ export default function ViewLiquidation(props: LiquidationId) {
                                             isEditable
                                               ? ""
                                               : "bg-gray-200 cursor-not-allowed"
-                                          } border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5`}
+                                          } border border-gray-300 dark:bg-gray-dark dark:text-white text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5`}
                                           disabled={!isEditable}
                                         />
                                       </td>
@@ -381,7 +381,7 @@ export default function ViewLiquidation(props: LiquidationId) {
                                       <Field
                                         type="checkbox"
                                         name={`tableRows[${index}].vatIncluded`}
-                                        className="checkbox"
+                                        className="checkbox border-gray-300 dark:border-gray-600 dark:bg-gray-800  dark:checked:bg-white"
                                       />
                                     </td>
                                   </tr>
@@ -422,7 +422,7 @@ export default function ViewLiquidation(props: LiquidationId) {
                             type="number"
                             value={totalExpenses}
                             readOnly
-                            className="bg-gray-200 p-2 rounded-md w-full"
+                            className="bg-gray-200 p-2 rounded-md w-full dark:bg-gray-dark dark:border border-white"
                           />
                         </div>
                         <div className="w-1/4">
@@ -430,7 +430,7 @@ export default function ViewLiquidation(props: LiquidationId) {
                             type="number"
                             value={totalCashFromAccounting}
                             readOnly
-                            className="bg-gray-200 p-2 rounded-md w-full"
+                            className="bg-gray-200 p-2 rounded-md w-full dark:bg-gray-dark dark:border border-white"
                           />
                         </div>
                         <div className="w-1/4">
@@ -438,7 +438,7 @@ export default function ViewLiquidation(props: LiquidationId) {
                             type="number"
                             value={totalCashFromBalance}
                             readOnly
-                            className="bg-gray-200 p-2 rounded-md w-full"
+                            className="bg-gray-200 p-2 rounded-md w-full dark:bg-gray-dark dark:border border-white"
                           />
                         </div>
                       </div>
@@ -456,7 +456,7 @@ export default function ViewLiquidation(props: LiquidationId) {
                                 <Field
                                   type="text"
                                   name={`notesRows[${index}].note`}
-                                  className="input"
+                                  className="input dark:bg-gray-dark dark:text-white dark:border border-white"
                                   placeholder="Enter note"
                                   disabled={!isEditable}
                                   readOnly={!isEditable}

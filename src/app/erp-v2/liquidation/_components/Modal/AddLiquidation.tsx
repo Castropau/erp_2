@@ -97,16 +97,18 @@ export default function AddLiquidation() {
           className="btn btn-info"
           onClick={() => setShowRegisterModal(true)}
         >
-          <CiCirclePlus className="w-6 h-6 btn-info" />
+          <FaCirclePlus className="w-6 h-6 btn-info" />
           Add Liquidation
         </button>
       </div>
 
       {/* Registration Modal */}
       {showRegisterModal && (
-        <dialog open className="modal">
-          <div className="modal-box w-11/12 max-w-7xl">
-            <h3 className="font-bold text-lg">Create New Liquidation</h3>
+        <dialog open className="modal mt-15 backdrop-blur-sm">
+          <div className="modal-box w-11/12 max-w-7xl max-h-[80vh] overflow-y-auto dark:bg-gray-dark dark:text-white">
+            <h3 className="font-bold text-lg dark:bg-gray-dark dark:text-white">
+              Create New Liquidation
+            </h3>
             <Formik
               initialValues={{
                 project: "",
@@ -166,13 +168,13 @@ export default function AddLiquidation() {
                   <Form className="py-4">
                     {/* Dropdown for Project Selection */}
                     <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
+                      <label className="block text-sm font-medium text-gray-700 dark:bg-gray-dark dark:text-white">
                         Select Project
                       </label>
                       <Field
                         as="select"
                         name="project"
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 dark:bg-gray-dark dark:text-white"
                         onChange={(e: ChangeEvent<HTMLSelectElement>) => {
                           const projectId = e.target.value;
                           setSelectedProject(projectId); // Set selected project
@@ -222,14 +224,14 @@ export default function AddLiquidation() {
                             },
                           ].map((item) => (
                             <div key={item.name}>
-                              <label className="block mb-2 text-sm font-medium text-gray-700">
+                              <label className="block mb-2 text-sm font-medium text-gray-700 dark:bg-gray-dark dark:text-white">
                                 {item.label}
                               </label>
                               {item.type === "select" ? (
                                 <Field
                                   as="select"
                                   name={item.name}
-                                  className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                  className="dark:bg-gray-dark dark:text-white bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                                   required
                                 >
                                   <option value="">Select {item.label}</option>
@@ -244,7 +246,7 @@ export default function AddLiquidation() {
                                   type={item.type}
                                   name={item.name}
                                   placeholder={item.placeholder}
-                                  className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                  className="dark:bg-gray-dark dark:text-white bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                                   required
                                   value={item.value || values[item.name]}
                                 />
@@ -284,42 +286,41 @@ export default function AddLiquidation() {
                                 {values.tableRows.map((item, index) => (
                                   <tr key={index}>
                                     <td className="p-2">
-                                      <td className="p-2">
-                                        <Field
-                                          name={`tableRows[${index}].date_requested`}
-                                          className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
-                                          value={
-                                            item.date_requested || dateRequested
-                                          } // Use dateRequested from state
-                                          readOnly // Set it as read-only if needed
-                                        />
-                                      </td>
+                                      <Field
+                                        name={`tableRows[${index}].date_requested`}
+                                        className="bg-gray-50 dark:bg-gray-dark dark:text-white border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                        value={
+                                          item.date_requested || dateRequested
+                                        } // Use dateRequested from state
+                                        readOnly // Set it as read-only if needed
+                                      />
                                     </td>
+
                                     <td className="p-2">
                                       <Field
                                         name={`tableRows[${index}].item`}
-                                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                        className="bg-gray-50 dark:bg-gray-dark dark:text-white border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                                         value={item.item || ""}
                                       />
                                     </td>
                                     <td className="p-2">
                                       <Field
                                         name={`tableRows[${index}].expenses`}
-                                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                        className="bg-gray-50 dark:bg-gray-dark dark:text-white  border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                                         value={item.total_price || ""}
                                       />
                                     </td>
                                     <td className="p-2">
                                       <Field
                                         name={`tableRows[${index}].cashFromAccounting`}
-                                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                        className="bg-gray-50 dark:bg-gray-dark dark:text-white border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                                       />
                                     </td>
                                     <td className="p-2">
                                       <Field
                                         readOnly
                                         // name={`tableRows[${index}].total_price`}
-                                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                        className="bg-gray-50 dark:bg-gray-dark dark:text-white border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                                         value={
                                           item.total_price -
                                             item.cashFromAccounting ||
@@ -331,7 +332,7 @@ export default function AddLiquidation() {
                                       <Field
                                         type="checkbox"
                                         name={`tableRows[${index}].vatIncluded`}
-                                        className="checkbox"
+                                        className="checkbox dark:bg-gray-dark border border-white dark:text-white  dark:checked:border-white"
                                       />
                                     </td>
                                     <td className="p-2">
@@ -372,14 +373,14 @@ export default function AddLiquidation() {
 
                     {/* Total Row */}
                     <div className="flex justify-between py-2 border-t border-gray-300">
-                      <div className="ml-auto flex space-x-4">
+                      <div className="ml-auto flex space-x-4 ">
                         <div className="font-semibold">Total</div>
                         <div className="w-1/4">
                           <input
                             type="number"
                             value={projectDetails?.sub_total}
                             readOnly
-                            className="bg-gray-200 p-2 rounded-md w-full"
+                            className="bg-gray-200 p-2 rounded-md w-full border border-gray-300 dark:bg-gray-800 dark:text-white"
                           />
                         </div>
                         <div className="w-1/4">
@@ -387,7 +388,7 @@ export default function AddLiquidation() {
                             type="number"
                             value={totalCashFromAccounting}
                             readOnly
-                            className="bg-gray-200 p-2 rounded-md w-full"
+                            className="bg-gray-200 p-2 rounded-md w-full border border-gray-300 dark:bg-gray-dark dark:text-white "
                           />
                         </div>
                         <div className="w-1/4">
@@ -395,7 +396,7 @@ export default function AddLiquidation() {
                             type="number"
                             value={projectDetails?.total}
                             readOnly
-                            className="bg-gray-200 p-2 rounded-md w-full"
+                            className="bg-gray-200 p-2 rounded-md w-full dark:bg-gray-dark dark:text-white border border-white"
                           />
                         </div>
                       </div>
@@ -412,19 +413,19 @@ export default function AddLiquidation() {
                                 <Field
                                   type="text"
                                   name={`task_notes[${index}].task_notes`}
-                                  className="input"
+                                  className="input dark:bg-gray-dark dark:text-white dark:border-white"
                                   placeholder="Enter note"
                                 />
                                 <Field
                                   type="text"
                                   name={`task_notes[${index}].description`}
-                                  className="input"
+                                  className="input dark:bg-gray-dark dark:text-white dark:border-white"
                                   placeholder="Enter description"
                                 />
                                 <Field
                                   type="text"
                                   name={`task_notes[${index}].items`}
-                                  className="input"
+                                  className="input dark:bg-gray-dark dark:text-white dark:border-white"
                                   placeholder="Enter item"
                                 />
                                 <button

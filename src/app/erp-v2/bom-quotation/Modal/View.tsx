@@ -110,8 +110,8 @@ export default function View(props: QuotationId) {
 
       {/* Registration Modal */}
       {showRegisterModal && (
-        <dialog open className="modal mt-15 backdrop-blur-sm">
-          <div className="modal-box w-11/12 max-w-7xl max-h-[80vh] overflow-y-auto dark:bg-gray-dark">
+        <dialog open className="modal mt-15">
+          <div className="modal-box w-11/12 max-w-7xl max-h-[80vh] overflow-y-auto">
             <div className="flex justify-between">
               <h3 className="font-bold text-lg">View Quotations</h3>
               {/* Toggle between CiEdit and CiCircleBan based on editability */}
@@ -205,14 +205,14 @@ export default function View(props: QuotationId) {
                       },
                     ].map((item) => (
                       <div key={item.name}>
-                        <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-white">
+                        <label className="block mb-2 text-sm font-medium text-gray-700">
                           {item.label}
                         </label>
                         <Field
                           type={item.type}
                           name={item.name}
                           placeholder={item.placeholder}
-                          className="bg-gray-50 dark:bg-gray-dark dark:text-white border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                          className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                           required
                           disabled={!isEditable} // Conditionally disable field based on edit mode
                         />
@@ -221,13 +221,13 @@ export default function View(props: QuotationId) {
 
                     {/* Dropdown for Project Selection */}
                     <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 dark:text-white">
+                      <label className="block text-sm font-medium text-gray-700">
                         Company
                       </label>
                       <Field
                         as="select"
                         name="project"
-                        className="mt-1 block w-full dark:bg-gray-dark border border-gray-300 rounded-md shadow-sm p-2"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                         onChange={(e) => handleCompanyChange(e, setFieldValue)}
                         // value={values.project?.id || ""}
                         disabled={!isEditable}
@@ -247,28 +247,28 @@ export default function View(props: QuotationId) {
                         <h4 className="font-semibold">Project Details</h4>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                           <div>
-                            <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-white">
+                            <label className="block mb-2 text-sm font-medium text-gray-700">
                               Contact person
                             </label>
                             <Field
                               type="text"
                               name="contact_person"
                               placeholder="Owner"
-                              className="bg-gray-50 dark:bg-gray-dark dark:text-white border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                              className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                               value={values.contact_person || ""} // Use Formik value
                               required
                               disabled={!isEditable} // Conditionally disable field based on edit mode
                             />
                           </div>
                           <div>
-                            <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-white">
+                            <label className="block mb-2 text-sm font-medium text-gray-700">
                               Delivery address
                             </label>
                             <Field
                               type="text"
                               name="delivery_address"
                               placeholder="Enter delivery address"
-                              className="bg-gray-50 dark:bg-gray-dark dark:text-white border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                              className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                               value={values.delivery_address || ""} // Use Formik value
                               required
                               disabled={!isEditable} // Conditionally disable field based on edit mode
@@ -287,7 +287,7 @@ export default function View(props: QuotationId) {
                           <div>
                             <table className="table-auto w-full border-collapse">
                               <thead>
-                                <tr className="dark:text-white">
+                                <tr>
                                   {[
                                     "# ITEM",
                                     "Description",
@@ -309,7 +309,7 @@ export default function View(props: QuotationId) {
                                         type="text"
                                         name={`quotation_items[${index}].item`}
                                         disabled={!isEditable}
-                                        className="dark:bg-gray-dark dark:text-white bg-gray-50 border  border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                                       />
                                     </td>
                                     <td className="p-2">
@@ -317,7 +317,7 @@ export default function View(props: QuotationId) {
                                         type="text"
                                         name={`quotation_items[${index}].description`}
                                         disabled={!isEditable}
-                                        className="bg-gray-50 border border-gray-300 dark:bg-gray-dark dark:text-white text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                                       />
                                     </td>
                                     <td className="p-2">
@@ -325,7 +325,7 @@ export default function View(props: QuotationId) {
                                         type="number"
                                         name={`quotation_items[${index}].srp`}
                                         disabled={!isEditable}
-                                        className="bg-gray-50 border border-gray-300 dark:bg-gray-dark dark:text-white text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                                       />
                                     </td>
                                     <td className="p-2">
@@ -333,7 +333,7 @@ export default function View(props: QuotationId) {
                                         type="number"
                                         name={`quotation_items[${index}].quantity`}
                                         disabled={!isEditable}
-                                        className="bg-gray-50 border border-gray-300 dark:bg-gray-dark dark:text-white text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                                         onChange={(e) => {
                                           const quantity = parseFloat(
                                             e.target.value
@@ -359,7 +359,7 @@ export default function View(props: QuotationId) {
                                         type="number"
                                         name={`quotation_items[${index}].total`}
                                         readOnly
-                                        className="bg-gray-50 border border-gray-300 dark:bg-gray-dark dark:text-white text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                                       />
                                     </td>
                                     <td className="p-2">
@@ -412,7 +412,7 @@ export default function View(props: QuotationId) {
                             type="number"
                             name="discount"
                             disabled={!isEditable}
-                            className="bg-gray-50 border border-gray-300 dark:bg-gray-dark dark:text-white text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                            className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                             onChange={(e) => {
                               const discount = parseFloat(e.target.value) || 0;
                               setFieldValue("discount", discount);
@@ -427,7 +427,7 @@ export default function View(props: QuotationId) {
                             type="number"
                             name="vat_value"
                             disabled={!isEditable}
-                            className="bg-gray-50 border border-gray-300 dark:bg-gray-dark dark:text-white text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                            className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                             onChange={(e) => {
                               const vat = parseFloat(e.target.value);
                               setFieldValue("vat", vat);
@@ -442,7 +442,7 @@ export default function View(props: QuotationId) {
                             type="number"
                             value={totalExpenses}
                             readOnly
-                            className="bg-gray-200 p-2 rounded-md w-full dark:bg-gray-dark dark:text-white dark:border border-white "
+                            className="bg-gray-200 p-2 rounded-md w-full"
                           />
                         </div>
 
@@ -456,7 +456,7 @@ export default function View(props: QuotationId) {
                               return totalExpenses * vat;
                             })()}
                             readOnly
-                            className="bg-gray-200 p-2 rounded-md w-full dark:bg-gray-dark dark:text-white dark:border border-white "
+                            className="bg-gray-200 p-2 rounded-md w-full"
                           />
                         </div>
                       </div>
@@ -478,7 +478,7 @@ export default function View(props: QuotationId) {
                               return totalExpenses - discountAmount + vatAmount;
                             })()}
                             readOnly
-                            className="bg-gray-200 p-2 rounded-md w-full dark:bg-gray-dark dark:text-white dark:border border-white"
+                            className="bg-gray-200 p-2 rounded-md w-full"
                           />
                         </div>
                       </div>
@@ -491,7 +491,7 @@ export default function View(props: QuotationId) {
                         as="textarea"
                         name="notes_assumptions"
                         disabled={!isEditable}
-                        className="bg-gray-50 border border-gray-300 dark:bg-gray-dark dark:text-white text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 mt-2"
+                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 mt-2"
                         placeholder="Enter any notes or assumptions regarding this quotation"
                       />
                     </div>
@@ -503,7 +503,7 @@ export default function View(props: QuotationId) {
                         as="textarea"
                         name="terms_conditions"
                         disabled={!isEditable}
-                        className="bg-gray-50 border border-gray-300 dark:bg-gray-dark dark:text-white text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 mt-2"
+                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 mt-2"
                         placeholder="Enter terms and conditions for this quotation"
                       />
                     </div>

@@ -22,6 +22,7 @@ import { fetchRoleList } from "@/api/User/fetchRoleList";
 import { fetchItemDataById } from "@/api/product_master_list/fetchItemId";
 import { updateView, UpdateView } from "@/api/product_master_list/updateItem";
 import { fetchVendorList } from "@/api/product_master_list/fetchVendor";
+import { CiEdit } from "react-icons/ci";
 interface ProductId {
   id: number;
 }
@@ -68,25 +69,38 @@ export default function EditProduct(props: ProductId) {
   if (DisLoading) return <div>Loading...</div>;
   if (Derror instanceof Error)
     return <div>An error has occurred: {Derror.message}</div>;
-  if (isUserLoading) return <div>Loading item data...</div>;
+  // if (isUserLoading) return <div>Loading item data...</div>;
+  if (isUserLoading) {
+    return (
+      <div className="flex justify-center items-center space-x-2">
+        {/* Spinner */}
+        <div className="w-6 h-6 border-4 border-dashed border-gray-400 border-t-transparent rounded-full animate-spin dark:border-gray-200 dark:border-t-transparent"></div>
+
+        <span className="text-sm text-gray-700 dark:text-gray-300">
+          Loading...
+        </span>
+      </div>
+    );
+  }
   if (userError) return <div>Error loading item: {userError.message}</div>;
 
   return (
     <>
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-end">
         <button
-          className="btn btn-info"
           onClick={() => setShowRegisterModal(true)}
+          className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition"
         >
-          <FaCirclePlus className="w-6 h-6 btn-info" />
+          <CiEdit className="w-4 h-4" />
           Edit
         </button>
       </div>
+
       <div>
         {/* Registration Modal */}
         {showRegisterModal && (
-          <dialog open className="modal">
-            <div className="modal-box w-11/12 max-w-7xl">
+          <dialog open className="modal mt-15 backdrop-blur-sm">
+            <div className="modal-box w-11/12 max-w-7xl max-h-[80vh] overflow-y-auto dark:bg-gray-dark">
               <h3 className="font-bold text-lg">Edit</h3>
               <Formik
                 enableReinitialize
@@ -123,7 +137,7 @@ export default function EditProduct(props: ProductId) {
               >
                 {({ values }) => (
                   <Form className="py-4">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 text-start">
                       <div className="grid grid-cols-2 gap-6">
                         {[
                           {
@@ -181,7 +195,7 @@ export default function EditProduct(props: ProductId) {
                               <div key={item.name} className="mb-4">
                                 <label
                                   htmlFor={item.name}
-                                  className="block text-sm font-medium text-gray-700"
+                                  className="block text-sm font-medium "
                                 >
                                   {item.label}
                                 </label>
@@ -209,7 +223,7 @@ export default function EditProduct(props: ProductId) {
                             <div key={item.name} className="mb-4">
                               <label
                                 htmlFor={item.name}
-                                className="block text-sm font-medium text-gray-700"
+                                className="block text-sm font-medium "
                               >
                                 {item.label}
                               </label>
@@ -240,7 +254,7 @@ export default function EditProduct(props: ProductId) {
                                 type="checkbox"
                                 id="vat_exempt"
                                 name="vat_exempt"
-                                className="checkbox"
+                                className="checkbox border-gray-300 dark:border-gray-600 dark:bg-gray-800  dark:checked:bg-white"
                                 checked={field.value} // Ensures the checkbox is checked if vat_exempt is true
                                 onChange={(e) => {
                                   form.setFieldValue(
@@ -253,7 +267,7 @@ export default function EditProduct(props: ProductId) {
                           </Field>
                           <label
                             htmlFor="vat_exempt"
-                            className="text-sm font-medium text-gray-700"
+                            className="text-sm font-medium "
                           >
                             Apply VAT
                           </label>
@@ -306,7 +320,7 @@ export default function EditProduct(props: ProductId) {
                           <div key={item.name} className="mb-4">
                             <label
                               htmlFor={item.name}
-                              className="block text-sm font-medium text-gray-700"
+                              className="block text-sm font-medium "
                             >
                               {item.label}
                             </label>

@@ -36,8 +36,20 @@ export default function SelectionList() {
     queryFn: FetchLocation,
   });
 
-  if (isCategoriesLoading && isLocationLoading)
-    return <div>Loading categories and locations...</div>;
+  if (isCategoriesLoading && isLocationLoading) {
+    return (
+      <div className="p-4 flex justify-center items-center min-h-screen">
+        <div className="flex flex-col items-center space-y-4">
+          {/* Loading Spinner */}
+          <div className="w-16 h-16 border-4 border-t-4 border-gray-800 border-dashed rounded-full animate-spin"></div>
+
+          <span className="text-lg text-gray-700">
+            Loading categories and locations...
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   if (categoriesError instanceof Error)
     return (
@@ -58,7 +70,7 @@ export default function SelectionList() {
       {/* Two-column table layout */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Table 1 */}
-        <div className="bg-white p-4 rounded-lg shadow-md">
+        <div className="bg-white p-4 rounded-lg shadow-md dark:bg-gray-700 dark:text-white">
           <AddCategory />
           {isCategoriesLoading ? (
             <div>Loading categories...</div>
@@ -81,7 +93,7 @@ export default function SelectionList() {
         </div>
 
         {/* Table 2 */}
-        <div className="bg-white p-4 rounded-lg shadow-md">
+        <div className="bg-white p-4 rounded-lg shadow-md dark:bg-gray-700 dark:text-white">
           <AddLocation />
           {isLocationLoading ? (
             <div>Loading locations...</div>

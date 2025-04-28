@@ -7,6 +7,7 @@ import { updateBomId, updatebomId } from "@/api/bill_of_materials/updateBomId";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Field, Form, Formik } from "formik";
 import React, { useEffect, useState } from "react";
+import { FaPlus } from "react-icons/fa6";
 
 interface DeviceRow {
   item: string;
@@ -664,13 +665,21 @@ const AddBom = () => {
         className="btn btn-primary text-white px-6 py-2 rounded-md shadow hover:bg-blue-600"
         onClick={() => setShowEditModal(true)}
       >
+        <FaPlus />
         Add
       </button>
 
       {showEditModal && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-5xl overflow-y-auto max-h-[90vh]">
-            <h2 className="text-2xl font-semibold mb-6 text-center text-gray-800">
+        <div className="fixed inset-0 flex items-center justify-center z-50 mt-19 backdrop-blur-sm">
+          <div
+            className="absolute inset-0"
+            onClick={() => setShowEditModal(false)}
+          />
+          <div
+            className="relative z-10 bg-white p-8 rounded-lg shadow-xl w-full max-w-5xl overflow-y-auto max-h-[90vh] dark:bg-gray-dark"
+            onClick={(e) => e.stopPropagation()} // Prevent modal click from closing
+          >
+            <h2 className="text-2xl font-semibold mb-6 text-center  dark:text-white">
               Add BOM
             </h2>
             <Formik
@@ -822,121 +831,102 @@ const AddBom = () => {
               {({ values, handleChange }) => (
                 <Form>
                   <div className="grid grid-cols-2 gap-6 mb-6">
-                    {Object.keys(values).map((key, index) => (
-                      <div key={index} className="flex flex-col">
-                        <label className="text-sm font-medium text-gray-700 mb-2">
-                          {(() => {
-                            switch (key) {
-                              case "input1":
-                                return "BOM No.";
-                              case "input2":
-                                return "Date Created";
-                              case "input3":
-                                return "SIC";
-                              case "input4":
-                                return "Client";
-                              case "input5":
-                                return "Status";
-                              case "input6":
-                                return "EIC";
-                              case "input7":
-                                return "Project Name";
-                              case "input8":
-                                return "Project Site";
-                              case "input9":
-                                return "First Header";
-                              default:
-                                return `Input ${index + 1}`;
-                            }
-                          })()}
-                        </label>
+                    {Object.keys(values).map((key, index) => {
+                      const labelText = (() => {
+                        switch (key) {
+                          case "input1":
+                            return "BOM No.";
+                          case "input2":
+                            return "Date Created";
+                          case "input3":
+                            return "SIC";
+                          case "input4":
+                            return "Client";
+                          case "input5":
+                            return "Status";
+                          case "input6":
+                            return "EIC";
+                          case "input7":
+                            return "Project Name";
+                          case "input8":
+                            return "Project Site";
+                          case "input9":
+                            return "First Header";
+                          default:
+                            return `Input ${index + 1}`;
+                        }
+                      })();
 
-                        {key === "input2" ? (
-                          // 📅 Date Input
-                          <Field
-                            type="date"
-                            name={key}
-                            value={values[key]}
-                            onChange={handleChange}
-                            className="input input-bordered w-full p-3 rounded-md border border-gray-300"
-                          />
-                        ) : key === "input3" ? (
-                          // 👤 SIC Dropdown
-                          <select
-                            name={key}
-                            value={values[key]}
-                            onChange={handleChange}
-                            className="input input-bordered w-full p-3 rounded-md border border-gray-300"
-                          >
-                            <option value="">Select SIC</option>
-                            {udata?.map((user) => (
-                              <option key={user.id} value={user.id}>
-                                {user.full_name}
+                      return (
+                        <div key={key} className="flex flex-col">
+                          <label className="text-sm font-medium mb-2 dark:text-white">
+                            {labelText}
+                          </label>
+
+                          {key === "input2" ? (
+                            <Field
+                              type="date"
+                              name={key}
+                              value={values[key]}
+                              onChange={handleChange}
+                              className="input input-bordered w-full p-3 rounded-md border border-gray-300 dark:bg-gray-800 dark:text-white"
+                            />
+                          ) : ["input3", "input4", "input5", "input6"].includes(
+                              key
+                            ) ? (
+                            <select
+                              name={key}
+                              value={values[key]}
+                              onChange={handleChange}
+                              className="input input-bordered w-full  rounded-md border border-gray-300 dark:bg-gray-800 dark:text-white"
+                            >
+                              <option value="">
+                                {key === "input3"
+                                  ? "Select SIC"
+                                  : key === "input4"
+                                  ? "Select Client"
+                                  : key === "input5"
+                                  ? "Select Status"
+                                  : "Select EIC"}
                               </option>
-                            ))}
-                          </select>
-                        ) : key === "input4" ? (
-                          // 👥 Client Dropdown
-                          <select
-                            name={key}
-                            value={values[key]}
-                            onChange={handleChange}
-                            className="input input-bordered w-full p-3 rounded-md border border-gray-300"
-                          >
-                            <option value="">Select Client</option>
-                            {clientdata?.map((client) => (
-                              <option key={client.id} value={client.id}>
-                                {client.client}
-                              </option>
-                            ))}
-                          </select>
-                        ) : key === "input5" ? (
-                          // 🔄 Status Dropdown
-                          <select
-                            name={key}
-                            value={values[key]}
-                            onChange={handleChange}
-                            className="input input-bordered w-full p-3 rounded-md border border-gray-300"
-                          >
-                            <option value="">Select Status</option>
-                            <option value="Pending">Pending</option>
-                            <option value="Approved">Approved</option>
-                            <option value="Revise">Revise</option>
-                            <option value="Noted">Noted</option>
-                            <option value="Cancelled">Cancelled</option>
-                          </select>
-                        ) : key === "input6" ? (
-                          // 🧑‍💼 EIC Dropdown
-                          <select
-                            name={key}
-                            value={values[key]}
-                            onChange={handleChange}
-                            className="input input-bordered w-full p-3 rounded-md border border-gray-300"
-                          >
-                            <option value="">Select EIC</option>
-                            {udata?.map((user) => (
-                              <option key={user.id} value={user.id}>
-                                {user.full_name}
-                              </option>
-                            ))}
-                          </select>
-                        ) : (
-                          // 📝 Default Text Input (including input9 for first_header)
-                          <Field
-                            type="text"
-                            name={key}
-                            value={values[key]}
-                            onChange={handleChange}
-                            className="input input-bordered w-full p-3 rounded-md border border-gray-300"
-                            placeholder={
-                              key === "input9"
-                                ? "Enter First Header"
-                                : `Input ${index + 1}`
-                            }
-                          />
-                        )}
-                      </div>
-                    ))}
+
+                              {key === "input3" || key === "input6"
+                                ? udata?.map((user) => (
+                                    <option key={user.id} value={user.id}>
+                                      {user.full_name}
+                                    </option>
+                                  ))
+                                : key === "input4"
+                                ? clientdata?.map((client) => (
+                                    <option key={client.id} value={client.id}>
+                                      {client.client}
+                                    </option>
+                                  ))
+                                : [
+                                    "Pending",
+                                    "Approved",
+                                    "Revise",
+                                    "Noted",
+                                    "Cancelled",
+                                  ].map((status) => (
+                                    <option key={status} value={status}>
+                                      {status}
+                                    </option>
+                                  ))}
+                            </select>
+                          ) : (
+                            <Field
+                              type="text"
+                              name={key}
+                              value={values[key]}
+                              onChange={handleChange}
+                              className="input input-bordered w-full  rounded-md border border-gray-300 dark:bg-gray-800 dark:text-white"
+                              placeholder={`Enter ${labelText}`}
+                            />
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                   <button
                     type="submit"
@@ -996,8 +986,8 @@ const AddBom = () => {
                         </div>
 
                         {/* Device Table */}
-                        <table className="table-auto w-full text-sm text-left text-gray-700 border">
-                          <thead className="bg-gray-100">
+                        <table className="table-auto w-full text-sm text-left  border">
+                          <thead className="bg-gray-100 dark:bg-gray-dark dark:text-white">
                             <tr>
                               <th className="px-4 py-2">Item</th>
                               <th className="px-4 py-2">Description</th>
@@ -1022,7 +1012,7 @@ const AddBom = () => {
                                         e.target.value
                                       )
                                     }
-                                    className="w-full border p-1 rounded"
+                                    className="w-full border p-1 rounded dark:border-white dark:text-white"
                                   />
                                 </td>
                                 <td className="px-4 py-2">
@@ -1036,7 +1026,7 @@ const AddBom = () => {
                                         e.target.value
                                       )
                                     }
-                                    className="w-full border p-1 rounded"
+                                    className="w-full border p-1 rounded dark:border-white dark:text-white"
                                   />
                                 </td>
                                 <td className="px-4 py-2">
@@ -1060,7 +1050,7 @@ const AddBom = () => {
                                         updatedTotalAmount
                                       ); // Update the total_amount field
                                     }}
-                                    className="w-full border p-1 rounded"
+                                    className="w-full border p-1 rounded dark:border-white dark:text-white"
                                   />
                                 </td>
                                 <td className="px-4 py-2">
@@ -1074,7 +1064,7 @@ const AddBom = () => {
                                         e.target.value
                                       )
                                     }
-                                    className="w-full border p-1 rounded"
+                                    className="w-full border p-1 rounded dark:border-white dark:text-white"
                                   />
                                 </td>
                                 <td className="px-4 py-2">
@@ -1094,7 +1084,7 @@ const AddBom = () => {
                                         updatedTotalAmount
                                       ); // Update total_amount
                                     }}
-                                    className="w-full border p-1 rounded"
+                                    className="w-full border p-1 rounded dark:border-white dark:text-white"
                                   />
                                 </td>
                                 <td className="px-4 py-2">
@@ -1106,7 +1096,7 @@ const AddBom = () => {
                                       // Optionally: Recalculate quantity or srp based on the total amount
                                     }}
                                     readOnly // Optional: Make it readonly or editable depending on your requirements
-                                    className="w-full border p-1 rounded bg-gray-100 text-gray-700"
+                                    className="w-full border p-1 rounded bg-gray-100 dark:bg-gray-dark dark:text-white"
                                   />
                                 </td>
 
@@ -1125,7 +1115,7 @@ const AddBom = () => {
                         {newHeaders.map((header, headerIndex) => (
                           <tr key={headerIndex}>
                             <td colSpan={6}>
-                              <div className="border p-4 bg-gray-50 rounded space-y-4 mt-4">
+                              <div className="border p-4 bg-gray-50 rounded space-y-4 mt-4 dark:bg-gray-dark">
                                 <input
                                   type="text"
                                   placeholder="Header Title"
@@ -1136,13 +1126,13 @@ const AddBom = () => {
                                       e.target.value
                                     )
                                   }
-                                  className="w-full p-2 border rounded"
+                                  className="w-full p-2 border rounded dark:text-white"
                                 />
 
                                 {header.rows.map((row, rowIndex) => (
                                   <div
                                     key={rowIndex}
-                                    className="grid grid-cols-6 gap-2"
+                                    className="grid grid-cols-6 gap-2 dark:text-white"
                                   >
                                     {[
                                       "item",
@@ -1193,18 +1183,18 @@ const AddBom = () => {
                                   </button>
 
                                   <div className="space-x-2 flex items-center">
-                                    <span className="text-sm font-semibold text-gray-700">
+                                    <span className="text-sm font-semibold dark:text-white">
                                       Subtotal: $
                                       {getNewHeaderSubtotal(
                                         header.rows
                                       ).toFixed(2)}
                                     </span>
-                                    <button
+                                    {/* <button
                                       className="bg-blue-600 text-white px-4 py-2 rounded"
                                       onClick={() => saveNewHeader(headerIndex)}
                                     >
                                       Save Header
-                                    </button>
+                                    </button> */}
                                     <button
                                       className="bg-gray-500 text-white px-4 py-2 rounded"
                                       onClick={() =>
@@ -1221,7 +1211,7 @@ const AddBom = () => {
                         ))}
                       </div>
 
-                      <div className="text-right text-xl font-bold mt-6">
+                      <div className="text-right text-xl font-bold mt-6 dark:text-white">
                         Total Amount: ${getTotalAmountIncludingNew().toFixed(2)}
                       </div>
                     </>
@@ -1258,8 +1248,8 @@ const AddBom = () => {
                         </div>
 
                         {/* Device Table */}
-                        <table className="table-auto w-full text-sm text-left text-gray-700 border">
-                          <thead className="bg-gray-100">
+                        <table className="table-auto w-full text-sm text-left  border">
+                          <thead className="bg-gray-100 dark:bg-gray-dark dark:text-white">
                             <tr>
                               <th className="px-4 py-2">Item2</th>
                               <th className="px-4 py-2">Description</th>
@@ -1294,7 +1284,7 @@ const AddBom = () => {
                         {newHeaders2.map((header, headerIndex) => (
                           <tr key={headerIndex}>
                             <td colSpan={6}>
-                              <div className="border p-4 bg-gray-50 rounded space-y-4 mt-4">
+                              <div className="border p-4 bg-gray-50 rounded space-y-4 mt-4 dark:text-white dark:bg-gray-dark">
                                 <label htmlFor="">header title</label>
                                 <input
                                   type="text"
@@ -1328,7 +1318,7 @@ const AddBom = () => {
                                       { key: "srp", label: "SRP" },
                                     ].map(({ key, label }) => (
                                       <div key={key} className="flex flex-col">
-                                        <label className="text-xs text-gray-600 mb-1">
+                                        <label className="text-xs  mb-1">
                                           {label}
                                         </label>
                                         <input
@@ -1375,20 +1365,20 @@ const AddBom = () => {
                                   </button>
 
                                   <div className="space-x-2 flex items-center">
-                                    <span className="text-sm font-semibold text-gray-700">
+                                    <span className="text-sm font-semibold ">
                                       Subtotal: $
                                       {getNewHeaderSubtotal2(
                                         header.rows
                                       ).toFixed(2)}
                                     </span>
-                                    <button
+                                    {/* <button
                                       className="bg-blue-600 text-white px-4 py-2 rounded"
                                       onClick={() =>
                                         saveNewHeader2(headerIndex)
                                       }
                                     >
                                       Save Header
-                                    </button>
+                                    </button> */}
                                     <button
                                       className="bg-gray-500 text-white px-4 py-2 rounded"
                                       onClick={() =>
@@ -1442,8 +1432,8 @@ const AddBom = () => {
                         </div>
 
                         {/* Device Table */}
-                        <table className="table-auto w-full text-sm text-left text-gray-700 border">
-                          <thead className="bg-gray-100">
+                        <table className="table-auto w-full text-sm text-left  border">
+                          <thead className="bg-gray-100 dark:bg-gray-dark dark:text-white">
                             <tr>
                               <th className="px-4 py-2">Item3</th>
                               <th className="px-4 py-2">Description</th>
@@ -1456,7 +1446,7 @@ const AddBom = () => {
                           </thead>
                           <tbody>
                             {deviceRows3.map((row, index) => (
-                              <tr key={index}>
+                              <tr key={index} className="dark:text-white ">
                                 <td className="px-4 py-2">
                                   <input
                                     type="text"
@@ -1544,7 +1534,7 @@ const AddBom = () => {
                                     type="text"
                                     value={row.amount}
                                     readOnly
-                                    className="w-full border p-1 rounded bg-gray-100 text-gray-700"
+                                    className="w-full border p-1 rounded bg-gray-100 dark:bg-gray-dark "
                                   />
                                 </td>
                                 <td className="px-4 py-2">
@@ -1564,7 +1554,7 @@ const AddBom = () => {
                         {newHeaders3.map((header, headerIndex) => (
                           <div
                             key={headerIndex}
-                            className="border p-4 bg-gray-50 rounded space-y-4 mt-4"
+                            className="border p-4 bg-gray-50 rounded space-y-4 mt-4 dark:bg-gray-dark dark:text-white"
                           >
                             <input
                               type="text"
@@ -1630,7 +1620,7 @@ const AddBom = () => {
                               </button>
 
                               <div className="space-x-2 flex items-center">
-                                <span className="text-sm font-semibold text-gray-700">
+                                <span className="text-sm font-semibold">
                                   Subtotal: $
                                   {getNewHeaderSubtotal3(header.rows).toFixed(
                                     2
@@ -1653,13 +1643,13 @@ const AddBom = () => {
                           </div>
                         ))}
                       </div>
-                      <div className="text-right text-xl font-bold mt-6">
+                      <div className="text-right text-xl font-bold mt-6 dark:text-white">
                         Total Amount: $
                         {getTotalAmountIncludingNew3().toFixed(2)}
                       </div>
                     </>
                   )}
-                  Unit Price{" "}
+                  {/* Unit Price{" "} */}
                   {activeNav === 4 && (
                     <>
                       <div className="space-y-6">
@@ -1693,8 +1683,8 @@ const AddBom = () => {
 
                         {/* Device Table */}
                         <div className="overflow-x-auto">
-                          <table className="table-auto w-full text-sm text-left text-gray-700 border">
-                            <thead className="bg-gray-100">
+                          <table className="table-auto w-full text-sm text-left border">
+                            <thead className="bg-gray-100 dark:bg-gray-dark dark:text-white">
                               <tr>
                                 <th className="px-4 py-2">Item4</th>
                                 <th className="px-4 py-2">Description</th>
@@ -1708,7 +1698,7 @@ const AddBom = () => {
                               {deviceRows4.map((row, index) => (
                                 <React.Fragment key={index}>
                                   {/* Main Row */}
-                                  <tr>
+                                  <tr className="dark:text-white">
                                     <td className="px-4 py-2">
                                       <input
                                         type="text"
@@ -1792,7 +1782,7 @@ const AddBom = () => {
                                         type="text"
                                         value={row.amount}
                                         readOnly
-                                        className="w-full border p-1 rounded bg-gray-100 text-gray-700"
+                                        className="w-full border p-1 rounded bg-gray-100 dark:bg-gray-dark"
                                       />
                                     </td>
                                     <td className="px-4 py-2">
@@ -1819,7 +1809,10 @@ const AddBom = () => {
 
                                   {/* Subrows (if any) */}
                                   {row.subrows?.map((subrow, subIndex) => (
-                                    <tr key={subIndex}>
+                                    <tr
+                                      key={subIndex}
+                                      className="dark:text-white"
+                                    >
                                       <td className="px-4 py-2 pl-10">
                                         {" "}
                                         {/* Indentation for subrow */}
@@ -1907,7 +1900,7 @@ const AddBom = () => {
                                               amount
                                             );
                                           }}
-                                          className="w-full border p-1 rounded"
+                                          className="w-full border p-1 rounded "
                                         />
                                       </td>
                                       <td className="px-4 py-2">
@@ -1915,7 +1908,7 @@ const AddBom = () => {
                                           type="text"
                                           value={subrow.amount}
                                           readOnly
-                                          className="w-full border p-1 rounded bg-gray-100 text-gray-700"
+                                          className="w-full border p-1 rounded bg-gray-100 dark:bg-gray-dark"
                                         />
                                       </td>
                                       <td className="px-4 py-2">
@@ -1937,7 +1930,7 @@ const AddBom = () => {
                           </table>
                         </div>
 
-                        <div className="text-right text-xl font-bold mt-6">
+                        <div className="text-right text-xl font-bold mt-6 dark:text-white">
                           Total Amount: $
                           {getTotalAmountIncludingNew4().toFixed(2)}
                         </div>

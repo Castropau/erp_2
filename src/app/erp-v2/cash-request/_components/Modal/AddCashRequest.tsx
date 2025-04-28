@@ -89,8 +89,8 @@ export default function AddCashRequest() {
       </div>
 
       {showRegisterModal && (
-        <dialog open className="modal">
-          <div className="modal-box w-11/12 max-w-7xl">
+        <dialog open className="modal mt-15 backdrop-blur-sm">
+          <div className="modal-box w-11/12 max-w-7xl max-h-[80vh] overflow-y-auto dark:bg-gray-dark dark:text-white">
             <h3 className="font-bold text-lg">Create New Purchase Request</h3>
 
             <Formik
@@ -203,7 +203,7 @@ export default function AddCashRequest() {
                       <div key={item.name} className="mb-4 col-span-2">
                         <label
                           htmlFor={item.name}
-                          className="block text-sm font-medium text-gray-700"
+                          className="block text-sm font-medium"
                         >
                           {item.label}
                         </label>
@@ -309,7 +309,7 @@ export default function AddCashRequest() {
                                               type="text"
                                               name={`cash_requisition_items[${index}].item`}
                                               list={`ItemList-${index}`}
-                                              className="w-full p-2 border"
+                                              className="w-full p-2 dark:border border-white"
                                               placeholder="Search or type user"
                                               value={item.item}
                                               onChange={(e) =>
@@ -350,7 +350,7 @@ export default function AddCashRequest() {
                                         <Field
                                           as="select"
                                           name={`cash_requisition_items[${index}].unit_of_measurement`}
-                                          className="w-full p-2 border"
+                                          className="w-full p-2 border dark:bg-gray-dark"
                                           required
                                         >
                                           <option value="">Select unit</option>

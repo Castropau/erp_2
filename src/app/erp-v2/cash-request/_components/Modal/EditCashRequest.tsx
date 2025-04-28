@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { FaCirclePlus } from "react-icons/fa6";
+import { FaCirclePlus, FaEye } from "react-icons/fa6";
 import { Formik, Field, Form, FieldArray } from "formik";
 import { registerUser } from "@/api/User/registerUser";
 import { RegisterEmployee } from "@/interfaces/RegisterEmployee";
@@ -93,23 +93,34 @@ export default function EditCashRequest(props: CashId) {
     updatedUserCash(values); // Submit the form data when submitted
     console.log(values);
   };
-  if (isPending) return <div className="div">loading..</div>;
+  if (isPending) {
+    return (
+      <div className="flex justify-center items-center space-x-2">
+        {/* Spinner */}
+        <div className="w-6 h-6 border-4 border-dashed border-gray-400 border-t-transparent rounded-full animate-spin dark:border-gray-200 dark:border-t-transparent"></div>
+
+        <span className="text-sm text-gray-700 dark:text-gray-300">
+          Loading...
+        </span>
+      </div>
+    );
+  }
 
   return (
     <>
       <div className="flex justify-end">
         <button
-          className="btn btn-info"
           onClick={() => setShowRegisterModal(true)}
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow transition duration-200"
         >
-          <FaCirclePlus className="w-6 h-5 btn-info" />
-          View
+          <FaEye className="w-5 h-5" />
+          <span>View</span>
         </button>
       </div>
 
       {showRegisterModal && (
-        <dialog open className="modal">
-          <div className="modal-box w-11/12 max-w-7xl">
+        <dialog open className="modal mt-5 backdrop-blur-sm">
+          <div className="modal-box w-11/12 max-w-7xl max-h-[80vh] overflow-y-auto dark:bg-gray-dark ">
             <h3 className="font-bold text-lg">Detail</h3>
 
             <Formik
@@ -185,7 +196,7 @@ export default function EditCashRequest(props: CashId) {
             >
               {({ values, setFieldValue }) => (
                 <Form className="py-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ">
                     {/* Heading for Special Information */}
                     {[
                       {
@@ -249,7 +260,7 @@ export default function EditCashRequest(props: CashId) {
                       <div key={item.name} className="mb-4 col-span-2">
                         <label
                           htmlFor={item.name}
-                          className="block text-sm font-medium text-gray-700"
+                          className="block text-sm font-medium"
                         >
                           {item.label}
                         </label>
@@ -330,7 +341,7 @@ export default function EditCashRequest(props: CashId) {
                               className="w-full table-auto border-collapse text-sm"
                               style={{ width: "200%" }}
                             >
-                              <thead>
+                              <thead className="dark:text-white">
                                 <tr>
                                   <th className="border p-2">Item</th>
                                   <th className="border p-2">Quantity</th>
@@ -399,7 +410,7 @@ export default function EditCashRequest(props: CashId) {
                                         <Field
                                           as="select"
                                           name={`cash_requisition_items[${index}].unit_of_measurement`}
-                                          className="w-full p-2 border"
+                                          className="w-full p-2 border dark:bg-gray-dark"
                                           required
                                         >
                                           <option value="">Select unit</option>

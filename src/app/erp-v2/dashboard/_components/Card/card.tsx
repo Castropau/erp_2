@@ -37,7 +37,7 @@ export default function DashboardCard(props: CardProps) {
 
   return (
     <div
-      className={`p-6 rounded-lg shadow-lg ${categoryClass} hover:transform hover:translate-y-2 hover:shadow-xl transition-all duration-300`}
+      className={`p-6 rounded-lg shadow-lg ${categoryClass} hover:transform hover:translate-y-2 hover:shadow-xl transition-all duration-300 dark:bg-gray-900`}
     >
       <div className="flex justify-between items-center mb-3">
         <h1 className="text-xl font-semibold">{title}</h1>

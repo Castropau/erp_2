@@ -80,15 +80,15 @@ export default function AddQuotations() {
           className="btn btn-info"
           onClick={() => setShowRegisterModal(true)}
         >
-          <CiCirclePlus className="w-6 h-6 btn-info" />
+          <FaCirclePlus className="w-6 h-6 btn-info" />
           Add Quotations
         </button>
       </div>
 
       {/* Registration Modal */}
       {showRegisterModal && (
-        <dialog open className="modal">
-          <div className="modal-box w-11/12 max-w-7xl">
+        <dialog open className="modal backdrop-blur-sm mt-15">
+          <div className="modal-box w-11/12 max-w-7xl max-h-[80vh] overflow-y-auto dark:bg-gray-dark">
             <h3 className="font-bold text-lg">Create New Quotations</h3>
             <Formik
               initialValues={{
@@ -184,14 +184,14 @@ export default function AddQuotations() {
                       },
                     ].map((item) => (
                       <div key={item.name}>
-                        <label className="block mb-2 text-sm font-medium text-gray-700">
+                        <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-white">
                           {item.label}
                         </label>
                         <Field
                           type={item.type}
                           name={item.name}
                           placeholder={item.placeholder}
-                          className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                          className="bg-gray-50 border dark:placeholder:text-white dark:bg-gray-dark dark:text-white border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                           required
                         />
                       </div>
@@ -199,13 +199,13 @@ export default function AddQuotations() {
 
                     {/* Dropdown for Project Selection */}
                     <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-white">
                         Company
                       </label>
                       <Field
                         as="select"
                         name="project"
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 dark:bg-gray-dark"
                         onChange={(e) => {
                           const projectId = e.target.value;
                           setSelectedProject(projectId); // Set selected project
@@ -325,7 +325,7 @@ export default function AddQuotations() {
                                       <Field
                                         as="select"
                                         name={`quotation_items[${index}].item`} // Name it as client
-                                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                        className="bg-gray-50 border dark:bg-gray-dark dark:text-white border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                                         onChange={(e) => {
                                           const selectedItemId = e.target.value;
                                           setFieldValue(
@@ -379,7 +379,7 @@ export default function AddQuotations() {
                                       <Field
                                         type="text"
                                         name={`quotation_items[${index}].description`}
-                                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                        className="bg-gray-50 dark:bg-gray-dark dark:text-white border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                                         readOnly
                                       />
                                     </td>
@@ -388,7 +388,7 @@ export default function AddQuotations() {
                                       <Field
                                         type="number"
                                         name={`quotation_items[${index}].srp`}
-                                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                        className="bg-gray-50 dark:bg-gray-dark dark:text-white border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                                         // Allow user to edit SRP
                                         onChange={(e) => {
                                           const srp = parseFloat(
@@ -417,7 +417,7 @@ export default function AddQuotations() {
                                       <Field
                                         type="number"
                                         name={`quotation_items[${index}].quantity`}
-                                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                        className="bg-gray-50 dark:bg-gray-dark dark:text-white border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                                         onChange={(e) => {
                                           const quantity = parseFloat(
                                             e.target.value
@@ -445,7 +445,7 @@ export default function AddQuotations() {
                                         type="number"
                                         name={`quotation_items[${index}].total`}
                                         readOnly
-                                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                                        className="bg-gray-50 dark:bg-gray-dark dark:text-white border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                                       />
                                     </td>
 
@@ -495,7 +495,7 @@ export default function AddQuotations() {
                           <Field
                             type="number"
                             name="discount"
-                            className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                            className="bg-gray-50 dark:bg-gray-dark dark:text-white border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                             onChange={(e) => {
                               const discount = parseFloat(e.target.value) || 0;
                               setFieldValue("discount", discount);
@@ -509,7 +509,7 @@ export default function AddQuotations() {
                           <Field
                             type="number"
                             name="vat"
-                            className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                            className="bg-gray-50 dark:bg-gray-dark dark:text-white border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                             onChange={(e) => {
                               const vat = parseFloat(e.target.value);
                               setFieldValue("vat", vat);
@@ -524,7 +524,7 @@ export default function AddQuotations() {
                             type="number"
                             value={totalExpenses}
                             readOnly
-                            className="bg-gray-200 p-2 rounded-md w-full"
+                            className="bg-gray-200 border border-white dark:bg-gray-dark dark:text-white p-2 rounded-md w-full"
                           />
                         </div>
 
@@ -538,7 +538,7 @@ export default function AddQuotations() {
                               return totalExpenses * vat;
                             })()}
                             readOnly
-                            className="bg-gray-200 p-2 rounded-md w-full"
+                            className="bg-gray-200 border border-white dark:bg-gray-dark dark:text-white p-2 rounded-md w-full"
                           />
                         </div>
                       </div>
@@ -560,7 +560,7 @@ export default function AddQuotations() {
                               return totalExpenses - discountAmount + vatAmount;
                             })()}
                             readOnly
-                            className="bg-gray-200 p-2 rounded-md w-full"
+                            className="bg-gray-200 border border-white dark:bg-gray-dark dark:text-white p-2 rounded-md w-full"
                           />
                         </div>
                       </div>
@@ -571,7 +571,7 @@ export default function AddQuotations() {
                       <Field
                         as="textarea"
                         name="notes_assumptions"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 mt-2"
+                        className="bg-gray-50 dark:bg-gray-dark dark:text-white border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 mt-2"
                         placeholder="Enter any notes or assumptions regarding this quotation"
                       />
                     </div>
@@ -582,7 +582,7 @@ export default function AddQuotations() {
                       <Field
                         as="textarea"
                         name="terms_conditions"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 mt-2"
+                        className="bg-gray-50 dark:bg-gray-dark dark:text-white border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 mt-2"
                         placeholder="Enter terms and conditions for this quotation"
                       />
                     </div>
