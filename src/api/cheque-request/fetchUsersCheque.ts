@@ -1,5 +1,6 @@
 /** server actions */
-import { getCookies } from "@/server/getToken";
+// import { getCookies } from "@/server/getToken";
+import { api } from "../api";
 
 interface Users {
   id: number; // id as an integer
@@ -11,17 +12,29 @@ interface Users {
 }
 
 export async function fetchUserLists(): Promise<Users[]> {
-  const token = await getCookies("token");
-  const response = await fetch("http://192.168.0.249:8001/api/v1/users/", {
-    headers: {
-      Authorization: `Bearer ${token?.value}`,
-    },
-  });
-  if (!response.ok) {
-    throw new Error("Network response was not ok");
+//   const token = await getCookies("token");
+//   const response = await fetch(`${process.env.baseUrl}/api/v1/users/`, {
+//     headers: {
+//       Authorization: `Bearer ${token?.value}`,
+//     },
+//   });
+//   if (!response.ok) {
+//     throw new Error("Network response was not ok");
+//   }
+//   return response.json();
+// }
+
+  try {
+    const response = await api.get<Users[]>("/api/v1/users/", {
+      // headers: {
+      //   Authorization: `Bearer ${token?.value}`,
+      // },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch cash list:", error);
+    throw new Error("Failed to fetch cash list");
   }
-  return response.json();
 }
-
-
 

@@ -1,7 +1,8 @@
 /** server actions */
-import { getCookies } from "@/server/getToken";
+// import { getCookies } from "@/server/getToken";
+import { api } from "../api";
 
-export interface Client {
+export interface Clientss {
   id: number; // id as an integer
   client: string;
   address: string;
@@ -13,17 +14,30 @@ export interface Client {
   
 }
 
-export async function fetchClientsList(): Promise<Client[]> {
-  const token = await getCookies("token");
-  const response = await fetch("http://192.168.0.249:8001/api/v1/clients/", {
-    headers: {
-      Authorization: `Bearer ${token?.value}`,
-    },
-  });
-  if (!response.ok) {
-    throw new Error("Network response was not ok");
+export async function fetchClientsList(): Promise<Clientss[]> {
+//   const token = await getCookies("token");
+//   const response = await fetch(`${process.env.baseUrl}/api/v1/clients/`, {
+//     headers: {
+//       Authorization: `Bearer ${token?.value}`,
+//     },
+//   });
+//   if (!response.ok) {
+//     throw new Error("Network response was not ok");
+//   }
+//   return response.json();
+// }
+try {
+    const response = await api.get<Clientss[]>("/api/v1/clients/", {
+      // headers: {
+      //   Authorization: `Bearer ${token?.value}`,
+      // },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch BOM list:", error);
+    throw new Error("Failed to fetch BOM list");
   }
-  return response.json();
 }
 
 // const sampleData: Pick<DepartmentsList, 'department'> = {

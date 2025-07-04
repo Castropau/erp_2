@@ -21,13 +21,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Field, Form, Formik } from "formik";
 import Link from "next/link";
 import AddItem from "../../cheque-request/_components/Modal/AddItem";
-import { IoMdArrowBack } from "react-icons/io";
+// import { IoMdArrowBack } from "react-icons/io";
 
-interface PageProps {}
-
-function Page(props: PageProps) {
+function Page() {
   const queryClient = useQueryClient();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<any | null>(null);
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
@@ -40,7 +38,7 @@ function Page(props: PageProps) {
 
   const {
     isLoading: isItemsLoading,
-    error: itemsError,
+    // error: itemsError,
     data: itemsData,
   } = useQuery({
     queryKey: ["items"],
@@ -49,7 +47,7 @@ function Page(props: PageProps) {
 
   const {
     isLoading: isUnitsLoading,
-    error: UnitsError,
+    // error: UnitsError,
     data: unitsData,
   } = useQuery({
     queryKey: ["units"],
@@ -136,11 +134,12 @@ function Page(props: PageProps) {
   });
 
   return (
-    <div className="p-4 sm:ml-64">
+    <div className="p-4">
       <div className="ml-auto">
         <Link href="/erp-v2/cash-request">
-          <button className="btn btn-info">
-            <IoMdArrowBack />
+          <button className="btn uppercase text-black">
+            {/* // className="btn bg-white mb-2 text-black border border-black uppercase"> */}
+            {/* <IoMdArrowBack /> */}
             Back to Cash Request
           </button>
         </Link>
@@ -148,7 +147,7 @@ function Page(props: PageProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Item Table */}
-        <div className="p-4 rounded-lg shadow-md bg-gray-600">
+        <div className="p-4">
           <AddItem />
           {isItemsLoading ? (
             <div>Loading items...</div>
@@ -158,7 +157,7 @@ function Page(props: PageProps) {
                 {/* Search Input */}
                 <input
                   type="search"
-                  className="text-white w-full py-2 pl-10 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
+                  className="text-black placeholder-gray-500 bg-white w-full py-2 pl-10 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
                   placeholder="Search item"
                   value={searchTerm}
                   onChange={(e) => {
@@ -186,20 +185,20 @@ function Page(props: PageProps) {
                   </g>
                 </svg>
               </label>
-              <table className="min-w-full table-auto border-collapse">
-                <thead>
-                  <tr className="text-blue-500">
-                    <th className="p-2 text-left">Item</th>
-                    <th className="p-2 text-left">Actions</th>
+              <table className="table-xs table-zebra w-full  rounded-lg shadow-lg">
+                <thead className="bg-white text-black  border-b-gray-400">
+                  <tr className="text-sm font-medium text-center uppercase">
+                    <th className="p-2 text-center uppercase">Item</th>
+                    <th className="p-2 text-center uppercase">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {currentItemsRows?.map((item) => (
-                    <tr key={item.id} className="border-b text-white">
-                      <td className="p-2">{item.item}</td>
-                      <td className="p-2">
+                    <tr key={item.id} className=" text-black dark:text-white">
+                      <td className="p-2 text-center">{item.item}</td>
+                      <td className="text-xs flex gap-2 justify-center">
                         <button
-                          className="btn btn-primary mr-2"
+                          className="text-blue-600 hover:cursor-pointer hover:underline hover:text-blue-700 text-xs uppercase font-medium"
                           onClick={() => {
                             setSelectedItem(item);
                             setIsItemModalOpen(true);
@@ -208,7 +207,7 @@ function Page(props: PageProps) {
                           Edit
                         </button>
                         <button
-                          className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-md"
+                          className="hover:underline hover:cursor-pointer flex items-center gap-1   text-red-700 px-3 py-1.5  text-xs  transition duration-200 uppercase"
                           onClick={() => {
                             const confirmDelete = window.confirm(
                               "Are you sure you want to delete this item?"
@@ -247,7 +246,7 @@ function Page(props: PageProps) {
         </div>
 
         {/* Location Table */}
-        <div className="bg-gray-600 p-4 rounded-lg shadow-md">
+        <div className="p-4 rounded-lg ">
           <AddUnit />
           {isUnitsLoading ? (
             <div>Loading locations...</div>
@@ -257,8 +256,8 @@ function Page(props: PageProps) {
                 {/* Search Input */}
                 <input
                   type="search"
-                  className="text-white w-full py-2 pl-10 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
-                  placeholder="Search location"
+                  className="text-black placeholder-gray-500 bg-white w-full py-2 pl-10 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
+                  placeholder="Search unit"
                   value={searchTermLocation}
                   onChange={(e) => {
                     setSearchTermLocation(e.target.value);
@@ -286,20 +285,26 @@ function Page(props: PageProps) {
                   </g>
                 </svg>
               </label>
-              <table className="min-w-full table-auto border-collapse">
-                <thead>
-                  <tr className="text-blue-500">
-                    <th className="p-2 text-left">Location</th>
-                    <th className="p-2 text-left">Actions</th>
+              <table className="table-xs table-zebra w-full  rounded-lg shadow-lg">
+                <thead className="bg-white text-black  border-b-gray-400">
+                  <tr className="text-sm font-medium text-center uppercase">
+                    <th className="p-2 text-center uppercase">Location</th>
+                    <th className="p-2 text-center uppercase">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {currentUnitsRows?.map((location) => (
-                    <tr key={location.id} className="border-b text-white">
-                      <td className="p-2">{location.unit_of_measurement}</td>
-                      <td className="p-2">
+                    <tr
+                      key={location.id}
+                      className=" text-black dark:text-white"
+                    >
+                      <td className="p-2 text-center uppercase">
+                        {location.unit_of_measurement}
+                      </td>
+                      <td className="text-xs flex gap-2 justify-center">
                         <button
-                          className="btn btn-primary mr-2"
+                          className="text-blue-800 hover:cursor-pointer hover:underline hover:text-blue-700 text-xs uppercase font-medium"
+                          // className="hover:underline hover:cursor-pointer flex items-center gap-2   text-blue-800  px-4 py-2 transition duration-200 uppercase"
                           onClick={() => {
                             setSelectedLocation(location);
                             setIsLocationModalOpen(true);
@@ -308,7 +313,7 @@ function Page(props: PageProps) {
                           Edit
                         </button>
                         <button
-                          className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-md"
+                          className="hover:underline hover:cursor-pointer flex items-center gap-1   text-red-700 px-3 py-1.5  text-xs  transition duration-200 uppercase"
                           onClick={() => {
                             const confirmDelete = window.confirm(
                               "Are you sure you want to delete this location?"
@@ -377,7 +382,7 @@ function Page(props: PageProps) {
                 <div className="flex justify-between">
                   <button
                     type="button"
-                    className="btn btn-secondary"
+                    className="btn btn-secondary mr-1"
                     onClick={() => setIsItemModalOpen(false)}
                   >
                     Close
@@ -427,7 +432,7 @@ function Page(props: PageProps) {
                 <div className="flex justify-between">
                   <button
                     type="button"
-                    className="btn btn-secondary"
+                    className="btn btn-secondary mr-1"
                     onClick={() => setIsLocationModalOpen(false)}
                   >
                     Close

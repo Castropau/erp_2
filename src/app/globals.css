@@ -185,3 +185,76 @@ body {
   --z-index-99999: 99999;
   --z-index-999999: 999999;
 }
+@layer utilities {
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+}
+
+.table {
+  width: 100%;
+  table-layout: fixed;
+}
+@keyframes walk-cycle {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: -612px 0;
+  } /* 102px × 6 frames */
+}
+
+/* Sprite container */
+.sprite-walk {
+  width: 102px; /* width of one frame */
+  height: 148px; /* height of sprite */
+  background-repeat: no-repeat;
+  image-rendering: crisp-edges;
+}
+
+/* Walking to the right */
+.sprite-walk--right {
+  background-image: url("https://atomicrobotdesign.com/blog_media/css-sprite/walk-right.png");
+  animation: walk-cycle 0.9s steps(6) infinite;
+}
+
+/* Walking to the left */
+.sprite-walk--left {
+  background-image: url("https://atomicrobotdesign.com/blog_media/css-sprite/walk-left.png");
+  animation: walk-cycle 0.9s steps(6) infinite;
+  transform: scaleX(-1); /* Mirror if needed */
+}
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: white; /* Optional: background while loading */
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.fade-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: fadeinout 4s ease-in-out infinite;
+  opacity: 0;
+}
+
+@keyframes fadeinout {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}

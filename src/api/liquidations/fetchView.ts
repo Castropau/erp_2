@@ -1,5 +1,6 @@
 
-import { getCookies } from "@/server/getToken";
+// import { getCookies } from "@/server/getToken";
+import { api } from "../api";
 
 
 interface Photos{
@@ -15,6 +16,7 @@ interface TaskNotes{
 
 
 interface Notes{
+    order: string;
     id: number,
     items:  TaskNotes[],
     description: string,
@@ -50,8 +52,9 @@ interface ReceivedBy{
     contact_number: string,
 }
 export interface FetchLiqId {
-    id: number | string,
-    liquidation_no: string,
+    liquidation_no: string;
+    // id: number | string,
+    // liquidation_no: string,
     date_created: string,
     photos: Photos,
     task_notes: Notes[],
@@ -65,22 +68,34 @@ export interface FetchLiqId {
     cash_requisition: string,
 }
 
-export async function fetchLiquidationDataById(id: number): Promise<FetchLiqId> {
-  const token = await getCookies("token");
-  const response = await fetch(
-    `http://192.168.0.249:8001/api/v1/liquidations/${id}/`,
-    {
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
-      },
-    }
-  );
-  if (!response.ok) {
-    throw new Error("Network response was not ok");
-  }
-  return response.json();
-}
+export async function fetchLiquidationDataById(id: number | string): Promise<FetchLiqId> {
+//   const token = await getCookies("token");
+//   const response = await fetch(
+//     `${process.env.baseUrl}/api/v1/liquidations/${id}/`,
+//     {
+//       headers: {
+//         Authorization: `Bearer ${token?.value}`,
+//       },
+//     }
+//   );
+//   if (!response.ok) {
+//     throw new Error("Network response was not ok");
+//   }
+//   return response.json();
+// }
+try {
+    const response = await api.get<FetchLiqId>(`/api/v1/liquidations/${id}/`, {
+    //   headers: {
+    //     Authorization: `Bearer ${token?.value}`,
+    //   },
+    });
 
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to fetch BOM with ID ${id}:`, error);
+    throw new Error("Failed to fetch BOM details.");
+  }
+}
 
 
 

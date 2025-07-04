@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { FaCirclePlus } from "react-icons/fa6";
+// import { FaCirclePlus } from "react-icons/fa6";
 import { Field, Form, Formik } from "formik";
 import { CreateItem } from "@/api/cheque-request/CreateItem";
 
@@ -24,12 +24,12 @@ export default function AddItem() {
 
   return (
     <>
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-start mb-4">
         <button
-          className="btn btn-info"
+          className="btn bg-blue-500 text-white uppercase"
           onClick={() => setShowRegisterModal(true)}
         >
-          <FaCirclePlus className="w-6 h-6 btn-info" />
+          {/* <FaCirclePlus className="w-6 h-6 btn-info" /> */}
           Add item
         </button>
       </div>

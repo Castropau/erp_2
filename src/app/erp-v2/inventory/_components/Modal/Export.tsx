@@ -2,14 +2,14 @@
 
 import React, { useState } from "react";
 import {
-  QueryClient,
+  // QueryClient,
   useMutation,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
 
 /** components */
-import { FaCirclePlus } from "react-icons/fa6";
+// import { FaCirclePlus } from "react-icons/fa6";
 
 /** api */
 import { registerUser } from "@/api/User/registerUser";
@@ -19,7 +19,7 @@ import { RegisterEmployee } from "@/interfaces/RegisterEmployee";
 import { Field, Form, Formik } from "formik";
 import { fetchDepartmentsList } from "@/api/User/fetchDepartmentList";
 import { fetchRoleList } from "@/api/User/fetchRoleList";
-import { CiCirclePlus } from "react-icons/ci";
+// import { CiCirclePlus } from "react-icons/ci";
 
 export default function Export() {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
@@ -37,7 +37,7 @@ export default function Export() {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       setShowRegisterModal(false);
     },
-    onError: (error: any) => {
+    onError: (error) => {
       console.error("Registration error:", error);
     },
   });
@@ -67,7 +67,7 @@ export default function Export() {
     <>
       <div className="flex justify-end mb-4">
         <button
-          className="btn btn-info"
+          className="btn bg-white border border-black uppercase text-black"
           onClick={() => setShowRegisterModal(true)}
         >
           Export

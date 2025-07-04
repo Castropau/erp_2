@@ -1,4 +1,5 @@
-import { getCookies } from "@/server/getToken";
+// import { getCookies } from "@/server/getToken";
+import { api } from "../api";
 
 
 
@@ -102,21 +103,37 @@ export interface AddRequisitionCash{
 
 
 export async function registerCashRequest(cashData: AddRequisitionCash): Promise<any> {
-  const token = await getCookies("token");
-  const response = await fetch(
-    "http://192.168.0.249:8001/api/v1/requisitions/cash/",
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(cashData ),
-    }
-  );
-  if (!response.ok) {
-    // throw new Error("Registration failed");
-    console.log("error submit");
+//   const token = await getCookies("token");
+//   const response = await fetch(
+//     `${process.env.baseUrl}/api/v1/requisitions/cash/`,
+//     {
+//       method: "POST",
+//       headers: {
+//         Authorization: `Bearer ${token?.value}`,
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify(cashData ),
+//     }
+//   );
+//   if (!response.ok) {
+//     // throw new Error("Registration failed");
+//     console.log("error submit");
+//   }
+//   return response.json();
+// }
+// const token = await getCookies("token");
+
+  try {
+    const response = await api.post(`/api/v1/requisitions/cash/`, cashData, {
+      // headers: {
+      //   Authorization: `Bearer ${token?.value}`,
+      //   "Content-Type": "application/json",
+      // },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error creating vendor:", error);
+    throw new Error("Failed to create vendor");
   }
-  return response.json();
 }

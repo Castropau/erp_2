@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { Formik, Field, Form } from "formik";
-import { FaEllipsisV, FaEdit, FaTrash, FaArrowLeft } from "react-icons/fa";
+import { FaEllipsisV, FaEdit, FaTrash } from "react-icons/fa";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -10,27 +10,30 @@ import {
   updateInventory,
   UpdateInventory,
 } from "@/api/inventory/updateInventory";
+// import { FetchItems } from "@/api/inventory/Items";
+// import { FetchLocation } from "@/api/inventory/FetchLocation";
+import { FetchCategories } from "@/api/inventory/FetchCategory";
+import { FetchItemInventory } from "@/api/inventory/fetchItemNumber";
+import { fetchingLocations } from "@/api/inventory/FetchLocation";
+import { deleteInventories } from "@/api/inventory/deleteInventor";
+import LoadingSpinner from "@/components/Loading/LoadingSpinner";
 
 function View() {
   const [showMenu, setShowMenu] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage] = useState("");
   const [isEditMode, setIsEditMode] = useState(false); // Track whether in edit mode
   const params = useParams();
-  //   const id = Number(params?.id);
   const id = typeof params?.id === "string" ? Number(params.id) : undefined;
   const queryClient = useQueryClient();
+  // const [isEditing, setIsEditing] = useState(false); // New state to track edit mode
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showSuccessdeleted, setShowSuccessDeleted] = useState(false);
 
   const toggleMenu = () => {
     setShowMenu(!showMenu);
   };
 
-  const handleSubmit = (values: any) => {
-    console.log("Form values:", values);
-    // Handle form submission logic here
-    // For example, you could send data to an API or perform validation
-  };
-
-  const handleMenuClick = (action: any) => {
+  const handleMenuClicks = (action: any) => {
     setShowMenu(false);
 
     if (action === "edit") {
@@ -39,17 +42,38 @@ function View() {
       alert("Delete clicked");
     }
   };
+  const { mutate: deleteInventory } = useMutation({
+    mutationFn: deleteInventories,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["inventory"] });
+      setShowSuccessDeleted(true);
+      setTimeout(() => setShowSuccess(false), 3000);
+    },
+    onError: (err) => {
+      console.error("Failed to delete:", err);
+    },
+  });
+  const handleMenuClick = (id: number | string) => {
+    if (confirm("Are you sure you want to delete this inventory?")) {
+      deleteInventory(Number(id)); // call mutation or API
+      setTimeout(() => {
+        window.location.href = "/erp-v2/inventory/";
+      }, 2000);
+    }
+  };
+
   const { mutate: updatedView } = useMutation({
-    mutationFn: (viewData: UpdateInventory) => updateInventory(id, viewData),
+    mutationFn: (viewData: UpdateInventory) =>
+      updateInventory(id as number, viewData),
     onSuccess: () => {
       console.log("inventory updated successfully");
       queryClient.invalidateQueries({ queryKey: ["inventory", id] });
-      //   setShowRegisterModal(false); // Close the modal after successful update
     },
     onError: (error) => {
-      console.error("Error updating quotation:", error);
+      console.error("Error updating inventory:", error);
     },
   });
+
   const {
     data: InventoryData,
     isLoading,
@@ -60,26 +84,85 @@ function View() {
     queryFn: () => fetchInventoryDataById(id!),
     enabled: !!id,
   });
+
+  const { data: itemData } = useQuery({
+    queryKey: ["item_no"],
+    queryFn: FetchItemInventory,
+  });
+
+  const { data: locationList } = useQuery({
+    queryKey: ["location"],
+    queryFn: fetchingLocations,
+  });
+
+  const { data: categoriesData } = useQuery({
+    queryKey: ["categories"],
+    queryFn: FetchCategories,
+  });
+
   if (!id) return <div>Loading route params...</div>;
-  if (isLoading) return <div>Loading data...</div>;
+  if (isLoading) return <LoadingSpinner />;
   if (isError) return <div>Error fetching data: {error.message}</div>;
+
   return (
     <>
-      <Link className="btn btn-info" href="/erp-v2/inventory/">
-        <FaArrowLeft />
-        Back
+      {showSuccessdeleted && (
+        <div
+          className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-4"
+          role="alert"
+        >
+          <strong className="font-bold">Deleted!</strong>
+          <span className="block sm:inline ml-2">
+            Item deleted successfully.
+          </span>
+          <span
+            className="absolute top-0 bottom-0 right-0 px-4 py-3"
+            // onClick={() => setShowSuccessDeleted(false)}
+          >
+            <svg
+              className="fill-current h-6 w-6 text-red-500"
+              role="button"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+            >
+              <title>Close</title>
+              <path d="M14.348 5.652a1 1 0 00-1.414 0L10 8.586 7.066 5.652a1 1 0 00-1.414 1.414L8.586 10l-2.934 2.934a1 1 0 101.414 1.414L10 11.414l2.934 2.934a1 1 0 001.414-1.414L11.414 10l2.934-2.934a1 1 0 000-1.414z" />
+            </svg>
+          </span>
+        </div>
+      )}
+
+      {showSuccess && (
+        <div role="alert" className="alert alert-success">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6 shrink-0 stroke-current"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <span>Updated successfully!</span>
+        </div>
+      )}
+      <Link className="btn text-black uppercase" href="/erp-v2/inventory/">
+        {/* <FaArrowLeft /> */}
+        Back to inventories
       </Link>
-      <div className="flex justify-between p-6 bg-gray-50">
-        {/* Left Column: Image */}
+      <div className="flex justify-between p-6  dark:bg-gray-800 dark:text-white">
         <div className="w-1/3">
           <img
-            src="https://via.placeholder.com/150" // Replace with your image URL
+            src="/images/logo.png" // Replace with your image URL
             alt="View"
             className="w-full h-auto object-cover rounded-lg"
           />
         </div>
 
-        {/* Right Column: Form with 11 Inputs */}
         <div className="w-2/3 pl-6">
           {/* 3-Dot Menu - Show when not in edit mode */}
           {!isEditMode && (
@@ -90,23 +173,19 @@ function View() {
               >
                 <FaEllipsisV size={20} />
               </button>
-
-              {/* Dropdown Menu */}
               {showMenu && (
                 <div className="absolute top-8 right-0 w-32 bg-white shadow-lg rounded-md z-10">
                   <div
-                    onClick={() => handleMenuClick("edit")}
+                    onClick={() => handleMenuClicks("edit")}
                     className="py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
                   >
-                    <FaEdit className="inline mr-2" />
-                    Edit
+                    <FaEdit className="inline mr-2" /> Edit
                   </div>
                   <div
-                    onClick={() => handleMenuClick("delete")}
+                    onClick={() => handleMenuClick(Number(id))} // convert to number if it's from a string source
                     className="py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
                   >
-                    <FaTrash className="inline mr-2" />
-                    Delete
+                    <FaTrash className="inline mr-2" /> Delete
                   </div>
                 </div>
               )}
@@ -121,47 +200,85 @@ function View() {
               serial: InventoryData?.serial || "",
               model: InventoryData?.model || "",
               specification: InventoryData?.specification || "",
-              //   description: "",
               quantity: InventoryData?.quantity || 0,
               unit_of_measurement: InventoryData?.unit_of_measurement || "",
               srp: InventoryData?.srp || 0,
-              category: InventoryData?.category || "",
-              location: InventoryData?.location || "",
+              category: InventoryData?.category.id || 0,
+              location: InventoryData?.location.id || 0,
+              item_reference: InventoryData?.item_reference.id || 0,
+              item: InventoryData?.item_no || "",
               photos: InventoryData?.photos || "",
             }}
-            onSubmit={(values, { setSubmitting }) => {
+            onSubmit={async (values, { setSubmitting }) => {
               const payload: UpdateInventory = {
                 id: id!,
                 ...values,
                 quantity: Number(values.quantity),
                 srp: Number(values.srp),
               };
+              // updatedView(payload);
+              // console.log(payload);
+              // setSubmitting(false);
+              // setIsEditMode(false);
+              try {
+                await updatedView(payload);
+                console.log(payload);
 
-              updatedView(payload);
-              console.log(payload);
-              setSubmitting(false);
-              setIsEditMode(false);
+                // setIsEditing(false);
+                setShowSuccess(true); // Show the success alert
+
+                setTimeout(() => {
+                  window.location.href = "/erp-v2/inventory/"; // 🔁 Redirect to dashboard
+                }, 2000);
+              } catch (error) {
+                console.error("Submission failed:", error);
+              } finally {
+                setSubmitting(false);
+              }
             }}
           >
-            <Form className="space-y-4">
+            <Form className="grid grid-cols-2  md:grid-cols-4 mb-2 gap-2 ">
               {/* Error Message */}
               {errorMessage && (
                 <div style={{ color: "red" }}>{errorMessage}</div>
               )}
 
+              {/* Conditional rendering for item_reference and item_no */}
+              {isEditMode ? (
+                <div>
+                  <label className="block mb-2 text-sm font-bold">
+                    Item Reference
+                  </label>
+                  <Field
+                    as="select"
+                    name="item_reference"
+                    className="bg-gray-50 border border-gray-300 dark:bg-gray-dark rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                    disabled={!isEditMode} // Disable if not in edit mode
+                  >
+                    <option value="">Select Item Reference</option>
+                    {itemData?.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.item_no}
+                      </option>
+                    ))}
+                  </Field>
+                </div>
+              ) : (
+                <div>
+                  <label className="block mb-2 text-sm font-bold">
+                    Item No
+                  </label>
+                  <Field
+                    type="text"
+                    name="item"
+                    className="bg-gray-50 border border-gray-300 dark:bg-gray-dark rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                    readOnly={!isEditMode} // Set as readonly if not in edit mode
+                  />
+                </div>
+              )}
+
+              {/* Rest of the fields (including Profile Image) */}
               {[
-                {
-                  type: "select",
-                  name: "item",
-                  placeholder: "Enter your Item",
-                  label: "Item",
-                  options: [
-                    { value: "US", label: "United States" },
-                    { value: "CA", label: "Canada" },
-                    { value: "IN", label: "India" },
-                    // Add more countries as needed
-                  ],
-                },
                 {
                   type: "text",
                   name: "description",
@@ -171,131 +288,117 @@ function View() {
                 {
                   type: "text",
                   name: "brand",
-                  placeholder: "Enter your email",
+                  placeholder: "Enter your brand",
                   label: "Brand",
                 },
                 {
                   type: "text",
                   name: "serial",
-                  placeholder: "Enter your first name",
+                  placeholder: "Enter your serial",
                   label: "Serial",
                 },
                 {
                   type: "text",
                   name: "model",
-                  placeholder: "Enter your last name",
+                  placeholder: "Enter your model",
                   label: "Model",
                 },
                 {
                   type: "text",
                   name: "specification",
-                  placeholder: "Enter your address",
+                  placeholder: "Enter your specification",
                   label: "Specification",
                 },
                 {
                   type: "text",
                   name: "quantity",
-                  placeholder: "Enter your phone number",
+                  placeholder: "Enter your quantity",
                   label: "Quantity",
                 },
                 {
                   type: "text",
                   name: "unit_of_measurement",
-                  placeholder: "Enter your company name",
-                  label: "Unit of measurement",
+                  placeholder: "Enter unit of measurement",
+                  label: "Unit of Measurement",
                 },
                 {
                   type: "text",
                   name: "srp",
-                  placeholder: "Enter your job title",
-                  label: "srp",
+                  placeholder: "Enter SRP",
+                  label: "SRP",
                 },
                 {
                   type: "select",
                   name: "category",
-
-                  label: "category",
-                  options: [
-                    { value: 2, label: "United States" },
-                    { value: 3, label: "Canada" },
-                    { value: 4, label: "India" },
-                    // Add more countries as needed
-                  ],
+                  label: "Category",
+                  options:
+                    categoriesData?.map((loc) => ({
+                      value: loc.id,
+                      label: loc.category,
+                    })) || [],
                 },
                 {
                   type: "select",
                   name: "location",
-
-                  label: "location",
-                  options: [
-                    { value: 2, label: "United States" },
-                    { value: 3, label: "Canada" },
-                    { value: 4, label: "India" },
-                    // Add more countries as needed
-                  ],
-                },
-                {
-                  type: "file",
-                  name: "photos",
-                  placeholder: "Upload your profile image",
-                  label: "Profile Image",
+                  label: "Location",
+                  options:
+                    locationList?.map((loc) => ({
+                      value: loc.id,
+                      label: loc.location,
+                    })) || [],
                 },
               ].map((item) => (
                 <div key={item.name} className="space-y-4">
-                  {item.name === "photos" && !isEditMode ? null : (
-                    <>
-                      <label className="block mb-2 text-sm font-medium text-gray-900">
-                        {item.label}
-                      </label>
-
-                      {item.type === "file" ? (
-                        isEditMode ? (
-                          <Field
-                            type={item.type}
-                            id={item.name}
-                            name={item.name}
-                            className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
-                            placeholder={item.placeholder}
-                          />
-                        ) : null
-                      ) : item.type === "select" ? (
-                        <Field
-                          as="select"
-                          id={item.name}
-                          name={item.name}
-                          className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
-                          disabled={!isEditMode}
-                        >
-                          <option value="">Select a country</option>
-                          {item.options?.map((option) => (
-                            <option key={option.value} value={option.value}>
-                              {option.label}
-                            </option>
-                          ))}
-                        </Field>
-                      ) : (
-                        <Field
-                          type={item.type}
-                          id={item.name}
-                          name={item.name}
-                          className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
-                          placeholder={item.placeholder}
-                          disabled={!isEditMode} // Disable text inputs if not in edit mode
-                        />
-                      )}
-                    </>
+                  <label className="block mb-2 text-sm font-bold">
+                    {item.label}
+                  </label>
+                  {item.type === "select" ? (
+                    <Field
+                      as="select"
+                      name={item.name}
+                      className="bg-gray-50 border border-gray-300 dark:bg-gray-dark rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                      disabled={!isEditMode} // Disable if not in edit mode
+                    >
+                      <option value="">Select a {item.label}</option>
+                      {item.options?.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </Field>
+                  ) : (
+                    <Field
+                      type={item.type}
+                      name={item.name}
+                      className="bg-gray-50 border border-gray-300 dark:bg-gray-dark rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                      disabled={!isEditMode} // Disable all fields if not in edit mode
+                    />
                   )}
                 </div>
               ))}
 
-              {/* Buttons */}
-              <div className="flex gap-4">
+              {/* Profile Image Field (conditionally hidden if not in edit mode) */}
+              {isEditMode && (
+                <div>
+                  <label className="block mb-2 text-sm font-medium">
+                    Profile Image
+                  </label>
+                  <Field
+                    type="file"
+                    name="photos"
+                    placeholder="Upload your photos"
+                    className="bg-gray-50 border border-gray-300 dark:bg-gray-dark rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                  />
+                </div>
+              )}
+
+              <div className=" col-span-4 flex justify-end gap-4">
                 {/* Cancel Button */}
                 {isEditMode && (
                   <button
                     type="button"
                     onClick={() => setIsEditMode(false)}
-                    className="w-full bg-gray-500 text-white py-2 rounded-md"
+                    className="btn uppercase"
                   >
                     Cancel
                   </button>
@@ -303,10 +406,7 @@ function View() {
 
                 {/* Update Button */}
                 {isEditMode && (
-                  <button
-                    type="submit"
-                    className="w-full bg-blue-500 text-white py-2 rounded-md"
-                  >
+                  <button type="submit" className="btn uppercase">
                     Update
                   </button>
                 )}

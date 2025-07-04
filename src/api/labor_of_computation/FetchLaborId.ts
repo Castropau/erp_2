@@ -1,11 +1,12 @@
 /** server actions */
-import { getCookies } from "@/server/getToken";
+// import { getCookies } from "@/server/getToken";
+import { api } from "../api";
 
 
 
 
 interface RoughingItems{
-    id: number,
+    // id: number,
     manpower: string,
     no_of_days: string,
     total: string,
@@ -21,7 +22,7 @@ interface RoughingItems{
 
 
 interface SubRoughingHeadersItem{
-     id: number,
+    //  id: number,
     manpower: string,
     no_of_days: string,
     total: string,
@@ -35,7 +36,7 @@ interface SubRoughingHeadersItem{
 
 }
 interface RoughingSubHeaders{
-    id: number,
+    // id: number,
     items: SubRoughingHeadersItem,
     sub_header: string,
 
@@ -43,8 +44,8 @@ interface RoughingSubHeaders{
 
 
 interface Roughing{
-    id: number,
-    items: RoughingItems,
+    // id: number,
+    items: RoughingItems[],
     sub_headers: RoughingSubHeaders,
     items_sub_total: string,
     sub_headers_total: string,
@@ -54,7 +55,7 @@ interface Roughing{
    
 }
 interface WiringInsItem{
-    id: number,
+    // id: number,
      manpower: string,
     no_of_days: string,
     total: string,
@@ -68,7 +69,7 @@ interface WiringInsItem{
     
 }
 interface WiringInsHeadersItem{
-     id: number,
+    //  id: number,
     manpower: string,
     no_of_days: string,
     total: string,
@@ -82,7 +83,7 @@ interface WiringInsHeadersItem{
 
 }
 interface WiringIns{
-    id: number,
+    // id: number,
     items: WiringInsItem,
     sub_headers: WiringInsHeadersItem,
     item_sub_total: string,
@@ -96,7 +97,7 @@ interface WiringIns{
 
 
 interface DeviceHeadersItem{
-     id: number,
+    //  id: number,
     items: DeviceItem,
     items_sub_total: string,
     sub_header: string,
@@ -104,7 +105,7 @@ interface DeviceHeadersItem{
 
 }
 interface DeviceItem{
-    id: number,
+    // id: number,
     manpower: string,
     no_of_days: string,
     total: string,
@@ -117,7 +118,7 @@ interface DeviceItem{
     labor_cost: number,
 }
 interface DeviceInstall{
-    id: number,
+    // id: number,
     items: DeviceItem,
     sub_headers: DeviceHeadersItem,
     sub_headers_total: string,
@@ -125,7 +126,7 @@ interface DeviceInstall{
 }
 
 interface ConfigurationItem{
-    id: number,
+    // id: number,
     manpower: string,
     no_of_days: string,
     total: string,
@@ -158,7 +159,7 @@ interface ConfigurationInstall {
 
 
 interface TestingInstallItem{
-    id: number,
+    // id: number,
     manpower: string,
     no_of_days: string,
     total: string,
@@ -175,7 +176,7 @@ interface TestingInstallItem{
 
 
 interface TestingSubItem{
-       id: number,
+      //  id: number,
     manpower: string,
     no_of_days: string,
     total: string,
@@ -205,10 +206,10 @@ interface TestingInstall {
   sub_headers_total: string;
   header: string;
 }
-interface Bom{
-    id: number,
-    bom_no: string,
-}
+// interface Bom{
+//     // id: number,
+//     bom_no: string,
+// }
 
 export interface LaborId{
     id: number,
@@ -224,22 +225,39 @@ date_created: string,
    project_name: string,
    project_duration: string,
    system: string,
+  //  general_header: string;
+ 
 
 }
 
-export async function fetchlaborId(id: number): Promise<LaborId> {
-  const token = await getCookies("token");
-  const response = await fetch(
-    `http://192.168.0.249:8001/api/v1/labor_computations/${id}/`,
-    {
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
-      },
-    }
-  );
-  if (!response.ok) {
-    throw new Error("Network response was not ok");
+
+export async function fetchlaborId(id: number | string): Promise<LaborId> {
+//   const token = await getCookies("token");
+//   const response = await fetch(
+//     `${process.env.baseUrl}/api/v1/labor_computations/${id}/`,
+//     {
+//       headers: {
+//         Authorization: `Bearer ${token?.value}`,
+//       },
+//     }
+//   );
+//   if (!response.ok) {
+//     throw new Error("Network response was not ok");
+//   }
+//   return response.json();
+// }
+
+
+try {
+    const response = await api.get<LaborId>(`/api/v1/labor_computations/${id}/`, {
+    //   headers: {
+    //     Authorization: `Bearer ${token?.value}`,
+    //   },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to fetch BOM with ID ${id}:`, error);
+    throw new Error("Failed to fetch BOM details.");
   }
-  return response.json();
 }
-

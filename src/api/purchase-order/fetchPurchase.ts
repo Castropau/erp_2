@@ -1,8 +1,9 @@
 /** server actions */
-import { getCookies } from "@/server/getToken";
+// import { getCookies } from "@/server/getToken";
+import { api } from "../api";
 
 export interface PurchaseOrder {
-  id: number; // id as an integer
+  id: number | string; // id as an integer
   po_no: string;
   vendor: string;
   grand_total: string;
@@ -13,18 +14,30 @@ export interface PurchaseOrder {
 }
 
 export async function fetchPurchaseList(): Promise<PurchaseOrder[]> {
-  const token = await getCookies("token");
-  const response = await fetch("http://192.168.0.249:8001/api/v1/purchase_orders/", {
-    headers: {
-      Authorization: `Bearer ${token?.value}`,
-    },
-  });
-  if (!response.ok) {
-    throw new Error("Network response was not ok");
-  }
-  return response.json();
-}
+//   const token = await getCookies("token");
+//   const response = await fetch(`${process.env.baseUrl}/api/v1/purchase_orders/`, {
+//     headers: {
+//       Authorization: `Bearer ${token?.value}`,
+//     },
+//   });
+//   if (!response.ok) {
+//     throw new Error("Network response was not ok");
+//   }
+//   return response.json();
+// }
+try {
+    const response = await api.get<PurchaseOrder[]>("/api/v1/purchase_orders/", {
+      // headers: {
+      //   Authorization: `Bearer ${token?.value}`,
+      // },
+    });
 
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch clients:", error);
+    throw new Error("Failed to fetch client list.");
+  }
+}
 // const sampleData: Pick<DepartmentsList, 'department'> = {
 //     department: ''
 // }

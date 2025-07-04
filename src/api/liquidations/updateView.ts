@@ -1,5 +1,6 @@
 
-import { getCookies } from "@/server/getToken";
+// import { getCookies } from "@/server/getToken";
+import { api } from "../api";
 
 
 interface Photos{
@@ -8,31 +9,32 @@ interface Photos{
 }
 
 interface TaskNotes{
-    id: number,
-    order: string,
+    // id: number,
+    order: number,
     description: string,
 }
 
 
 interface Notes{
-    id: number,
+    // id: number,
     items:  TaskNotes[],
     description: string,
+    order: number,
 }
 
 interface Liquidation{
-    id: number,
-    balance: string,
+    // id: number,
+    balance: number,
     date: string,
     particulars: string,
-    expenses: string,
+    expenses: number,
     cash_from_accounting: number,
-    vat_inclusive: boolean,
+    // vat_inclusive: boolean,
 }
 
 
 interface RemmittedBy{
-    id: number,
+    // id: number,
     username: string,
     full_name: string,
     role: string,
@@ -42,7 +44,7 @@ interface RemmittedBy{
 }
 
 interface ReceivedBy{
-    id: number,
+    // id: number,
     username: string,
     full_name: string,
     role: string,
@@ -50,8 +52,8 @@ interface ReceivedBy{
     contact_number: string,
 }
 export interface UpdateView {
-    id: number | string,
-    liquidation_no: string,
+    // id: number | string,
+    // liquidation_no: string,
     date_created: string,
     photos: Photos,
     task_notes: Notes[],
@@ -65,22 +67,35 @@ export interface UpdateView {
     cash_requisition: string,
 }
 
-export async function updateView(id: number, viewData: UpdateView ): Promise<UpdateView> {
-  const token = await getCookies("token");
-  const response = await fetch(`http://192.168.0.249:8001/api/v1/liquidations/${id}/`, {
-    method: "PUT",
-    headers: {
-      Authorization: `Bearer ${token?.value}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(viewData),
-  });
-  if (!response.ok) {
-    throw new Error("Network response was not okkk");
-  }
-  return response.json();
-}
+export async function updateView(id: number | string, viewData: UpdateView ): Promise<UpdateView> {
+//   const token = await getCookies("token");
+//   const response = await fetch(`${process.env.baseUrl}/api/v1/liquidations/${id}/`, {
+//     method: "PUT",
+//     headers: {
+//       Authorization: `Bearer ${token?.value}`,
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify(viewData),
+//   });
+//   if (!response.ok) {
+//     throw new Error("Network response was not okkk");
+//   }
+//   return response.json();
+// }
+ try {
+    const response = await api.put<UpdateView>(`/api/v1/liquidations/${id}/`, viewData, {
+      // headers: {
+      //   Authorization: `Bearer ${token?.value}`,
+      //   "Content-Type": "application/json",
+      // },
+    });
 
+    return response.data;
+  } catch (error) {
+    console.error("Failed to update BOM:", error);
+    throw new Error("Failed to update BOM data.");
+  }
+}
 
 
 

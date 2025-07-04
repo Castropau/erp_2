@@ -8,13 +8,13 @@ import React, { useState, useMemo } from "react";
 import { fetchUserList } from "@/api/User/fetchUserList";
 
 /** components */
-const PersonalInformation = React.lazy(
-  () => import("../Modal/PersonalInformation")
-);
+// const PersonalInformation = React.lazy(
+//   () => import("../Modal/PersonalInformation")
+// );
 // import PersonalInformation from "../Modal/PersonalInformation";
 import ModuleAccess from "../Modal/ModuleAccess";
-import { FaCirclePlus } from "react-icons/fa6";
-import CreateUser from "../Modal/CreateUser";
+// import { FaCirclePlus } from "react-icons/fa6";
+// import CreateUser from "../Modal/CreateUser";
 
 interface User {
   id: number; // id as an integer
@@ -63,10 +63,6 @@ export default function UserList() {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
-  function setShowRegisterModal(arg0: boolean): void {
-    throw new Error("Function not implemented.");
-  }
-
   return (
     <div className="overflow-x-auto">
       <div className="flex items-center justify-between mb-4 gap-250">
@@ -99,9 +95,7 @@ export default function UserList() {
           />
         </label>
 
-        <div className="ml-auto">
-          <CreateUser />
-        </div>
+        <div className="ml-auto">{/* <CreateUser /> */}</div>
       </div>
 
       <table className="table table-xs table-zebra w-full">
@@ -142,7 +136,7 @@ export default function UserList() {
                   </span>
                 </td>
                 <td className="text-xs flex gap-2">
-                  <PersonalInformation id={user.id} />
+                  {/* <PersonalInformation id={user.id} /> */}
                   <ModuleAccess />
                 </td>
               </tr>

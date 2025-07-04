@@ -1,9 +1,10 @@
 
-import { getCookies } from "@/server/getToken";
+// import { getCookies } from "@/server/getToken";
+import { api } from "../api";
 interface Items{
     id: number,
-    order: string,
-    quantity: string,
+    order: number,
+    quantity: number,
     description: string,
 
 }
@@ -42,8 +43,8 @@ interface CreatedBy{
     contact_number: string,
 }
 export interface FetchReceiptId {
-    id: number | string,
-    items: Items,
+    id: number ,
+    items: Items[],
     date: string,
     date_released: string,
     date_created: string,
@@ -63,25 +64,34 @@ export interface FetchReceiptId {
 
 }
 
-export async function fetchReceiptById(id: number): Promise<FetchReceiptId> {
-  const token = await getCookies("token");
-  const response = await fetch(
-    `http://192.168.0.249:8001/api/v1/delivery_receipts/${id}/`,
-    {
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
-      },
-    }
-  );
-  if (!response.ok) {
-    throw new Error("Network response was not ok");
+export async function fetchReceiptById(id: number | string): Promise<FetchReceiptId> {
+//   const token = await getCookies("token");
+//   const response = await fetch(
+//     `${process.env.baseUrl}/api/v1/delivery_receipts/${id}/`,
+//     {
+//       headers: {
+//         Authorization: `Bearer ${token?.value}`,
+//       },
+//     }
+//   );
+//   if (!response.ok) {
+//     throw new Error("Network response was not ok");
+//   }
+//   return response.json();
+// }
+
+
+try {
+    const response = await api.get<FetchReceiptId>(`/api/v1/delivery_receipts/${id}/`, {
+    //   headers: {
+    //     Authorization: `Bearer ${token?.value}`,
+    //   },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to fetch BOM with ID ${id}:`, error);
+    throw new Error("Failed to fetch BOM details.");
   }
-  return response.json();
+
 }
-
-
-
-
-
-
-

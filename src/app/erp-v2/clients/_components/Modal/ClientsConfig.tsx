@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { FaCirclePlus } from "react-icons/fa6";
-import { Formik, Field, Form, FieldArray } from "formik";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+// import { FaCirclePlus } from "react-icons/fa6";
+import { Formik, Field, Form } from "formik";
 import { registerUser } from "@/api/User/registerUser";
 import { RegisterEmployee } from "@/interfaces/RegisterEmployee";
-import { fetchUserLists } from "@/api/cash-request/fetchUsers";
+// import { fetchUserLists } from "@/api/cash-request/fetchUsers";
 
 export default function ClientsConfig() {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
@@ -25,16 +25,16 @@ export default function ClientsConfig() {
   });
 
   // users fetch
-  const {
-    isLoading: DisLoading,
-    error: Derror,
-    data: usersList,
-  } = useQuery({
-    queryKey: ["users"],
-    queryFn: fetchUserLists,
-  });
+  // const {
+  //   isLoading: DisLoading,
+  //   error: Derror,
+  //   data: usersList,
+  // } = useQuery({
+  //   queryKey: ["users"],
+  //   queryFn: fetchUserLists,
+  // });
 
-  const unitsList = ["kg", "unit", "box", "liter", "meter"];
+  // const unitsList = ["kg", "unit", "box", "liter", "meter"];
 
   const handleSubmit = (values: any) => {
     console.log("Form data to submit:", values);
@@ -64,7 +64,7 @@ export default function ClientsConfig() {
               }}
               onSubmit={handleSubmit}
             >
-              {({ values, setFieldValue }) => (
+              {({}) => (
                 <Form className="py-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Heading for Special Information */}

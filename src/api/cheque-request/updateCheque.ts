@@ -1,5 +1,6 @@
-import { User } from "@/interfaces/User";
-import { getCookies } from "@/server/getToken";
+// import { User } from "@/interfaces/User";
+// import { getCookies } from "@/server/getToken";
+import { api } from "../api";
 
 
 export interface ChequeRequisitionItem {
@@ -33,21 +34,34 @@ export interface ChequeUpdate {
 }
 
 export async function updateCheque(id: number, chequeData: ChequeUpdate ): Promise<ChequeUpdate> {
-  const token = await getCookies("token");
-  const response = await fetch(`http://192.168.0.249:8001/api/v1/requisitions/cheque/${id}/`, {
-    method: "PUT",
-    headers: {
-      Authorization: `Bearer ${token?.value}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(chequeData),
-  });
-  if (!response.ok) {
-    throw new Error("Network response was not okkk");
+//   const token = await getCookies("token");
+//   const response = await fetch(`${process.env.baseUrl}/api/v1/requisitions/cheque/${id}/`, {
+//     method: "PUT",
+//     headers: {
+//       Authorization: `Bearer ${token?.value}`,
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify(chequeData),
+//   });
+//   if (!response.ok) {
+//     throw new Error("Network response was not okkk");
+//   }
+//   return response.json();
+// }
+
+try {
+    const response = await api.put<ChequeUpdate>(`/api/v1/requisitions/cheque/${id}/`, chequeData, {
+      // headers: {
+      //   Authorization: `Bearer ${token?.value}`,
+      //   "Content-Type": "application/json",
+      // },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Failed to update BOM:", error);
+    throw new Error("Failed to update BOM data.");
   }
-  return response.json();
 }
-
-
 
 

@@ -2,25 +2,25 @@
 
 import React, { useState } from "react";
 import {
-  QueryClient,
+  // QueryClient,
   useMutation,
-  useQuery,
+  // useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
 
 /** components */
-import { FaCirclePlus } from "react-icons/fa6";
+// import { FaCirclePlus } from "react-icons/fa6";
 
 /** api */
-import { registerUser } from "@/api/User/registerUser";
+// import { registerUser } from "@/api/User/registerUser";
 
 /** interfaces */
-import { RegisterEmployee } from "@/interfaces/RegisterEmployee";
+// import { RegisterEmployee } from "@/interfaces/RegisterEmployee";
 import { Field, Form, Formik } from "formik";
-import { fetchDepartmentsList } from "@/api/User/fetchDepartmentList";
-import { fetchRoleList } from "@/api/User/fetchRoleList";
-import { CiCirclePlus } from "react-icons/ci";
-import { CreateLocation } from "@/api/inventory/CreateLocation";
+// import { fetchDepartmentsList } from "@/api/User/fetchDepartmentList";
+// import { fetchRoleList } from "@/api/User/fetchRoleList";
+// import { CiCirclePlus } from "react-icons/ci";
+// import { CreateLocation } from "@/api/inventory/CreateLocation";
 import { CreateUnits } from "@/api/cheque-request/CreateUnits";
 
 export default function AddUnit() {
@@ -64,12 +64,12 @@ export default function AddUnit() {
 
   return (
     <>
-      <div className="flex justify-start mb-4">
+      <div className="flex justify-start mb-4 up">
         <button
-          className="btn btn-info"
+          className="btn bg-blue-500 text-white uppercase"
           onClick={() => setShowRegisterModal(true)}
         >
-          <FaCirclePlus className="w-6 h-6 btn-info" />
+          {/* <FaCirclePlus className="w-6 h-6 btn-info" /> */}
           Add Unit
         </button>
       </div>

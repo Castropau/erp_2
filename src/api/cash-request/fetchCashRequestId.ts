@@ -1,5 +1,6 @@
 /** server actions */
-import { getCookies } from "@/server/getToken";
+// import { getCookies } from "@/server/getToken";
+import { api } from "../api";
 
  interface NotedBy {
   id: number; 
@@ -60,15 +61,15 @@ interface CashRequisitionItem{
     
 }
 
-interface UserListApproved {
-    id: number;
-    username: string;
-    full_name: string;
-    role: string;
-    department: string;
-    contact_number: string;
+// interface UserListApproved {
+//     id: number;
+//     username: string;
+//     full_name: string;
+//     role: string;
+//     department: string;
+//     contact_number: string;
 
-}
+// }
 
 // export interface RequisitionCashId {
 //   id: number; 
@@ -112,7 +113,7 @@ export interface RequisitionCashId{
   date_created: string; 
   date_cancelled: string;
   cancelled_by: CancelledBy;
-  cash_requisition_items: CashRequisitionItem;
+  cash_requisition_items: CashRequisitionItem[];
 
   cheque_request_ref: string; 
   serial_no: string; 
@@ -159,19 +160,34 @@ export interface RequisitionCashId{
 // }
 
 
-export async function fetchCashRequestId(id: number): Promise<RequisitionCashId> {
-  const token = await getCookies("token");
-  const response = await fetch(
-    `http://192.168.0.249:8001/api/v1/requisitions/cash/${id}/`,
-    {
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
-      },
-    }
-  );
-  if (!response.ok) {
-    throw new Error("Network response was not ok");
+export async function fetchCashRequestId(id: number | string): Promise<RequisitionCashId> {
+//   const token = await getCookies("token");
+//   const response = await fetch(
+//     `${process.env.baseUrl}/api/v1/requisitions/cash/${id}/`,
+//     {
+//       headers: {
+//         Authorization: `Bearer ${token?.value}`,
+//       },
+//     }
+//   );
+//   if (!response.ok) {
+//     throw new Error("Network response was not ok");
+//   }
+//   return response.json();
+// }
+// const token = await getCookies("token");
+
+  try {
+    const response = await api.get<RequisitionCashId>(`/api/v1/requisitions/cash/${id}/`, {
+      // headers: {
+      //   Authorization: `Bearer ${token?.value}`,
+      // },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to fetch cash with ID ${id}:`, error);
+    throw new Error("Failed to fetch cash details.");
   }
-  return response.json();
 }
 

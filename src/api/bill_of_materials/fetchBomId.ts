@@ -1,5 +1,6 @@
 /** server actions */
-import { getCookies } from "@/server/getToken";
+// import { getCookies } from "@/server/getToken";
+import { api } from "../api";
 interface Sic{
     id: number,
     full_name: string,
@@ -23,12 +24,13 @@ interface Item{
     srp: number,
 }
 interface Device{
+    amount: any;
     id: number,
-    total_amount: string,
+    total_amount: number,
     order: string,
-    item: Item,
+    item: string,
     description: string,
-    quantity: string,
+    quantity: number,
     unit_of_measurement: string,
     srp: number,
 }
@@ -49,6 +51,9 @@ interface Items{
 
 }
 interface MaterialHeader{
+    flatMap: any;
+    length: any;
+    map: any;
     id: number,
     items: Items,
 }
@@ -60,10 +65,13 @@ interface Labor{
     item: string,
     description: string,
     quantity: number,
-    unit_of_measurement: string,
+    unit_of_measurement: number,
     srp: number,
 }
 interface LItem{
+  srp: any;
+  description: string;
+  quantity: any;
  id: number,
     total_amount: number,
     order: number,
@@ -81,6 +89,7 @@ interface GenItem{
     srp: number,
 }
 interface LaborHeader{
+    header_sub_total: any;
     id: number,
     items: LItem[],
     header: string,
@@ -99,7 +108,7 @@ interface GenHeader{
     srp: number,
 }
 export interface BomId{
-    id: number,
+    id: number | string,
     bom_no: string,
     device_items: Device[],
     device_header: Header[],
@@ -123,19 +132,35 @@ first_header: string,
 
 }
 
-export async function fetchbomId(id: number): Promise<BomId> {
-  const token = await getCookies("token");
-  const response = await fetch(
-    `http://192.168.0.249:8001/api/v1/boms/${id}/`,
-    {
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
-      },
-    }
-  );
-  if (!response.ok) {
-    throw new Error("Network response was not ok");
+// export async function fetchbomId(id: number | string): Promise<BomId> {
+//   const token = await getCookies("token");
+//   const response = await fetch(
+//     `${process.env.baseUrl}/api/v1/boms/${id}/`,
+//     {
+//       headers: {
+//         Authorization: `Bearer ${token?.value}`,
+//       },
+//     }
+//   );
+//   if (!response.ok) {
+//     throw new Error("Network response was not ok");
+//   }
+//   return response.json();
+// }
+export async function fetchbomId(id: number | string): Promise<BomId> {
+//   const token = await getCookies("token");
+
+  try {
+    const response = await api.get<BomId>(`/api/v1/boms/${id}/`, {
+    //   headers: {
+    //     Authorization: `Bearer ${token?.value}`,
+    //   },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to fetch BOM with ID ${id}:`, error);
+    throw new Error("Failed to fetch BOM details.");
   }
-  return response.json();
 }
 

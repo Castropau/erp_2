@@ -1,5 +1,6 @@
 
-import { getCookies } from "@/server/getToken";
+// import { getCookies } from "@/server/getToken";
+import { api } from "../api";
 
 export interface FetchVendorId {
    id: number;
@@ -23,19 +24,32 @@ export interface FetchVendorId {
 }
 
 export async function fetchVendorDataByIds(id: number): Promise<FetchVendorId> {
-  const token = await getCookies("token");
-  const response = await fetch(
-    `http://192.168.0.249:8001/api/v1/items/${id}/`,
-    {
-      headers: {
-        Authorization: `Bearer ${token?.value}`,
-      },
-    }
-  );
-  if (!response.ok) {
-    throw new Error("Network response was not ok");
+//   const token = await getCookies("token");
+//   const response = await fetch(
+//     `${process.env.baseUrl}/api/v1/items/${id}/`,
+//     {
+//       headers: {
+//         Authorization: `Bearer ${token?.value}`,
+//       },
+//     }
+//   );
+//   if (!response.ok) {
+//     throw new Error("Network response was not ok");
+//   }
+//   return response.json();
+// }
+try {
+    const response = await api.get<FetchVendorId>(`/api/v1/items/${id}/`, {
+      // headers: {
+      //   Authorization: `Bearer ${token?.value}`,
+      // },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to fetch BOM with ID ${id}:`, error);
+    throw new Error("Failed to fetch BOM details.");
   }
-  return response.json();
 }
 
 

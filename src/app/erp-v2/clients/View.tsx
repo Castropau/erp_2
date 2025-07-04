@@ -1,34 +1,34 @@
 "use client";
 import { Formik, Form, Field } from "formik";
 import React, { useState } from "react";
-import AddUnit from "../cheque-request/_components/Modal/AddUnit";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+// import AddUnit from "../cheque-request/_components/Modal/AddUnit";
+import { useQuery } from "@tanstack/react-query";
 import { ChequeItems } from "@/api/cheque-request/fetchItems";
 import { ChequeUnits } from "@/api/cheque-request/fetchUnits";
-import { UpdateItems, updateItems } from "@/api/cheque-request/UpdateItem";
-import {
-  updateLocation,
-  UpdateLocation,
-} from "@/api/cheque-request/UpdateLocation";
-import { deleteItem } from "@/api/cheque-request/DeleteItem";
-import { deleteLocation } from "@/api/cheque-request/DeleteLocation";
+// import { UpdateItems, updateItems } from "@/api/cheque-request/UpdateItem";
+// import {
+//   updateLocation,
+//   UpdateLocation,
+// } from "@/api/cheque-request/UpdateLocation";
+// import { deleteItem } from "@/api/cheque-request/DeleteItem";
+// import { deleteLocation } from "@/api/cheque-request/DeleteLocation";
 import Link from "next/link";
 import { IoMdArrowBack } from "react-icons/io";
 // import ViewClients from "../../_components/Modal/ViewClients";
 import { useParams } from "next/navigation";
 import { fetchClientDataById } from "@/api/clients/fetchClientsView";
-import ViewClients from "./_components/Modal/ViewClients";
+// import ViewClients from "./_components/Modal/ViewClients";
 
 function View() {
   const [isEditable, setIsEditable] = useState(false); // State to toggle between edit and view mode
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<any | null>(null);
-  const [selectedLocation, setSelectedLocation] = useState<any | null>(null);
-  const [isItemModalOpen, setIsItemModalOpen] = useState(false);
-  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  // const [isModalOpen, setIsModalOpen] = useState(false);
+  // const [selectedItem, setSelectedItem] = useState<any | null>(null);
+  // const [selectedLocation, setSelectedLocation] = useState<any | null>(null);
+  // const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+  // const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+  // const [searchTerm] = useState("");
   const [searchTermLocation, setSearchTermLocation] = useState("");
-  const [currentPageItems, setCurrentPageItems] = useState(1);
+  // const [currentPageItems, setCurrentPageItems] = useState(1);
   const [currentPageUnits, setCurrentPageUnits] = useState(1);
 
   const params = useParams();
@@ -40,23 +40,23 @@ function View() {
   const handleCancel = () => {
     setIsEditable(false); // Switch back to readonly mode without saving
   };
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
 
   const rowsPerPage = 10;
 
   const {
-    isLoading: isItemsLoading,
-    error: itemsError,
-    data: itemsData,
+    // isLoading: isItemsLoading,
+    // error: itemsError,
+    // data: itemsData,
   } = useQuery({
     queryKey: ["items"],
     queryFn: ChequeItems,
   });
   const {
-    data: VendorData,
-    isLoading: isCLoading,
-    isError: cerror,
-    error: cerrors,
+    // data: VendorData,
+    // isLoading: isCLoading,
+    // isError: cerror,
+    // error: cerrors,
   } = useQuery({
     queryKey: ["client", id],
     queryFn: () => fetchClientDataById(id),
@@ -65,19 +65,19 @@ function View() {
   });
   const {
     isLoading: isUnitsLoading,
-    error: UnitsError,
+    // error: UnitsError,
     data: unitsData,
   } = useQuery({
     queryKey: ["units"],
     queryFn: ChequeUnits,
   });
 
-  const totalPagesItems = Math.ceil((itemsData?.length || 0) / rowsPerPage);
+  // const totalPagesItems = Math.ceil((itemsData?.length || 0) / rowsPerPage);
   const totalPagesUnits = Math.ceil((unitsData?.length || 0) / rowsPerPage);
 
-  const filteredItemsData = itemsData?.filter((item) =>
-    item.item.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // const filteredItemsData = itemsData?.filter((item) =>
+  //   item.item.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
 
   const filteredUnitsData = unitsData?.filter((location) =>
     location.unit_of_measurement
@@ -85,12 +85,12 @@ function View() {
       .includes(searchTermLocation.toLowerCase())
   );
 
-  const indexOfLastRowItems = currentPageItems * rowsPerPage;
-  const indexOfFirstRowItems = indexOfLastRowItems - rowsPerPage;
-  const currentItemsRows = filteredItemsData?.slice(
-    indexOfFirstRowItems,
-    indexOfLastRowItems
-  );
+  // const indexOfLastRowItems = currentPageItems * rowsPerPage;
+  // const indexOfFirstRowItems = indexOfLastRowItems - rowsPerPage;
+  // const currentItemsRows = filteredItemsData?.slice(
+  //   indexOfFirstRowItems,
+  //   indexOfLastRowItems
+  // );
 
   const indexOfLastRowUnits = currentPageUnits * rowsPerPage;
   const indexOfFirstRowUnits = indexOfLastRowUnits - rowsPerPage;
@@ -99,14 +99,14 @@ function View() {
     indexOfLastRowUnits
   );
 
-  const handlePrevItems = () => {
-    if (currentPageItems > 1) setCurrentPageItems(currentPageItems - 1);
-  };
+  // const handlePrevItems = () => {
+  //   if (currentPageItems > 1) setCurrentPageItems(currentPageItems - 1);
+  // };
 
-  const handleNextItems = () => {
-    if (currentPageItems < totalPagesItems)
-      setCurrentPageItems(currentPageItems + 1);
-  };
+  // const handleNextItems = () => {
+  //   if (currentPageItems < totalPagesItems)
+  //     setCurrentPageItems(currentPageItems + 1);
+  // };
 
   const handlePrevUnits = () => {
     if (currentPageUnits > 1) setCurrentPageUnits(currentPageUnits - 1);
@@ -118,38 +118,38 @@ function View() {
   };
 
   // update item mutation
-  const { mutate: updatedItem } = useMutation({
-    mutationFn: (data: UpdateItems) => updateItems(data.id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["items"] });
-      setIsItemModalOpen(false);
-    },
-  });
+  // const { mutate: updatedItem } = useMutation({
+  //   mutationFn: (data: UpdateItems) => updateItems(data.id, data),
+  //   onSuccess: () => {
+  //     queryClient.invalidateQueries({ queryKey: ["items"] });
+  //     // setIsItemModalOpen(false);
+  //   },
+  // });
 
   // update location mutation
-  const { mutate: updateLoc } = useMutation({
-    mutationFn: (data: UpdateLocation) => updateLocation(data.id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["units"] });
-      setIsLocationModalOpen(false);
-    },
-  });
+  // const { mutate: updateLoc } = useMutation({
+  //   mutationFn: (data: UpdateLocation) => updateLocation(data.id, data),
+  //   onSuccess: () => {
+  //     queryClient.invalidateQueries({ queryKey: ["units"] });
+  //     // setIsLocationModalOpen(false);
+  //   },
+  // });
 
   // delete item mutation
-  const { mutate: deleteItemMutation } = useMutation({
-    mutationFn: (id: number) => deleteItem(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["items"] });
-    },
-  });
+  // const { mutate: deleteItemMutation } = useMutation({
+  //   mutationFn: (id: number) => deleteItem(id),
+  //   onSuccess: () => {
+  //     queryClient.invalidateQueries({ queryKey: ["items"] });
+  //   },
+  // });
 
   // delete location mutation
-  const { mutate: deleteLocationMutation } = useMutation({
-    mutationFn: (id: number) => deleteLocation(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["units"] });
-    },
-  });
+  // const { mutate: deleteLocationMutation } = useMutation({
+  //   mutationFn: (id: number) => deleteLocation(id),
+  //   onSuccess: () => {
+  //     queryClient.invalidateQueries({ queryKey: ["units"] });
+  //   },
+  // });
   return (
     <>
       <div className="ml-auto">
@@ -344,9 +344,7 @@ function View() {
                     <tr key={location.id} className="border-b">
                       <td className="p-2">{location.unit_of_measurement}</td>
                       <td className="p-2">{location.unit_of_measurement}</td>
-                      <td className="p-2">
-                        <ViewClients />
-                      </td>
+                      <td className="p-2">{/* <ViewClients /> */}</td>
                     </tr>
                   ))}
                 </tbody>

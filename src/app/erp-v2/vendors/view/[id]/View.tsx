@@ -1,38 +1,69 @@
 "use client";
-import { Formik, Form, Field } from "formik";
-import React, { useState } from "react";
-import AddUnit from "../../../cheque-request/_components/Modal/AddUnit";
+import { Formik, Form, Field, FieldProps } from "formik";
+import React, { useState, useEffect } from "react";
+// import AddUnit from "../../../cheque-request/_components/Modal/AddUnit";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChequeItems } from "@/api/cheque-request/fetchItems";
+// import { ChequeItems } from "@/api/cheque-request/fetchItems";
 import { ChequeUnits } from "@/api/cheque-request/fetchUnits";
-import { UpdateItems, updateItems } from "@/api/cheque-request/UpdateItem";
-import {
-  updateLocation,
-  UpdateLocation,
-} from "@/api/cheque-request/UpdateLocation";
-import { deleteItem } from "@/api/cheque-request/DeleteItem";
-import { deleteLocation } from "@/api/cheque-request/DeleteLocation";
+// import { UpdateItems, updateItems } from "@/api/cheque-request/UpdateItem";
+// import {
+//   updateLocation,
+//   UpdateLocation,
+// } from "@/api/cheque-request/UpdateLocation";
+// import { deleteItem } from "@/api/cheque-request/DeleteItem";
+// import { deleteLocation } from "@/api/cheque-request/DeleteLocation";
 import Link from "next/link";
-import { IoMdArrowBack } from "react-icons/io";
+// import { IoMdArrowBack } from "react-icons/io";
 import { fetchVendorDataById } from "@/api/vendor/fetchVendorId";
 import { useParams } from "next/navigation";
 import { UpdateView, updateView } from "@/api/vendor/updateView";
+import { CountryList, fetchCountryList } from "@/api/vendor/fetchCountry";
+import NotFound from "@/components/Error/NotFound";
+import Image from "next/image";
+import ImageLogo from "../../../../images/logo.png";
 
-function View() {
+function View({
+  values,
+}: // setFieldValue,
+// countryList,
+// isEditable,
+{
+  values: CountryList;
+  setFieldValue: (field: string, value: string) => void;
+  countryList: CountryList[];
+}) {
+  const [search, setSearch] = useState("");
   // const { id } = props;
   const [isEditable, setIsEditable] = useState(false); // State to toggle between edit and view mode
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<any | null>(null);
-  const [selectedLocation, setSelectedLocation] = useState<any | null>(null);
-  const [isItemModalOpen, setIsItemModalOpen] = useState(false);
-  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  // const [isModalOpen, setIsModalOpen] = useState(false);
+  // const [selectedItem, setSelectedItem] = useState<any | null>(null);
+  // const [selectedLocation, setSelectedLocation] = useState<any | null>(null);
+  // const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+  // const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+  // const [searchTerm, setSearchTerm] = useState("");
   const [searchTermLocation, setSearchTermLocation] = useState("");
-  const [currentPageItems, setCurrentPageItems] = useState(1);
+  // const [currentPageItems, setCurrentPageItems] = useState(1);
   const [currentPageUnits, setCurrentPageUnits] = useState(1);
+  // const [search, setSearch] = useState(""); // State to manage the search query
+  // const [isOpen, setIsOpen] = useState(false);
   const params = useParams();
+  const [showSuccess, setShowSuccess] = useState(false);
   const id = Number(params?.id);
-  const [showEditModal, setShowEditModal] = useState(false);
+  // const [search, setSearch] = useState("");
+
+  // Track whether we've initialized the search input
+  // const [hasInitialized, setHasInitialized] = useState(false);
+  // const [showEditModal, setShowEditModal] = useState(false);
+
+  // State declarations (outside JSX)
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [hasInitialized, setHasInitialized] = useState<boolean>(false);
+
+  // Access Formik context to get values
+
+  // Derive selected country and filtered list outside
+
+  // Move useEffect OUTSIDE JSX
 
   const handleEditToggle = () => {
     setIsEditable(!isEditable);
@@ -42,21 +73,46 @@ function View() {
   };
   const queryClient = useQueryClient();
 
-  const rowsPerPage = 10;
-
+  const rowsPerPage = 1;
   const {
-    isLoading: isItemsLoading,
-    error: itemsError,
-    data: itemsData,
+    // isLoading: DisLoading,
+    // error: Derror,
+    data: countryList,
   } = useQuery({
-    queryKey: ["items"],
-    queryFn: ChequeItems,
+    queryKey: ["country"],
+    queryFn: fetchCountryList,
   });
+  // const selectedCountry = countryList?.find((c) => c.id === values.country);
+  // const filtered = countryList?.filter((c) =>
+  //   c.name.toLowerCase().includes(search.toLowerCase())
+  // );
+  const selectedCountry = values
+    ? countryList?.find((c) => c.id === values.name)
+    : undefined;
+
+  const filtered = countryList?.filter((c) =>
+    c.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  useEffect(() => {
+    if (!hasInitialized && selectedCountry) {
+      setSearch(selectedCountry.name);
+      setHasInitialized(true);
+    }
+  }, [selectedCountry, hasInitialized]);
+  // const {
+  //   isLoading: isItemsLoading,
+  //   error: itemsError,
+  //   data: itemsData,
+  // } = useQuery({
+  //   queryKey: ["items"],
+  //   queryFn: ChequeItems,
+  // });
 
   const {
     isLoading: isUnitsLoading,
-    error: UnitsError,
-    data: unitsData,
+    // error: UnitsError,
+    // data: unitsData,
   } = useQuery({
     queryKey: ["units"],
     queryFn: ChequeUnits,
@@ -65,13 +121,32 @@ function View() {
   const {
     data: VendorData,
     isLoading,
-    isError,
+    // isError,
     error,
   } = useQuery({
     queryKey: ["vendor", id],
     queryFn: () => fetchVendorDataById(id),
     enabled: !!id,
   });
+
+  const newVendorData = VendorData?.items.filter((data) =>
+    Object.values(data).some(
+      (val) =>
+        typeof val == "string" &&
+        val
+          .toLocaleLowerCase()
+          .includes(searchTermLocation?.toLocaleLowerCase() || "")
+    )
+  );
+
+  // pagination
+  const paginatedVendorData = newVendorData?.slice(
+    (currentPageUnits - 1) * rowsPerPage,
+    currentPageUnits * rowsPerPage
+  );
+
+  const totalPagesUnits = Math.ceil((newVendorData?.length || 0) / rowsPerPage);
+
   const { mutate: updateVendor } = useMutation({
     mutationFn: (data: UpdateView) => updateView(VendorData!.id, data),
     onSuccess: () => {
@@ -79,48 +154,59 @@ function View() {
 
       queryClient.invalidateQueries({ queryKey: ["vendor", id] });
       queryClient.invalidateQueries({ queryKey: ["vendor"] });
-      setShowEditModal(false);
+      // setShowEditModal(false);
     },
     onError: (error) => {
       console.error("Error updating cheque:", error);
     },
   });
 
-  const totalPagesItems = Math.ceil((itemsData?.length || 0) / rowsPerPage);
-  const totalPagesUnits = Math.ceil((unitsData?.length || 0) / rowsPerPage);
+  // const totalPagesItems = Math.ceil((itemsData?.length || 0) / rowsPerPage);
 
-  const filteredItemsData = itemsData?.filter((item) =>
-    item.item.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // const totalPagesUnits = Math.ceil((VendorData?.length || 0) / rowsPerPage);
+  // const totalPagesUnits = Math.ceil(
+  //   (VendorData?.items?.length || 0) / rowsPerPage
+  // );
+  // const New = VendorData?.items?.slice(
+  //   (currentPageUnits - 1) * rowsPerPage,
+  //   currentPageUnits * rowsPerPage
+  // );
 
-  const filteredUnitsData = unitsData?.filter((location) =>
-    location.unit_of_measurement
-      .toLowerCase()
-      .includes(searchTermLocation.toLowerCase())
-  );
+  // const filteredItemsData = itemsData?.filter((item) =>
+  //   item.item.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
 
-  const indexOfLastRowItems = currentPageItems * rowsPerPage;
-  const indexOfFirstRowItems = indexOfLastRowItems - rowsPerPage;
-  const currentItemsRows = filteredItemsData?.slice(
-    indexOfFirstRowItems,
-    indexOfLastRowItems
-  );
+  // const filteredUnitsData = unitsData?.filter((location) =>
+  //   location.unit_of_measurement
+  //     .toLowerCase()
+  //     .includes(searchTermLocation.toLowerCase())
+  // );
+  // const filteredUnitsData = unitsData?.filter((location) =>
+  //   location.unit_of_measurement
+  //     .toLowerCase()
+  //     .includes(searchTermLocation.toLowerCase())
+  // );
 
-  const indexOfLastRowUnits = currentPageUnits * rowsPerPage;
-  const indexOfFirstRowUnits = indexOfLastRowUnits - rowsPerPage;
-  const currentUnitsRows = filteredUnitsData?.slice(
-    indexOfFirstRowUnits,
-    indexOfLastRowUnits
-  );
+  // const paginatedUnitsData = filteredUnitsData?.slice(
+  //   (currentPageUnits - 1) * rowsPerPage,
+  //   currentPageUnits * rowsPerPage
+  // );
 
-  const handlePrevItems = () => {
-    if (currentPageItems > 1) setCurrentPageItems(currentPageItems - 1);
-  };
+  // const indexOfLastRowItems = currentPageItems * rowsPerPage;
+  // const indexOfFirstRowItems = indexOfLastRowItems - rowsPerPage;
 
-  const handleNextItems = () => {
-    if (currentPageItems < totalPagesItems)
-      setCurrentPageItems(currentPageItems + 1);
-  };
+  // const currentItemsRows = filteredItemsData?.slice(
+  //   indexOfFirstRowItems,
+  //   indexOfLastRowItems
+  // );
+
+  // const indexOfLastRowUnits = currentPageUnits * rowsPerPage;
+  // const indexOfFirstRowUnits = indexOfLastRowUnits - rowsPerPage;
+
+  // const currentUnitsRows = filteredUnitsData?.slice(
+  //   indexOfFirstRowUnits,
+  //   indexOfLastRowUnits
+  // );
 
   const handlePrevUnits = () => {
     if (currentPageUnits > 1) setCurrentPageUnits(currentPageUnits - 1);
@@ -131,86 +217,91 @@ function View() {
       setCurrentPageUnits(currentPageUnits + 1);
   };
 
-  // update item mutation
-  const { mutate: updatedItem } = useMutation({
-    mutationFn: (data: UpdateItems) => updateItems(data.id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["items"] });
-      setIsItemModalOpen(false);
-    },
-  });
-
-  // update location mutation
-  const { mutate: updateLoc } = useMutation({
-    mutationFn: (data: UpdateLocation) => updateLocation(data.id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["units"] });
-      setIsLocationModalOpen(false);
-    },
-  });
-
-  // delete item mutation
-  const { mutate: deleteItemMutation } = useMutation({
-    mutationFn: (id: number) => deleteItem(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["items"] });
-    },
-  });
-
   // delete location mutation
-  const { mutate: deleteLocationMutation } = useMutation({
-    mutationFn: (id: number) => deleteLocation(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["units"] });
-    },
-  });
+
+  useEffect(() => {
+    setCurrentPageUnits(1);
+  }, [VendorData]);
+  if (error) {
+    return <NotFound />;
+  }
+  if (isLoading) {
+    return (
+      <div className="p-4 flex justify-center items-center min-h-screen">
+        <div className="flex flex-col items-center space-y-4">
+          {/* Loading Spinner */}
+          <div className="dark:border-gray-200 dark:border-t-white  w-16 h-16 border-4 border-t-4 border-gray-800 border-dashed rounded-full animate-spin"></div>
+
+          <span className="text-lg text-gray-700 dark:text-white">
+            Please wait...
+          </span>
+        </div>
+      </div>
+    );
+  }
   return (
     <>
+      {showSuccess && (
+        <div role="alert" className="alert alert-success">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6 shrink-0 stroke-current"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <span>Updated successfully!</span>
+        </div>
+      )}
       <div className="ml-auto">
         <Link href="/erp-v2/vendors">
-          <button className="btn btn-info">
-            <IoMdArrowBack />
-            Back to Cash Request
+          <button className="btn uppercase">
+            {/* <IoMdArrowBack /> */}
+            Back to vendor list
           </button>
         </Link>
       </div>
-      <div className="grid grid-cols-2 gap-6">
+      {/* <div className="grid grid-cols-2 gap-6"> */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* First Column: Personal Information Input */}
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold flex justify-between items-center">
-            Personal Information
-            {/* Button to toggle between Edit and Update */}
-            <div className="flex space-x-2">
-              {!isEditable ? (
-                <button
-                  onClick={handleEditToggle}
-                  className="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600"
-                >
-                  Edit
+          {/* Button to toggle between Edit and Update */}
+          {/* <div className="flex space-x-2 justify-end"> */}
+          <div className="flex justify-end gap-2">
+            {!isEditable ? (
+              <button
+                onClick={handleEditToggle}
+                className="btn text-black cursor-pointer uppercase"
+              >
+                Edit
+              </button>
+            ) : (
+              <>
+                <button onClick={handleCancel} className="btn uppercase">
+                  Cancel
                 </button>
-              ) : (
-                <>
-                  <button
-                    onClick={handleCancel}
-                    className="px-4 py-2 text-white bg-gray-500 rounded-lg hover:bg-gray-600"
-                  >
-                    Cancel
-                  </button>
-                  {/* <button
+                {/* <button
                     onClick={handleEditToggle} // This would be where you handle the update logic
                     className="px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600"
                   >
                     Update
                   </button> */}
-                </>
-              )}
-            </div>
-          </h2>
+              </>
+            )}
+          </div>
 
           {/* Profile Image */}
-          <div className="flex flex-col items-center mb-4">
-            <img
-              src="https://via.placeholder.com/100" // Replace with the actual profile image URL
+          <div className="flex flex-col items-center mb-1">
+            <Image
+              // src="/images/logo.png"
+              src={ImageLogo}
+              // Replace with the actual profile image URL
               alt="Profile"
               className="w-24 h-24 rounded-full border-2 border-gray-300"
             />
@@ -233,113 +324,235 @@ function View() {
               bank_details: VendorData?.bank_details || "",
               description: VendorData?.description || "",
             }}
-            enableReinitialize={true}
-            onSubmit={(values) => {
-              console.log(values);
-              updateVendor(values); // Handle form submission by calling the mutation
+            enableReinitialize
+            // onSubmit={(values) => {
+            //   updateVendor(values);
+            // }}
+            onSubmit={async (values, { setSubmitting }) => {
+              try {
+                await updateVendor(values);
+                console.log("Client updated:", values);
+
+                // Optionally show success alert
+                setShowSuccess(true);
+                setTimeout(() => {
+                  window.location.href = "/erp-v2/vendors";
+                }, 2000);
+              } catch (error) {
+                console.error("Update failed:", error);
+              } finally {
+                setSubmitting(false);
+              }
             }}
           >
-            <Form className="space-y-6 md:space-y-8">
-              <div style={{ color: "red" }}>
-                {/* Display error messages here if needed */}
-              </div>
-
-              {/* Input Fields */}
+            <Form className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {[
-                {
-                  type: "text",
-                  name: "vendor",
-                  placeholder: "Vendor",
-                  label: "Vendor",
-                },
+                { type: "text", name: "vendor", label: "Vendor" },
                 {
                   type: "text",
                   name: "contact_number",
-                  placeholder: "Contact",
-                  label: "Contact number",
+                  label: "Contact Number",
                 },
-                {
-                  type: "email",
-                  name: "email",
-                  placeholder: "Enter email",
-                  label: "Email",
-                },
+                { type: "email", name: "email", label: "Email" },
+                { type: "text", name: "address", label: "Address" },
+                { type: "text", name: "tin", label: "TIN" },
                 {
                   type: "text",
-                  name: "address",
-                  placeholder: "Enter address",
-                  label: "Address",
+                  name: "contact_person",
+                  label: "Contact Person",
                 },
+                { type: "text", name: "bank_details", label: "Bank Details" },
+                { type: "text", name: "description", label: "Description" },
+
                 {
                   type: "select",
                   name: "country",
                   label: "Country",
-                  options: ["PH", "KR", "US", "CAN"],
+                  options: countryList || [],
                 },
-                {
-                  type: "text",
-                  name: "tin",
-                  placeholder: "Enter description",
-                  label: "tin",
-                },
-                {
-                  type: "text",
-                  name: "contact_person",
-                  placeholder: "Enter bank",
-                  label: "contact person",
-                },
-                {
-                  type: "text",
-                  name: "bank_details",
-                  placeholder: "Enter bank",
-                  label: "Bank details",
-                },
-                {
-                  type: "text",
-                  name: "description",
-                  placeholder: "Enter description",
-                  label: "description",
-                },
-              ].map((item) => (
-                <div key={item.name} className="space-y-4">
-                  <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    {item.label}
-                  </label>
-                  {item.type === "select" ? (
-                    <Field
-                      as="select"
-                      name={item.name}
-                      className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                      disabled={!isEditable}
+                // ].map(({ type, name, label }) => (
+              ]
+                .filter(({ name }) => !(isEditable && name === "country"))
+                .map(({ type, name, label }) => (
+                  <div key={name} className="space-y-1">
+                    <label
+                      htmlFor={name}
+                      className="text-sm font-medium uppercase"
                     >
-                      <option value="">Select {item.label}</option>
-                      {item.options?.map((option, index) => (
-                        <option key={index} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </Field>
-                  ) : (
+                      {label}
+                    </label>
                     <Field
-                      type={item.type}
-                      id={item.name}
-                      name={item.name}
+                      type={type}
+                      id={name}
+                      name={name}
+                      placeholder={`Enter ${label}`}
+                      // className="w-full p-2.5 border rounded bg-gray-50 text-sm"
                       className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                      placeholder={item.placeholder}
-                      readOnly={!isEditable} // Conditionally disable input based on isEditable state
-                      // value={item.value}
+                      readOnly={!isEditable}
                     />
-                  )}
-                </div>
-              ))}
+                  </div>
+                ))}
 
-              {/* Submit Button */}
+              {/* {isEditable && (
+                <div className="space-y-1 col-span-1 md:col-span-2">
+                  <label className="text-sm font-medium uppercase">
+                    Country
+                  </label>
+                  <Field name="country">
+                    {({ field, form }: FieldProps) => {
+                      const selectedCountry = countryList?.find(
+                        (c) => c.id === form.values.country
+                      );
+                      const filtered = countryList?.filter((c) =>
+                        c.name.toLowerCase().includes(search.toLowerCase())
+                      );
+
+                      useEffect(() => {
+                        if (!hasInitialized && selectedCountry) {
+                          setSearch(selectedCountry.name);
+                          setHasInitialized(true);
+                        }
+                      }, [selectedCountry, hasInitialized]);
+
+                      return (
+                        <div className="relative">
+                          <input
+                            type="text"
+                            {...field}
+                            value={search}
+                            // name="country"
+                            onChange={(e) => setSearch(e.target.value)}
+                            onFocus={() => setIsOpen(true)}
+                            onBlur={() =>
+                              setTimeout(() => setIsOpen(false), 200)
+                            }
+                            placeholder="Search country..."
+                            // className="w-full p-2.5 border rounded bg-gray-50 text-sm"
+                            className=" bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-97.5 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            readOnly={!isEditable}
+                          />
+                          {isOpen && (
+                            <div className="absolute w-full bg-white shadow-lg max-h-60 overflow-auto z-10">
+                              {filtered!.length > 0 ? (
+                                filtered?.map((country) => (
+                                  <div
+                                    key={country.id}
+                                    className="p-2 hover:bg-gray-200 cursor-pointer"
+                                    onClick={() => {
+                                      form.setFieldValue("country", country.id);
+                                      setSearch(country.name);
+                                      setIsOpen(false);
+                                    }}
+                                  >
+                                    {country.name}
+                                  </div>
+                                ))
+                              ) : (
+                                <div className="p-2 text-gray-500">
+                                  No countries found
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    }}
+                  </Field>
+                </div>
+              )} */}
+
               {isEditable && (
-                <div className="modal-action">
-                  <button
-                    type="submit"
-                    className="px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600"
-                  >
+                <div className="space-y-1 col-span-1 md:col-span-2">
+                  <label className="text-sm font-medium uppercase">
+                    Country
+                  </label>
+                  {/* <Field name="country">
+                    {({ field }: FieldProps) => (
+                      <div className="relative">
+                        <input
+                          type="text"
+                          {...field}
+                          value={search}
+                          onChange={(e) => setSearch(e.target.value)}
+                          onFocus={() => setIsOpen(true)}
+                          onBlur={() => setTimeout(() => setIsOpen(false), 200)}
+                          placeholder="Search country..."
+                          className=" bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-97.5 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                          readOnly={!isEditable}
+                        />
+                        {isOpen && (
+                          <div className="absolute w-full bg-white shadow-lg max-h-60 overflow-auto z-10">
+                            {filtered!.length > 0 ? (
+                              filtered!.map((country) => (
+                                <div
+                                  key={country.id}
+                                  className="p-2 hover:bg-gray-200 cursor-pointer"
+                                  onMouseDown={() => {
+                                    setFieldValue("country", country.id);
+                                    setSearch(country.name);
+                                    setIsOpen(false);
+                                  }}
+                                >
+                                  {country.name}
+                                </div>
+                              ))
+                            ) : (
+                              <div className="p-2 text-gray-500">
+                                No countries found
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </Field> */}
+                  <Field name="country">
+                    {({ field, form }: FieldProps) => (
+                      <div className="relative">
+                        <input
+                          type="text"
+                          {...field}
+                          value={search}
+                          onChange={(e) => setSearch(e.target.value)}
+                          onFocus={() => setIsOpen(true)}
+                          onBlur={() => setTimeout(() => setIsOpen(false), 200)}
+                          placeholder="Search country..."
+                          className=" bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-97.5 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                          readOnly={!isEditable}
+                        />
+                        {isOpen && (
+                          <div className="absolute w-full bg-white shadow-lg max-h-60 overflow-auto z-10">
+                            {filtered!.length > 0 ? (
+                              filtered!.map((country) => (
+                                <div
+                                  key={country.id}
+                                  className="p-2 hover:bg-gray-200 cursor-pointer"
+                                  onMouseDown={() => {
+                                    form.setFieldValue("country", country.id); // ✅ fixed
+                                    setSearch(country.name);
+                                    setIsOpen(false);
+                                  }}
+                                >
+                                  {country.name}
+                                </div>
+                              ))
+                            ) : (
+                              <div className="p-2 text-gray-500">
+                                No countries found
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </Field>
+                </div>
+              )}
+
+              {/* Submit */}
+              {isEditable && (
+                <div className="md:col-span-2 flex justify-end">
+                  <button type="submit" className="btn uppercase">
                     Update
                   </button>
                 </div>
@@ -349,7 +562,7 @@ function View() {
         </div>
 
         {/* Second Column: Table */}
-        <div className="bg-white p-4 rounded-lg shadow-md dark:bg-gray-dark dark:text-white">
+        <div className="bg-white p-4 rounded-lg  dark:bg-gray-dark dark:text-white">
           {/* <AddUnit /> */}
           {isUnitsLoading ? (
             <div>Loading locations...</div>
@@ -365,58 +578,80 @@ function View() {
                   setCurrentPageUnits(1);
                 }}
               />
-              <table className="min-w-full table-auto border-collapse">
-                <thead>
-                  <tr className="text-blue-500">
-                    <th className="p-2 text-left">Product #</th>
-                    <th className="p-2 text-left">Product Name</th>
-                    <th className="p-2 text-left">Active</th>
-                    <th className="p-2 text-left">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {VendorData?.items?.map((item) => (
-                    <tr key={item.id} className="border-b">
-                      <td className="p-2">{item.item_no}</td>
-                      <td className="p-2">{item.item_no}</td>{" "}
-                      {/* Change to item.name if applicable */}
-                      <td className="p-2">
-                        {item.is_active ? "Active" : "Inactive"}
-                      </td>
-                      <td className="p-2">
-                        {/* <button
-                          className="btn btn-primary mr-2"
-                          onClick={() => {
-                            setSelectedLocation(item);
-                            setIsLocationModalOpen(true);
-                          }}
-                        >
-                          View
-                        </button> */}
-                        <Link href={`/erp-v2/vendors/view-item/${item.id}`}>
-                          <button className="btn btn-info">View</button>
-                        </Link>
-
-                        {/* <button
-                          className="btn btn-secondary"
-                          onClick={() => {
-                            const confirmDelete = window.confirm(
-                              "Are you sure you want to delete this item?"
-                            );
-                            if (confirmDelete) deleteLocationMutation(item.id);
-                          }}
-                        >
-                          Delete
-                        </button> */}
+              <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
+                <table
+                  style={{ width: "100%" }}
+                  className="table-zebra table-xs w-full border border-gray-200 rounded-lg shadow-lg"
+                >
+                  <thead className="bg-white text-black  border-b-gray-400">
+                    <tr className="text-sm font-medium text-center uppercase">
+                      <th className="p-2 text-center">Product #</th>
+                      <th className="p-2 text-center">Product Name</th>
+                      <th className="p-2 text-center">Active</th>
+                      <th className="p-2 text-center">Actions</th>
+                    </tr>
+                  </thead>
+                  {/* <tbody>
+                  {VendorData?.items?.length > 0 ? (
+                    VendorData?.items.map((item) => (
+                      <tr key={item.id} className="border-b">
+                        <td className="p-2 text-center">{item.item_no}</td>
+                        <td className="p-2 text-center">{item.item}</td>
+                        <td className="p-2 text-center">
+                          {item.is_active ? "True" : "False"}
+                        </td>
+                        <td className="p-2 text-center">
+                          <Link href={`/erp-v2/vendors/view-item/${item.id}`}>
+                            <button className="uppercase px-3 py-1 text-xs font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 transition  gap-2">
+                              View
+                            </button>
+                          </Link>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={4} className="p-4 text-center text-gray-500">
+                        No records found.
                       </td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  )}
+                </tbody> */}
+                  <tbody>
+                    {paginatedVendorData!.length > 0 ? (
+                      paginatedVendorData?.map((item) => (
+                        <tr key={item.id} className="">
+                          <td className="p-2 text-center">{item.item_no}</td>
+                          <td className="p-2 text-center">{item.item}</td>
+                          <td className="p-2 text-center">
+                            {item.is_active ? "True" : "False"}
+                          </td>
+                          <td className="text-xs flex gap-2 justify-center py-1 px-4">
+                            <Link href={`/erp-v2/vendors/view-item/${item.id}`}>
+                              <button className="hover:underline hover:cursor-pointer flex items-center gap-2   text-blue-800  px-4 py-2 transition duration-200 uppercase">
+                                View
+                              </button>
+                            </Link>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td
+                          colSpan={4}
+                          className="p-4 text-center text-gray-500"
+                        >
+                          No records found.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
               <div className="flex justify-end items-center mt-4 gap-2">
                 <button
                   onClick={handlePrevUnits}
-                  className="btn bg-blue-500 text-xs text-white hover:bg-blue-600 disabled:bg-gray-300"
+                  className="px-4 py-2 bg-gray-700 text-white rounded-md disabled:bg-gray-500 hover:bg-maroon-800 transition"
                   disabled={currentPageUnits === 1}
                 >
                   Previous
@@ -426,7 +661,7 @@ function View() {
                 </span>
                 <button
                   onClick={handleNextUnits}
-                  className="btn bg-blue-500 text-xs text-white hover:bg-blue-600 disabled:bg-gray-300"
+                  className="px-4 py-2 bg-gray-700 text-white rounded-md disabled:bg-gray-500 hover:bg-maroon-800 transition"
                   disabled={currentPageUnits === totalPagesUnits}
                 >
                   Next

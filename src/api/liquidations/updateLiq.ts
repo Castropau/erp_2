@@ -63,7 +63,7 @@ export interface Liq{
 
 export async function updateLiqById(id: number): Promise<Liq> {
   const token = await getCookies("token");
-  const response = await fetch(`http://192.168.0.249:8001/api/v1/liquidations/${id}`, {
+  const response = await fetch(`${process.env.baseUrl}/api/v1/liquidations/${id}`, {
     headers: {
       Authorization: `Bearer ${token?.value}`,
     },

@@ -5,7 +5,7 @@ import Link from "next/link";
 
 function Detail() {
   const [showMenu, setShowMenu] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage] = useState("");
   const [isEditMode, setIsEditMode] = useState(false); // Track whether in edit mode
 
   const toggleMenu = () => {

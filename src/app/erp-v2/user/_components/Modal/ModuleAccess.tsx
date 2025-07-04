@@ -1,19 +1,31 @@
 import React, { useState } from "react";
-import { Formik, Field, Form, ErrorMessage } from "formik";
-
-const validatedForm = (values: any) => {
-  const errors: any = {};
-  if (!values.fullName) {
-    errors.fullName = "Full Name is required";
-  }
-  if (!values.email) {
-    errors.email = "Email is required";
-  }
-  return errors;
-};
+import { Formik, Field, Form } from "formik";
+import { useQuery } from "@tanstack/react-query";
+import { fetchPermission, PermissionList } from "@/api/User/fetchPermission";
 
 function ModuleAccess() {
   const [showEditModal, setShowEditModal] = useState(false);
+
+  // Fetch permissions with React Query
+  const {
+    data: permissions,
+    isLoading,
+    error,
+  } = useQuery<PermissionList[]>({
+    queryKey: ["permissions"],
+    queryFn: fetchPermission,
+  });
+
+  // While loading or error, show some feedback
+  if (isLoading) return <div>Loading permissions...</div>;
+  if (error) return <div>Error loading permissions</div>;
+
+  // Create initial form values: one checkbox per permission (all false)
+  const initialValues =
+    permissions?.reduce((acc, perm) => {
+      acc[perm.codename] = false;
+      return acc;
+    }, {} as Record<string, boolean>) || {};
 
   return (
     <div>
@@ -22,70 +34,51 @@ function ModuleAccess() {
       </button>
 
       {showEditModal && (
-        <div className="fixed inset-0 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+        <div className="fixed inset-0 flex items-center justify-center bg-opacity-30">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96 max-h-[80vh] overflow-auto">
             <h2 className="text-xl font-semibold mb-4">Module Access</h2>
+
             <Formik
-              initialValues={{ fullName: "", email: "" }}
-              validate={validatedForm}
+              initialValues={initialValues}
               onSubmit={(values, { setSubmitting }) => {
-                setTimeout(() => {
-                  console.log(values);
-                  setSubmitting(false);
-                  setShowEditModal(false);
-                }, 400);
+                console.log("Selected permissions:", values);
+                setSubmitting(false);
+                setShowEditModal(false);
               }}
             >
               {({ isSubmitting }) => (
                 <Form>
-                  <div className="mb-4">
-                    <label className="block mb-2" htmlFor="fullName">
-                      Full Name
-                    </label>
-                    <Field
-                      type="text"
-                      id="fullName"
-                      name="fullName"
-                      className="input w-full border border-gray-300 rounded p-2"
-                    />
-                    <ErrorMessage
-                      name="fullName"
-                      component="div"
-                      className="text-red-500 text-sm"
-                    />
+                  <div className="space-y-2 max-h-60 overflow-y-auto mb-4">
+                    {permissions?.map((perm) => (
+                      <label
+                        key={perm.id}
+                        className="flex items-center space-x-2"
+                      >
+                        <Field
+                          type="checkbox"
+                          name={perm.codename}
+                          className="checkbox"
+                        />
+                        <span>{perm.name}</span>
+                      </label>
+                    ))}
                   </div>
 
-                  <div className="mb-4">
-                    <label className="block mb-2" htmlFor="email">
-                      Email
-                    </label>
-                    <Field
-                      type="email"
-                      id="email"
-                      name="email"
-                      className="input w-full border border-gray-300 rounded p-2"
-                    />
-                    <ErrorMessage
-                      name="email"
-                      component="div"
-                      className="text-red-500 text-sm"
-                    />
-                  </div>
-
-                  <div className="flex justify-end">
+                  <div className="flex justify-end space-x-2">
                     <button
                       type="button"
-                      className="btn btn-secondary mr-2"
-                      onClick={() => setShowEditModal(false)} // Close modal
+                      className="btn btn-ghost uppercase"
+                      onClick={() => setShowEditModal(false)}
+                      disabled={isSubmitting}
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      className="btn btn-primary"
+                      className="btn uppercase"
                       disabled={isSubmitting}
                     >
-                      {isSubmitting ? "Submitting..." : "Submit"}
+                      {isSubmitting ? "Saving..." : "Save"}
                     </button>
                   </div>
                 </Form>

@@ -199,7 +199,7 @@ export default function ViewChequeRequest() {
                         )
                       )}
                       <FieldArray name="items">
-                        {({ insert, remove, push }) => (
+                        {({ remove, push }) => (
                           <div>
                             <button
                               type="button"

@@ -4,35 +4,42 @@ import React, { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChequeItems } from "@/api/cheque-request/fetchItems";
 import { ChequeUnits } from "@/api/cheque-request/fetchUnits";
-import { UpdateItems, updateItems } from "@/api/cheque-request/UpdateItem";
-import {
-  updateLocation,
-  UpdateLocation,
-} from "@/api/cheque-request/UpdateLocation";
-import { deleteItem } from "@/api/cheque-request/DeleteItem";
-import { deleteLocation } from "@/api/cheque-request/DeleteLocation";
+// import { UpdateItems, updateItems } from "@/api/cheque-request/UpdateItem";
+// import {
+//   updateLocation,
+//   UpdateLocation,
+// } from "@/api/cheque-request/UpdateLocation";
+// import { deleteItem } from "@/api/cheque-request/DeleteItem";
+// import { deleteLocation } from "@/api/cheque-request/DeleteLocation";
 import Link from "next/link";
-import { IoMdArrowBack } from "react-icons/io";
+// import { IoMdArrowBack } from "react-icons/io";
 // import ViewClients from "../../_components/Modal/ViewClients";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { fetchClientDataById } from "@/api/clients/fetchClientsView";
-import ViewClients from "../../_components/Modal/ViewClients";
+// import ViewClients from "../../_components/Modal/ViewClients";
 import { updateClient, UpdateClient } from "@/api/clients/updateClient";
-import ViewQuo from "../../_components/ViewQuo";
+import NotFound from "@/components/Error/NotFound";
+// import ViewQuo from "../../_components/ViewQuo";
+// const [loadingId, setLoadingId] = useState<number | null>(null); // ✅ now valid
 
 function View() {
   const [isEditable, setIsEditable] = useState(false); // State to toggle between edit and view mode
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<any | null>(null);
-  const [selectedLocation, setSelectedLocation] = useState<any | null>(null);
-  const [isItemModalOpen, setIsItemModalOpen] = useState(false);
-  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  // const [isModalOpen, setIsModalOpen] = useState(false);
+  // const [selectedItem, setSelectedItem] = useState<any | null>(null);
+  // const [selectedLocation, setSelectedLocation] = useState<any | null>(null);
+  // const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+  // const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+  // const [searchTerm] = useState("");
   const [searchTermLocation, setSearchTermLocation] = useState("");
-  const [currentPageItems, setCurrentPageItems] = useState(1);
+  // const [currentPageItems, setCurrentPageItems] = useState(1);
   const [currentPageUnits, setCurrentPageUnits] = useState(1);
+  const [currentPagees, setCurrentPagee] = useState(1);
+  // const [currentPages, setCurrentPages] = useState(1);
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const params = useParams();
+  const router = useRouter();
   const id = Number(params?.id);
 
   const handleEditToggle = () => {
@@ -44,11 +51,14 @@ function View() {
   const queryClient = useQueryClient();
 
   const rowsPerPage = 10;
-
+  const handleViewClick = (id: string) => {
+    setLoadingId(id);
+    router.push(`/erp-v2/quotation/edit-quo/${id}`);
+  };
   const {
-    isLoading: isItemsLoading,
-    error: itemsError,
-    data: itemsData,
+    // isLoading: isItemsLoading,
+    // error: itemsError,
+    // data: itemsData,
   } = useQuery({
     queryKey: ["items"],
     queryFn: ChequeItems,
@@ -56,7 +66,7 @@ function View() {
   const {
     data: VendorData,
     isLoading: isCLoading,
-    isError: cerror,
+    // isError: cerror,
     error: cerrors,
   } = useQuery({
     queryKey: ["client", id],
@@ -64,64 +74,108 @@ function View() {
 
     enabled: !!id,
   });
+
   const {
     isLoading: isUnitsLoading,
-    error: UnitsError,
-    data: unitsData,
+    // error: UnitsError,
+    // data: unitsData,
   } = useQuery({
     queryKey: ["units"],
     queryFn: ChequeUnits,
   });
   const { mutate: updateClients } = useMutation({
-    mutationFn: (data: UpdateClient) => updateClient(VendorData!.id, data),
+    mutationFn: (data: UpdateClient) =>
+      updateClient(VendorData!.id as number, data),
     onSuccess: () => {
       console.log("vendor updated successfully");
 
       queryClient.invalidateQueries({ queryKey: ["client", id] });
       queryClient.invalidateQueries({ queryKey: ["client"] });
-      setShowEditModal(false);
+      // setShowEditModal(false);
     },
     onError: (error) => {
       console.error("Error updating cheque:", error);
     },
   });
 
-  const totalPagesItems = Math.ceil((itemsData?.length || 0) / rowsPerPage);
-  const totalPagesUnits = Math.ceil((unitsData?.length || 0) / rowsPerPage);
+  // const filteredQuotations = VendorData?.quotations.filter(
+  //   (q) =>
+  //     q.project_name
+  //       ?.toLowerCase()
+  //       .includes(searchTermLocation.toLowerCase()) ||
+  //     q.quotation_no?.toLowerCase().includes(searchTermLocation.toLowerCase())
+  // );
 
-  const filteredItemsData = itemsData?.filter((item) =>
-    item.item.toLowerCase().includes(searchTerm.toLowerCase())
+  const newVendorData = VendorData?.quotations.filter((data) =>
+    Object.values(data).some(
+      (val) =>
+        typeof val == "string" &&
+        val
+          .toLocaleLowerCase()
+          .includes(searchTermLocation?.toLocaleLowerCase() || "")
+    )
   );
 
-  const filteredUnitsData = unitsData?.filter((location) =>
-    location.unit_of_measurement
-      .toLowerCase()
-      .includes(searchTermLocation.toLowerCase())
-  );
+  // const indexOfLastRowUnits = currentPageUnits * rowsPerPage;
+  // const indexOfFirstRowUnits = indexOfLastRowUnits - rowsPerPage;
+  // const currentUnitsRows = filteredQuotations?.slice(
+  //   indexOfFirstRowUnits,
+  //   indexOfLastRowUnits
+  // );
+  // const paginatedVendorData = newVendorData?.slice(
+  //   (currentPageUnits - 1) * rowsPerPage,
+  //   currentPageUnits * rowsPerPage
+  // );
 
-  const indexOfLastRowItems = currentPageItems * rowsPerPage;
-  const indexOfFirstRowItems = indexOfLastRowItems - rowsPerPage;
-  const currentItemsRows = filteredItemsData?.slice(
-    indexOfFirstRowItems,
-    indexOfLastRowItems
-  );
+  const totalPagesUnits = Math.ceil((newVendorData?.length || 0) / rowsPerPage);
+  // const totalPagesItems = Math.ceil((itemsData?.length || 0) / rowsPerPage);
+  // const totalPagesUnits = Math.ceil((unitsData?.length || 0) / rowsPerPage);
 
-  const indexOfLastRowUnits = currentPageUnits * rowsPerPage;
-  const indexOfFirstRowUnits = indexOfLastRowUnits - rowsPerPage;
-  const currentUnitsRows = filteredUnitsData?.slice(
-    indexOfFirstRowUnits,
-    indexOfLastRowUnits
-  );
+  // const filteredItemsData = itemsData?.filter((item) =>
+  //   item.item.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
 
-  const handlePrevItems = () => {
-    if (currentPageItems > 1) setCurrentPageItems(currentPageItems - 1);
-  };
+  // const filteredUnitsData = unitsData?.filter((location) =>
+  //   location.unit_of_measurement
+  //     .toLowerCase()
+  //     .includes(searchTermLocation.toLowerCase())
+  // );
+  // const totalPagesUnits = Math.ceil(
+  //   (filteredUnitsData?.length || 0) / rowsPerPage
+  // );
+  // const indexOfLastRowItems = currentPageItems * rowsPerPage;
+  // const indexOfFirstRowItems = indexOfLastRowItems - rowsPerPage;
 
-  const handleNextItems = () => {
-    if (currentPageItems < totalPagesItems)
-      setCurrentPageItems(currentPageItems + 1);
-  };
+  // const indexOfLastRowUnits = currentPageUnits * rowsPerPage;
+  // const indexOfFirstRowUnits = indexOfLastRowUnits - rowsPerPage;
+  // const currentUnitsRows = filteredUnitsData?.slice(
+  //   indexOfFirstRowUnits,
+  //   indexOfLastRowUnits
+  // );
 
+  const ITEMS_PER_PAGE = 5;
+
+  // Ensure quotations is always an array
+  const quotationss = VendorData?.quotations || [];
+
+  const totalPagess = Math.ceil(quotationss.length / ITEMS_PER_PAGE);
+  // const startIndex = (currentPagees - 1) * ITEMS_PER_PAGE;
+  // const paginatedQuotationss = quotationss.slice(
+  //   startIndex,
+  //   startIndex + ITEMS_PER_PAGE
+  // );
+
+  const ITEMS_PER_PAGES = 5;
+
+  // Ensure quotations is always an array
+  // const quotations = VendorData?.quotations || [];
+
+  const totalPages = Math.ceil(quotationss.length / ITEMS_PER_PAGES);
+  // const startIndexs = (currentPagees - 1) * ITEMS_PER_PAGES;
+  // const paginatedQuotations = quotationss.slice(
+  //   startIndexs,
+  //   startIndexs + ITEMS_PER_PAGES
+  // );
   const handlePrevUnits = () => {
     if (currentPageUnits > 1) setCurrentPageUnits(currentPageUnits - 1);
   };
@@ -130,203 +184,115 @@ function View() {
     if (currentPageUnits < totalPagesUnits)
       setCurrentPageUnits(currentPageUnits + 1);
   };
+  const handleNext = () => {
+    if (currentPagees < totalPagess) setCurrentPagee((prev) => prev + 1);
+  };
 
-  // update item mutation
-  const { mutate: updatedItem } = useMutation({
-    mutationFn: (data: UpdateItems) => updateItems(data.id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["items"] });
-      setIsItemModalOpen(false);
-    },
-  });
+  const handlePrev = () => {
+    if (currentPagees > 1) setCurrentPagee((prev) => prev - 1);
+  };
+  const filteredQuotationsLeft = VendorData?.quotations.filter((data) =>
+    Object.values(data).some(
+      (val) =>
+        typeof val === "string" &&
+        val.toLowerCase().includes(searchTermLocation.toLowerCase())
+    )
+  );
 
-  // update location mutation
-  const { mutate: updateLoc } = useMutation({
-    mutationFn: (data: UpdateLocation) => updateLocation(data.id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["units"] });
-      setIsLocationModalOpen(false);
-    },
-  });
+  const filteredQuotationsRight = VendorData?.quotations.filter(
+    (data) =>
+      data.project_name
+        ?.toLowerCase()
+        .includes(searchTermLocation.toLowerCase()) ||
+      data.quotation_no
+        ?.toLowerCase()
+        .includes(searchTermLocation.toLowerCase())
+  );
 
-  // delete item mutation
-  const { mutate: deleteItemMutation } = useMutation({
-    mutationFn: (id: number) => deleteItem(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["items"] });
-    },
-  });
+  // LEFT TABLE (Created By / Date)
+  // const totalPagesLeft = Math.ceil(
+  //   (filteredQuotationsLeft?.length || 0) / rowsPerPage
+  // );
+  const paginatedLeft = filteredQuotationsLeft?.slice(
+    (currentPagees - 1) * rowsPerPage,
+    currentPagees * rowsPerPage
+  );
 
-  // delete location mutation
-  const { mutate: deleteLocationMutation } = useMutation({
-    mutationFn: (id: number) => deleteLocation(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["units"] });
-    },
-  });
+  // RIGHT TABLE (Quotation / Project Name)
+  // const totalPagesRight = Math.ceil(
+  //   (filteredQuotationsRight?.length || 0) / rowsPerPage
+  // );
+  const paginatedRight = filteredQuotationsRight?.slice(
+    (currentPageUnits - 1) * rowsPerPage,
+    currentPageUnits * rowsPerPage
+  );
+
+  if (cerrors) {
+    return <NotFound />;
+  }
+  if (isCLoading) {
+    return (
+      <div className="p-4 flex justify-center items-center min-h-screen">
+        <div className="flex flex-col items-center space-y-4">
+          {/* Loading Spinner */}
+          <div className="dark:border-gray-200 dark:border-t-white  w-16 h-16 border-4 border-t-4 border-gray-800 border-dashed rounded-full animate-spin"></div>
+
+          <span className="text-lg text-gray-700 dark:text-white">
+            Please wait...
+          </span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="ml-auto">
-        <Link href="/erp-v2/clients">
-          <button className="btn btn-info">
-            <IoMdArrowBack />
+        {/* <Link href="/erp-v2/clients">
+          <button className="btn uppercase">
             Back to Clients
           </button>
-        </Link>
+        </Link> */}
       </div>
-      <div className="grid grid-cols-2 gap-6">
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold flex justify-between items-center">
-            Personal Information
-            <div className="flex space-x-2">
+      {/* <div className="grid grid-cols-2 gap-6"> */}
+      {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-6"> */}
+      <div>
+        {showSuccess && (
+          <div role="alert" className="alert alert-success">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6 shrink-0 stroke-current"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <span>Updated successfully!</span>
+          </div>
+        )}
+        {/* Left Column */}
+        <div className="">
+          <div className="flex items-center">
+            <div className="flex justify-start gap-2 mt-2">
+              <Link href="/erp-v2/clients">
+                <button className="btn uppercase">Back to Clients</button>
+              </Link>
               {!isEditable ? (
-                <button
-                  onClick={handleEditToggle}
-                  className="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600"
-                >
-                  Edits
+                <button onClick={handleEditToggle} className="btn uppercase">
+                  Edit
                 </button>
               ) : (
                 <>
-                  <button
-                    onClick={handleCancel}
-                    className="px-4 py-2 text-white bg-gray-500 rounded-lg hover:bg-gray-600"
-                  >
+                  <button onClick={handleCancel} className="btn uppercase">
                     Cancel
-                  </button>
-                  <button
-                    onClick={handleEditToggle}
-                    className="px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600"
-                  >
-                    Update
                   </button>
                 </>
               )}
-            </div>
-          </h2>
-
-          {/* Profile Image */}
-          <div className="flex justify-center mb-4">
-            <img
-              src="https://via.placeholder.com/100"
-              alt="Profile"
-              className="w-24 h-24 rounded-full border-2 border-gray-300"
-            />
-          </div>
-
-          <Formik
-            initialValues={{
-              client: VendorData?.client || "",
-              address: VendorData?.address || "",
-              contact_person: VendorData?.contact_person || "",
-              position: VendorData?.position || "",
-              contact_number: VendorData?.contact_number || "",
-              email: VendorData?.email || "",
-            }}
-            enableReinitialize={true}
-            onSubmit={(values) => {
-              console.log(values);
-              updateClients(values); // Handle form submission by calling the mutation
-            }}
-          >
-            <Form className="space-y-6 md:space-y-8">
-              <div style={{ color: "red" }}>
-                {/* Display error messages here if needed */}
-              </div>
-
-              {/* Input Fields */}
-              {[
-                {
-                  type: "text",
-                  name: "client",
-                  placeholder: "Vendor",
-                  label: "client",
-                },
-                {
-                  type: "text",
-                  name: "address",
-                  placeholder: "Contact",
-                  label: "address",
-                },
-                {
-                  type: "text",
-                  name: "contact_person",
-                  placeholder: "Enter email",
-                  label: "contact_person",
-                },
-                {
-                  type: "text",
-                  name: "position",
-                  placeholder: "Enter address",
-                  label: "position",
-                },
-                {
-                  type: "text",
-                  name: "contact_number",
-                  placeholder: "Enter address",
-                  label: "contact_number",
-                },
-
-                {
-                  type: "email",
-                  name: "email",
-                  placeholder: "Enter description",
-                  label: "email",
-                },
-              ].map((item) => (
-                <div key={item.name} className="space-y-4">
-                  <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    {item.label}
-                  </label>
-                  {item.type === "select" ? (
-                    <Field
-                      as="select"
-                      name={item.name}
-                      className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                      disabled={!isEditable}
-                    >
-                      <option value="">Select {item.label}</option>
-                      {item.options?.map((option, index) => (
-                        <option key={index} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </Field>
-                  ) : (
-                    <Field
-                      type={item.type}
-                      id={item.name}
-                      name={item.name}
-                      className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                      placeholder={item.placeholder}
-                      readOnly={!isEditable} // Conditionally disable input based on isEditable state
-                    />
-                  )}
-                </div>
-              ))}
-
-              {/* Submit Button */}
-              {isEditable && (
-                <div className="modal-action">
-                  <button
-                    type="submit"
-                    className="px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600"
-                  >
-                    Update
-                  </button>
-                </div>
-              )}
-            </Form>
-          </Formik>
-        </div>
-
-        {/* Second Column: Table */}
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          {/* <AddUnit /> */}
-          {isUnitsLoading ? (
-            <div>Loading locations...</div>
-          ) : (
-            <>
               <input
                 type="search"
                 className="w-120 mb-4 p-2 border rounded"
@@ -337,54 +303,336 @@ function View() {
                   setCurrentPageUnits(1);
                 }}
               />
-              <table className="min-w-full table-auto border-collapse">
-                <thead>
-                  <tr className="text-blue-500">
-                    <th className="p-2 text-left">Quotation #</th>
-                    <th className="p-2 text-left">Product Name</th>
+            </div>
+          </div>
 
-                    <th className="p-2 text-left">Actions</th>
+          {/* Profile Image */}
+          <div className="flex flex-col items-center">
+            <img
+              src="/images/logo.png"
+              alt="Profile"
+              className="w-24 h-24 rounded-full border-2 border-gray-300"
+            />
+            <span className=" text-lg text-center font-bold uppercase">
+              {VendorData?.client}
+            </span>
+          </div>
+
+          {/* Formik Form */}
+          <Formik
+            initialValues={{
+              client: VendorData?.client || "",
+              address: VendorData?.address || "",
+              contact_person: VendorData?.contact_person || "",
+              position: VendorData?.position || "",
+              contact_number: VendorData?.contact_number || "",
+              email: VendorData?.email || "",
+              date_created: VendorData?.date_created || "",
+              created_by: VendorData?.created_by || "",
+              id: "",
+            }}
+            enableReinitialize={true}
+            // onSubmit={(values) => {
+            //   updateClients(values);
+            // }}
+            onSubmit={async (values, { setSubmitting }) => {
+              try {
+                await updateClients(values);
+                console.log("Client updated:", values);
+
+                // Optionally show success alert
+                setShowSuccess(true);
+                setTimeout(() => {
+                  window.location.href = "/erp-v2/clients";
+                }, 2000);
+              } catch (error) {
+                console.error("Update failed:", error);
+              } finally {
+                setSubmitting(false);
+              }
+            }}
+          >
+            <Form className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-2">
+              {/* Input Fields */}
+              {[
+                {
+                  type: "text",
+                  name: "client",
+                  placeholder: "Vendor",
+                  label: "Client",
+                },
+                {
+                  type: "text",
+                  name: "address",
+                  placeholder: "Enter address",
+                  label: "Address",
+                },
+                {
+                  type: "text",
+                  name: "contact_person",
+                  placeholder: "Enter contact person",
+                  label: "Contact Person",
+                },
+                {
+                  type: "text",
+                  name: "position",
+                  placeholder: "Enter position",
+                  label: "Position",
+                },
+                {
+                  type: "text",
+                  name: "contact_number",
+                  placeholder: "Enter contact number",
+                  label: "Contact Number",
+                },
+                {
+                  type: "email",
+                  name: "email",
+                  placeholder: "Enter email",
+                  label: "Email",
+                },
+              ].map((item) => (
+                <div key={item.name} className="flex flex-col space-y-1">
+                  <label
+                    htmlFor={item.name}
+                    className="text-center uppercase text-sm font-semibold text-gray-700 dark:text-white"
+                  >
+                    {item.label}
+                  </label>
+                  <Field
+                    type={item.type}
+                    id={item.name}
+                    name={item.name}
+                    placeholder={item.placeholder}
+                    readOnly={!isEditable}
+                    className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  />
+                </div>
+              ))}
+              {/* {isEditable && (
+                <div className="modal-action">
+                  <button type="submit" className=" btn uppercase">
+                    Update
+                  </button>
+                </div>
+              )} */}
+              {isEditable && (
+                <div className="col-span-6 flex justify-end">
+                  <button type="submit" className="btn uppercase">
+                    Update
+                  </button>
+                </div>
+              )}
+            </Form>
+          </Formik>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+          <div className="">
+            {/* <input
+              type="search"
+              className="w-120 mb-4 p-2 border rounded"
+              placeholder="Search"
+              value={searchTermLocation}
+              onChange={(e) => {
+                setSearchTermLocation(e.target.value);
+                setCurrentPageUnits(1);
+              }}
+            /> */}
+            <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
+              <table
+                style={{ width: "100%" }}
+                className="table-zebra table-xs w-full border border-gray-200 rounded-lg shadow-lg"
+              >
+                <thead className="bg-white text-black  border-b-gray-400">
+                  <tr className="text-sm font-medium text-center uppercase">
+                    <th className="p-2 text-center">created by</th>
+                    <th className="p-2 text-center">date created </th>
+
+                    {/* <th className="p-2 text-center">Actions</th> */}
                   </tr>
                 </thead>
-                <tbody>
+                {/* <tbody>
                   {VendorData?.quotations?.map((quotation) => (
                     <tr key={quotation.id} className="border-b">
                       <td className="p-2">{quotation.quotation_no}</td>
                       <td className="p-2">{quotation.project_name}</td>
                       <td className="p-2">
-                        {/* <button
+                        <button
                           //   onClick={() => handleViewQuotation(quotation.id)}
                           className="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600"
                         >
                           View
-                        </button> */}
+                        </button>
                         <ViewQuo id={quotation.id} />
                       </td>
                     </tr>
                   ))}
+                </tbody> */}
+                <tbody>
+                  {paginatedLeft!.length > 0 ? (
+                    paginatedLeft!.map((quotation) => (
+                      <tr key={quotation.id}>
+                        <td className="p-2 text-center">
+                          {quotation.created_by}
+                        </td>
+                        <td className="p-2 text-center">
+                          {VendorData!.date_created}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={2} className="p-4 text-center text-gray-500">
+                        No records found.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
-              <div className="flex justify-end items-center mt-4 gap-2">
+              <div className="flex justify-end items-center gap-2 mt-3 text-sm">
                 <button
-                  onClick={handlePrevUnits}
-                  className="btn bg-blue-500 text-xs text-white hover:bg-blue-600 disabled:bg-gray-300"
-                  disabled={currentPageUnits === 1}
+                  onClick={handlePrev}
+                  disabled={currentPagees === 1}
+                  className="px-4 py-2 bg-gray-700 text-white rounded-md disabled:bg-gray-400 hover:bg-gray-800 transition"
                 >
                   Previous
                 </button>
-                <span className="text-xs mr-2">
-                  Page {currentPageUnits} of {totalPagesUnits}
+
+                <span className="text-gray-700 dark:text-white">
+                  Page {currentPagees} of {totalPagess}
                 </span>
+
                 <button
-                  onClick={handleNextUnits}
-                  className="btn bg-blue-500 text-xs text-white hover:bg-blue-600 disabled:bg-gray-300"
-                  disabled={currentPageUnits === totalPagesUnits}
+                  onClick={handleNext}
+                  disabled={currentPagees === totalPagess}
+                  className="px-4 py-2 bg-gray-700 text-white rounded-md disabled:bg-gray-400 hover:bg-gray-800 transition"
                 >
                   Next
                 </button>
               </div>
-            </>
-          )}
+            </div>
+          </div>
+          {/* Submit Button */}
+          {/* {isEditable && (
+                <div className="modal-action">
+                  <button type="submit" className="btn uppercase">
+                    Update
+                  </button>
+                </div>
+              )}
+            </Form>
+          </Formik> */}
+
+          {/* Second Column: Table */}
+          <div className="bg-white rounded-lg  dark:bg-gray-700 dark:text-white">
+            {/* <AddUnit /> */}
+            {isUnitsLoading ? (
+              <div>Loading locations...</div>
+            ) : (
+              <>
+                {/* <input
+                  type="search"
+                  className="w-120 mb-4 p-2 border rounded"
+                  placeholder="Search"
+                  value={searchTermLocation}
+                  onChange={(e) => {
+                    setSearchTermLocation(e.target.value);
+                    setCurrentPageUnits(1);
+                  }}
+                /> */}
+                <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
+                  <table
+                    style={{ width: "100%" }}
+                    className="table-zebra table-xs w-full border border-gray-200 rounded-lg shadow-lg"
+                  >
+                    <thead className="bg-white text-black  border-b-gray-400">
+                      <tr className="text-sm font-medium text-center uppercase">
+                        <th className="p-2 text-center">Quotation #</th>
+                        <th className="p-2 text-center">Product Name</th>
+
+                        <th className="p-2 text-center">Actions</th>
+                      </tr>
+                    </thead>
+                    {/* <tbody>
+                  {VendorData?.quotations?.map((quotation) => (
+                    <tr key={quotation.id} className="border-b">
+                      <td className="p-2">{quotation.quotation_no}</td>
+                      <td className="p-2">{quotation.project_name}</td>
+                      <td className="p-2">
+                        <button
+                          //   onClick={() => handleViewQuotation(quotation.id)}
+                          className="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600"
+                        >
+                          View
+                        </button>
+                        <ViewQuo id={quotation.id} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody> */}
+                    <tbody>
+                      {paginatedRight && paginatedRight.length > 0 ? (
+                        paginatedRight.map((unit) => (
+                          <tr key={unit.id} className="">
+                            <td className="p-2 text-center">
+                              {unit.quotation_no}
+                            </td>
+                            <td className="p-2 text-center">
+                              {unit.project_name}
+                            </td>
+                            <td className="p-2 flex justify-center items-center">
+                              {/* <View id={unit.id} /> */}
+                              <button
+                                onClick={() =>
+                                  handleViewClick(unit.id.toString())
+                                }
+                                className="hover:underline hover:cursor-pointer flex items-center gap-2   text-blue-800 transition duration-200 uppercase"
+                                disabled={loadingId === unit.id.toString()}
+                              >
+                                {loadingId === unit.id.toString() ? (
+                                  <span className="w-4 h-4 border-2 border-blue-900 border-t-transparent rounded-full animate-spin"></span>
+                                ) : (
+                                  "View"
+                                )}
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td
+                            colSpan={3}
+                            className="p-4 text-center text-gray-500"
+                          >
+                            No records found.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="flex justify-end items-center gap-2 mt-3 text-sm">
+                  <button
+                    onClick={handlePrevUnits}
+                    className="px-4 py-2 bg-gray-700 text-white rounded-md disabled:bg-gray-400 hover:bg-gray-800 transition"
+                    disabled={currentPageUnits === 1}
+                  >
+                    Previous
+                  </button>
+                  <span className="text-xs mr-2">
+                    Page {currentPageUnits} of {totalPages}
+                  </span>
+                  <button
+                    onClick={handleNextUnits}
+                    className="px-4 py-2 bg-gray-700 text-white rounded-md disabled:bg-gray-400 hover:bg-gray-800 transition"
+                    disabled={currentPageUnits === totalPages}
+                  >
+                    Next
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </>

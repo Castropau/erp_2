@@ -1,4 +1,5 @@
-import { getCookies } from "@/server/getToken";
+// import { getCookies } from "@/server/getToken";
+import { api } from "../api";
 
 interface requestedBy{
     id: number;
@@ -34,18 +35,36 @@ export interface ChequeId {
   address: string;
   date_of_purchase: string;
   remarks: string;
+  sub_total: string;
+  discount: number;
+  vat_value: number;
+  ewt_value: number;
+  cheque_no: string;
   
 } 
 
 export async function fetchChequeById(id: string): Promise<ChequeId> {
-  const token = await getCookies("token");
-  const response = await fetch(`http://192.168.0.249:8001/api/v1/requisitions/cheque/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token?.value}`,
-    },
-  });
-  if (!response.ok) {
-    throw new Error("Network response was not ok");
+//   const token = await getCookies("token");
+//   const response = await fetch(`${process.env.baseUrl}/api/v1/requisitions/cheque/${id}`, {
+//     headers: {
+//       Authorization: `Bearer ${token?.value}`,
+//     },
+//   });
+//   if (!response.ok) {
+//     throw new Error("Network response was not ok");
+//   }
+//   return response.json();
+// }
+try {
+    const response = await api.get<ChequeId>(`/api/v1/requisitions/cheque/${id}/`, {
+      // headers: {
+      //   Authorization: `Bearer ${token?.value}`,
+      // },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to fetch cash with ID ${id}:`, error);
+    throw new Error("Failed to fetch cash details.");
   }
-  return response.json();
 }

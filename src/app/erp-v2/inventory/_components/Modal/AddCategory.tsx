@@ -1,25 +1,20 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  QueryClient,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 /** components */
-import { FaCirclePlus } from "react-icons/fa6";
+// import { FaCirclePlus } from "react-icons/fa6";
 
-/** api */
-import { registerUser } from "@/api/User/registerUser";
+// /** api */
+// import { registerUser } from "@/api/User/registerUser";
 
-/** interfaces */
-import { RegisterEmployee } from "@/interfaces/RegisterEmployee";
+// /** interfaces */
+// import { RegisterEmployee } from "@/interfaces/RegisterEmployee";
 import { Field, Form, Formik } from "formik";
-import { fetchDepartmentsList } from "@/api/User/fetchDepartmentList";
-import { fetchRoleList } from "@/api/User/fetchRoleList";
-import { CiCirclePlus } from "react-icons/ci";
+// import { fetchDepartmentsList } from "@/api/User/fetchDepartmentList";
+// import { fetchRoleList } from "@/api/User/fetchRoleList";
+// import { CiCirclePlus } from "react-icons/ci";
 import { CreateCategory } from "@/api/inventory/CreateCategory";
 
 export default function AddCategory() {
@@ -45,33 +40,33 @@ export default function AddCategory() {
 
   // departments
 
-  const {
-    isLoading: DisLoading,
-    error: Derror,
-    data: departmentList,
-  } = useQuery({
-    queryKey: ["departments"],
-    queryFn: fetchDepartmentsList,
-  });
+  // const {
+  //   isLoading: DisLoading,
+  //   error: Derror,
+  //   data: departmentList,
+  // } = useQuery({
+  //   queryKey: ["departments"],
+  //   queryFn: fetchDepartmentsList,
+  // });
 
   // roles
-  const { data: RoleList } = useQuery({
-    queryKey: ["roles"],
-    queryFn: fetchRoleList,
-  });
+  // const { data: RoleList } = useQuery({
+  //   queryKey: ["roles"],
+  //   queryFn: fetchRoleList,
+  // });
 
-  if (DisLoading) return <div>Loading...</div>;
-  if (Derror instanceof Error)
-    return <div>An error has occurred: {Derror.message}</div>;
+  // if (DisLoading) return <div>Loading...</div>;
+  // if (Derror instanceof Error)
+  //   return <div>An error has occurred: {Derror.message}</div>;
 
   return (
     <>
       <div className="flex justify-start mb-4">
         <button
-          className="btn btn-info"
+          className="btn bg-blue-500 text-white uppercase"
           onClick={() => setShowRegisterModal(true)}
         >
-          <CiCirclePlus className="w-6 h-6 btn-info" />
+          {/* <CiCirclePlus className="w-6 h-6 btn-info" /> */}
           Add Category
         </button>
       </div>
@@ -79,8 +74,8 @@ export default function AddCategory() {
         {/* Registration Modal */}
         {showRegisterModal && (
           <dialog open className="modal backdrop-blur-sm">
-            <div className="modal-box w-11/12 max-w-7xl dark:bg-gray-dark ">
-              <h3 className="font-bold text-lg">Register category</h3>
+            <div className="modal-box w-11/12 max-w-md dark:bg-gray-dark ">
+              <h3 className="font-bold text-lg text-center">Add category</h3>
               <Formik
                 initialValues={{
                   category: "",
@@ -112,14 +107,20 @@ export default function AddCategory() {
                   </div>
 
                   <div className="modal-action">
-                    <button type="submit" className="btn">
+                    {/* <button type="submit" className="btn">
                       Submit
-                    </button>
+                    </button> */}
                     <button
-                      className="btn"
+                      className="btn bg-gray-200 uppercase text-gray-700 px-6 py-2 rounded-md hover:bg-gray-300 transition-colors"
                       onClick={() => setShowRegisterModal(false)}
                     >
                       Close
+                    </button>
+                    <button
+                      type="submit"
+                      className="btn bg-blue-500 uppercase text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-colors"
+                    >
+                      Submit
                     </button>
                   </div>
                 </Form>

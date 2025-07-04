@@ -1,12 +1,13 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+// import { useQuery } from "@tanstack/react-query";
 /**state */
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 
 /** api */
-import { FetchInventories, Inventories } from "@/api/inventory/Inventory";
+// import { FetchInventories, Inventories } from "@/api/inventory/Inventory";
 import InventoryCard from "./_components/Card";
+// import ServerError from "@/components/Error/ServerError";
 
 /** components */
 
@@ -16,15 +17,14 @@ export default function Inventory() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const { isLoading, error, data } = useQuery<Inventories[]>({
-    queryKey: ["inventory"],
-    queryFn: FetchInventories,
-  });
+  // const { isLoading, error, data } = useQuery<Inventories[]>({
+  //   queryKey: ["inventory"],
+  //   queryFn: FetchInventories,
+  // });
 
-  if (isLoading) return <div>Loading...</div>;
+  // if (isLoading) return <div>Loading...</div>;
 
-  if (error instanceof Error)
-    return <div>An error has occurred: {error.message}</div>;
+  // if (error instanceof Error) return <ServerError />;
 
   return (
     <div className="overflow-x-auto">
